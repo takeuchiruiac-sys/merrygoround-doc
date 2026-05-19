@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>メリーゴーランド V4 — 正式設計図</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Noto+Sans+JP:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f4ed;
+    --bg-2: #efebe0;
+    --ink: #1a1a1a;
+    --ink-soft: #404040;
+    --muted: #767066;
+    --line: #d6d0c0;
+    --line-soft: #e6e0d0;
+    --accent: #b04a3a;
+    --accent-soft: #d8b4a8;
+    --ok: #4a7a4a;
+    --warn: #a67a2a;
+
+    --serif: 'Noto Serif JP', serif;
+    --sans: 'Noto Sans JP', sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+
+    --maxw: 1080px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-weight: 300;
+    line-height: 1.75;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(rgba(0,0,0,0.025) 1px, transparent 1px);
+    background-size: 3px 3px;
+    opacity: 0.5;
+    z-index: 1;
+  }
+
+  .wrap {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 0 40px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ===== Header ===== */
+  header {
+    padding: 80px 0 60px;
+    border-bottom: 1px solid var(--line);
+  }
+  .stamp {
+    display: inline-block;
+    border: 1.5px solid var(--accent);
+    color: var(--accent);
+    padding: 4px 12px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    margin-bottom: 28px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(36px, 5.5vw, 56px);
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    margin: 0 0 12px;
+  }
+  h1 .num {
+    font-family: var(--mono);
+    color: var(--accent);
+    font-size: 0.5em;
+    vertical-align: super;
+    margin-right: 8px;
+    font-weight: 500;
+  }
+  .subtitle {
+    font-family: var(--serif);
+    color: var(--muted);
+    font-size: 15px;
+    letter-spacing: 0.15em;
+    margin: 0;
+  }
+  .meta {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+    margin-top: 36px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+  .meta span strong {
+    color: var(--ink);
+    font-weight: 500;
+    margin-left: 6px;
+  }
+  .revchip {
+    display: inline-block;
+    margin-left: 12px;
+    padding: 2px 8px;
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    vertical-align: middle;
+  }
+
+  /* ===== Specs ===== */
+  .specs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    margin: 0;
+    padding: 32px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .spec {
+    padding: 0 24px;
+    border-left: 1px solid var(--line-soft);
+  }
+  .spec:first-child { border-left: 0; padding-left: 0; }
+  .spec-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .spec-value {
+    font-family: var(--serif);
+    font-size: 28px;
+    line-height: 1;
+    font-weight: 300;
+  }
+  .spec-unit {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: 4px;
+  }
+
+  /* ===== Section ===== */
+  section {
+    padding: 80px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  section:last-of-type { border-bottom: 0; }
+  .sec-head {
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+    margin-bottom: 48px;
+  }
+  .sec-num {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+  }
+  h2 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 30px;
+    letter-spacing: 0.04em;
+    margin: 0;
+    flex: 1;
+  }
+  .sec-en {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+  }
+  p { margin: 0 0 1em; max-width: 64ch; }
+
+  /* ===== 3D model frame ===== */
+  .model-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    background: #0f1419;
+    border: 1px solid var(--line);
+    overflow: hidden;
+  }
+  .model-frame iframe {
+    width: 100%; height: 100%;
+    border: 0; display: block;
+  }
+  .model-caption {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-top: 12px;
+    text-transform: uppercase;
+  }
+
+  /* ===== Structure ===== */
+  .structure {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 56px;
+    align-items: start;
+  }
+  .layers-svg { width: 100%; height: auto; display: block; }
+  .layer-list { list-style: none; padding: 0; margin: 0; }
+  .layer-list li {
+    padding: 18px 0;
+    border-top: 1px solid var(--line-soft);
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: 16px;
+  }
+  .layer-list li:last-child { border-bottom: 1px solid var(--line-soft); }
+  .layer-list .tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    padding-top: 2px;
+  }
+  .layer-list .name {
+    font-family: var(--serif);
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+  .layer-list .desc {
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+  }
+  .v4-mark {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    vertical-align: 2px;
+    font-weight: 500;
+  }
+
+  /* ===== Decisions ===== */
+  .decisions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+  .decision {
+    border-top: 2px solid var(--ink);
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  .dec-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 14px;
+  }
+  .dec-num {
+    font-family: var(--mono);
+    font-size: 24px;
+    color: var(--accent);
+    font-weight: 500;
+    line-height: 1;
+  }
+  .dec-status {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--ok);
+    background: rgba(74,122,74,0.08);
+    border: 1px solid rgba(74,122,74,0.3);
+    padding: 3px 8px;
+    text-transform: uppercase;
+  }
+  .decision h3 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 17px;
+    margin: 0 0 16px;
+    letter-spacing: 0.02em;
+  }
+  .dec-prob, .dec-fix {
+    font-size: 12.5px;
+    line-height: 1.75;
+    margin: 0 0 14px;
+    color: var(--ink-soft);
+  }
+  .dec-fix { margin-bottom: 0; }
+  .dec-prob strong, .dec-fix strong {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    margin-right: 8px;
+    vertical-align: 1px;
+    font-weight: 500;
+  }
+  .dec-fix strong { color: var(--accent); }
+
+  /* ===== Parts table ===== */
+  .table-wrap { overflow-x: auto; margin: 0 -8px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 580px;
+  }
+  thead th {
+    font-family: var(--mono);
+    font-weight: 500;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-align: left;
+    color: var(--muted);
+    padding: 12px 8px;
+    border-bottom: 1.5px solid var(--ink);
+  }
+  thead th.right, tbody td.right { text-align: right; font-variant-numeric: tabular-nums; }
+  thead th.center, tbody td.center { text-align: center; }
+  tbody td {
+    padding: 14px 8px;
+    border-bottom: 1px solid var(--line-soft);
+    vertical-align: top;
+  }
+  tbody td .pn {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+  tbody td .partname {
+    font-family: var(--serif);
+    font-size: 15px;
+    margin-bottom: 3px;
+  }
+  tbody td .partnote {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+  tbody td.qty {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--ink);
+  }
+  tbody td.price { font-family: var(--mono); font-size: 13px; }
+  tbody td.zero { color: var(--ok); }
+  .borrowed-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--ok);
+    background: rgba(74,122,74,0.08);
+    border: 1px solid rgba(74,122,74,0.3);
+    padding: 1px 6px;
+    margin-left: 6px;
+    vertical-align: 1px;
+  }
+  .new-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    color: #fff;
+    background: var(--accent);
+    padding: 1px 6px;
+    margin-left: 6px;
+    vertical-align: 1px;
+  }
+  .cat-row td {
+    padding-top: 32px;
+    padding-bottom: 8px;
+    border-bottom: 0;
+  }
+  .cat-row:first-child td { padding-top: 0; }
+  .cat-row .cat-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  tfoot td {
+    padding: 18px 8px;
+    border-top: 1.5px solid var(--ink);
+    border-bottom: 0;
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+
+  /* ===== Cost ===== */
+  .cost-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .cost-cell {
+    padding: 24px;
+    border-right: 1px solid var(--line-soft);
+    border-bottom: 1px solid var(--line-soft);
+    position: relative;
+  }
+  .cost-cell:nth-child(2n) { border-right: 0; }
+  .cost-cell:nth-last-child(-n+2) { border-bottom: 0; }
+  .cost-cat {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .cost-amount {
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 300;
+  }
+  .cost-amount.borrowed { color: var(--ok); }
+  .cost-amount .yen {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--muted);
+    margin-right: 4px;
+    vertical-align: 4px;
+  }
+  .cost-amount.borrowed .yen { color: var(--ok); }
+  .cost-detail {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+    line-height: 1.6;
+  }
+  .cost-was {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    text-decoration: line-through;
+    opacity: 0.7;
+  }
+
+  .total-block {
+    margin-top: 32px;
+    padding: 28px 32px;
+    background: var(--bg-2);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .total-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .total-val {
+    font-family: var(--serif);
+    font-size: 40px;
+    font-weight: 300;
+    letter-spacing: 0.02em;
+  }
+  .total-val .yen {
+    font-family: var(--mono);
+    font-size: 16px;
+    color: var(--muted);
+    margin-right: 6px;
+    vertical-align: 8px;
+  }
+  .total-was {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--muted);
+    margin-left: 18px;
+    text-decoration: line-through;
+    vertical-align: 6px;
+  }
+  .total-saved {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ok);
+    letter-spacing: 0.08em;
+    margin-left: 12px;
+    vertical-align: 8px;
+    background: rgba(74,122,74,0.08);
+    border: 1px solid rgba(74,122,74,0.3);
+    padding: 3px 8px;
+  }
+  .total-note {
+    font-size: 11px;
+    color: var(--muted);
+    flex-basis: 100%;
+    line-height: 1.6;
+    margin-top: 4px;
+  }
+
+  /* ===== Steps ===== */
+  .steps { list-style: none; padding: 0; margin: 0; counter-reset: stepc; }
+  .steps li {
+    counter-increment: stepc;
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 24px;
+    padding: 28px 0;
+    border-top: 1px solid var(--line-soft);
+  }
+  .steps li:last-child { border-bottom: 1px solid var(--line-soft); }
+  .steps li::before {
+    content: "STEP " counter(stepc, decimal-leading-zero);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    padding-top: 6px;
+  }
+  .step-title {
+    font-family: var(--serif);
+    font-size: 18px;
+    margin: 0 0 10px;
+    font-weight: 400;
+  }
+  .step-body { font-size: 14px; line-height: 1.8; color: var(--ink-soft); }
+  .step-body ul { padding-left: 18px; margin: 6px 0 0; }
+  .step-body li { padding: 2px 0; }
+  .step-meta {
+    display: inline-block;
+    margin-top: 10px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    padding: 3px 8px;
+    border: 1px solid var(--line);
+  }
+
+  /* ===== Notes ===== */
+  .notes {
+    background: var(--bg-2);
+    padding: 32px;
+    border-left: 3px solid var(--accent);
+  }
+  .notes h3 {
+    font-family: var(--serif);
+    font-size: 16px;
+    margin: 0 0 16px;
+    font-weight: 500;
+  }
+  .notes ul { padding-left: 20px; margin: 0; }
+  .notes li { padding: 6px 0; font-size: 13px; line-height: 1.7; }
+
+  /* ===== Footer ===== */
+  footer {
+    padding: 60px 0 80px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+  }
+  footer .sig {
+    display: inline-block;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 6px 14px;
+    margin-bottom: 16px;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 720px) {
+    .wrap { padding: 0 24px; }
+    header { padding: 56px 0 44px; }
+    section { padding: 56px 0; }
+    .specs { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    .spec { border-left: 0; padding: 0; padding-bottom: 16px; }
+    .structure { grid-template-columns: 1fr; gap: 40px; }
+    .decisions { grid-template-columns: 1fr; gap: 36px; }
+    .cost-grid { grid-template-columns: 1fr; }
+    .cost-cell { border-right: 0; }
+    .cost-cell:nth-last-child(-n+2) { border-bottom: 1px solid var(--line-soft); }
+    .cost-cell:last-child { border-bottom: 0; }
+    .steps li { grid-template-columns: 1fr; gap: 8px; }
+    .meta { gap: 20px; }
+    h2 { font-size: 24px; }
+    .total-val { font-size: 32px; }
+    .total-was, .total-saved { display: inline-block; margin-left: 0; margin-top: 8px; vertical-align: baseline; }
+    .cost-was { position: static; display: block; margin-bottom: 6px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="wrap">
+  <div class="stamp">DOCUMENT — DRAWING 001 <span class="revchip">REV 4</span></div>
+  <h1><span class="num">V4</span>メリーゴーランド</h1>
+  <p class="subtitle">手動式・人力回転式 ／ 文化祭企画 正式設計図</p>
+  <div class="meta">
+    <span>REV<strong>4.0</strong></span>
+    <span>SCALE<strong>1 : 25</strong></span>
+    <span>SHEET<strong>1 / 1</strong></span>
+    <span>DATE<strong>2026.05</strong></span>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="specs">
+    <div class="spec">
+      <div class="spec-label">Diameter</div>
+      <div class="spec-value">4.00<span class="spec-unit">m</span></div>
+    </div>
+    <div class="spec">
+      <div class="spec-label">Height</div>
+      <div class="spec-value">2.75<span class="spec-unit">m</span></div>
+    </div>
+    <div class="spec">
+      <div class="spec-label">Riders</div>
+      <div class="spec-value">4<span class="spec-unit">horses</span></div>
+    </div>
+    <div class="spec">
+      <div class="spec-label">Drive</div>
+      <div class="spec-value">2<span class="spec-unit">人力</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== §01 3Dモデル ========== -->
+<section class="wrap">
+  <div class="sec-head">
+    <span class="sec-num">§ 01</span>
+    <h2>3Dモデル</h2>
+    <span class="sec-en">INTERACTIVE PREVIEW</span>
+  </div>
+  <p>V4 修正版のインタラクティブモデル。ドラッグで視点回転、スクロール（モバイルはピンチ）でズーム。「<strong>骨組み表示</strong>」ボタンで L3 ワゴンホイール骨組みとポール止め輪を視認できる。</p>
+  <div class="model-frame">
+    <iframe src="model_v4.html" title="メリーゴーランド V4 3Dモデル"></iframe>
+  </div>
+  <div class="model-caption">
+    <span>FIG. 01 — V4 ISOMETRIC, RENDERED</span>
+    <span>SOURCE: model_v4.html</span>
+  </div>
+</section>
+
+<!-- ========== §02 構造 ========== -->
+<section class="wrap">
+  <div class="sec-head">
+    <span class="sec-num">§ 02</span>
+    <h2>構造</h2>
+    <span class="sec-en">LAYER COMPOSITION</span>
+  </div>
+
+  <div class="structure">
+    <svg class="layers-svg" viewBox="0 0 400 540" xmlns="http://www.w3.org/2000/svg" aria-label="構造側面図 V4">
+      <defs>
+        <pattern id="hatch" patternUnits="userSpaceOnUse" width="4" height="4" patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="4" stroke="#1a1a1a" stroke-width="0.5"/>
+        </pattern>
+      </defs>
+
+      <line x1="20" y1="510" x2="380" y2="510" stroke="#1a1a1a" stroke-width="1"/>
+      <g stroke="#1a1a1a" stroke-width="0.5">
+        <line x1="30" y1="510" x2="22" y2="520"/>
+        <line x1="60" y1="510" x2="52" y2="520"/>
+        <line x1="90" y1="510" x2="82" y2="520"/>
+        <line x1="120" y1="510" x2="112" y2="520"/>
+        <line x1="150" y1="510" x2="142" y2="520"/>
+        <line x1="180" y1="510" x2="172" y2="520"/>
+        <line x1="210" y1="510" x2="202" y2="520"/>
+        <line x1="240" y1="510" x2="232" y2="520"/>
+        <line x1="270" y1="510" x2="262" y2="520"/>
+        <line x1="300" y1="510" x2="292" y2="520"/>
+        <line x1="330" y1="510" x2="322" y2="520"/>
+        <line x1="360" y1="510" x2="352" y2="520"/>
+      </g>
+
+      <path d="M 120 502 Q 135 488 150 502 T 180 502 T 210 502 T 240 502 T 270 502" fill="none" stroke="#b04a3a" stroke-width="1.4"/>
+      <text x="295" y="498" font-family="JetBrains Mono, monospace" font-size="8" fill="#767066" letter-spacing="1">WAVY RAIL</text>
+
+      <line x1="40" y1="478" x2="360" y2="478" stroke="#1a1a1a" stroke-width="2.5"/>
+      <text x="295" y="473" font-family="JetBrains Mono, monospace" font-size="8" fill="#767066" letter-spacing="1">L1 — 下井桁</text>
+
+      <rect x="40" y="450" width="320" height="6" fill="#d2a06a" stroke="#1a1a1a" stroke-width="0.6"/>
+      <text x="295" y="445" font-family="JetBrains Mono, monospace" font-size="8" fill="#767066" letter-spacing="1">L2 — 下板</text>
+
+      <line x1="200" y1="100" x2="200" y2="510" stroke="#1a1a1a" stroke-width="1.6"/>
+      <circle cx="200" cy="100" r="3" fill="#1a1a1a"/>
+
+      <line x1="120" y1="190" x2="120" y2="498" stroke="#1a1a1a" stroke-width="1"/>
+      <line x1="280" y1="190" x2="280" y2="498" stroke="#1a1a1a" stroke-width="1"/>
+
+      <g>
+        <rect x="100" y="330" width="40" height="22" fill="none" stroke="#1a1a1a" stroke-width="0.8"/>
+        <text x="120" y="345" font-family="Noto Serif JP, serif" font-size="9" fill="#1a1a1a" text-anchor="middle">馬</text>
+      </g>
+      <g>
+        <rect x="260" y="330" width="40" height="22" fill="none" stroke="#1a1a1a" stroke-width="0.8"/>
+        <text x="280" y="345" font-family="Noto Serif JP, serif" font-size="9" fill="#1a1a1a" text-anchor="middle">馬</text>
+      </g>
+
+      <circle cx="120" cy="500" r="4" fill="none" stroke="#1a1a1a" stroke-width="0.8"/>
+      <circle cx="280" cy="500" r="4" fill="none" stroke="#1a1a1a" stroke-width="0.8"/>
+
+      <rect x="65" y="465" width="4" height="40" fill="url(#hatch)"/>
+      <rect x="331" y="465" width="4" height="40" fill="url(#hatch)"/>
+      <circle cx="67" cy="508" r="2" fill="none" stroke="#1a1a1a" stroke-width="0.6"/>
+      <circle cx="333" cy="508" r="2" fill="none" stroke="#1a1a1a" stroke-width="0.6"/>
+
+      <!-- L3: skeletal (dashed line) -->
+      <line x1="40" y1="193" x2="360" y2="193" stroke="#8a6a4a" stroke-width="2" stroke-dasharray="10 5"/>
+      <text x="280" y="188" font-family="JetBrains Mono, monospace" font-size="8" fill="#b04a3a" letter-spacing="1">L3 — 上枠（骨組み）</text>
+
+      <!-- Stop collars on poles -->
+      <rect x="115" y="187" width="10" height="4" fill="#1a1a1a"/>
+      <rect x="275" y="187" width="10" height="4" fill="#1a1a1a"/>
+      <text x="138" y="180" font-family="JetBrains Mono, monospace" font-size="7" fill="#b04a3a" letter-spacing="0.5">止め輪</text>
+      <line x1="136" y1="181" x2="126" y2="188" stroke="#b04a3a" stroke-width="0.4"/>
+
+      <!-- L4 removed marker -->
+      <text x="20" y="160" font-family="JetBrains Mono, monospace" font-size="8" fill="#b04a3a" letter-spacing="1" font-style="italic">L4 — REMOVED</text>
+      <line x1="100" y1="158" x2="300" y2="158" stroke="#b04a3a" stroke-width="0.5" stroke-dasharray="3 3" opacity="0.4"/>
+
+      <line x1="80" y1="120" x2="80" y2="450" stroke="#1a1a1a" stroke-width="0.7" stroke-dasharray="2 2"/>
+      <line x1="320" y1="120" x2="320" y2="450" stroke="#1a1a1a" stroke-width="0.7" stroke-dasharray="2 2"/>
+
+      <polygon points="80,120 320,120 200,40" fill="#b04a3a" fill-opacity="0.15" stroke="#1a1a1a" stroke-width="1"/>
+      <line x1="80" y1="120" x2="320" y2="120" stroke="#1a1a1a" stroke-width="1.5"/>
+      <line x1="160" y1="120" x2="200" y2="40" stroke="#1a1a1a" stroke-width="0.5"/>
+      <line x1="240" y1="120" x2="200" y2="40" stroke="#1a1a1a" stroke-width="0.5"/>
+      <circle cx="200" cy="36" r="4" fill="#b04a3a"/>
+      <text x="295" y="80" font-family="JetBrains Mono, monospace" font-size="8" fill="#767066" letter-spacing="1">ROOF</text>
+
+      <g font-family="JetBrains Mono, monospace" font-size="9" fill="#1a1a1a">
+        <line x1="22" y1="40" x2="22" y2="500" stroke="#b04a3a" stroke-width="0.6"/>
+        <line x1="18" y1="40" x2="26" y2="40" stroke="#b04a3a" stroke-width="0.6"/>
+        <line x1="18" y1="500" x2="26" y2="500" stroke="#b04a3a" stroke-width="0.6"/>
+        <text x="14" y="270" fill="#b04a3a" transform="rotate(-90 14 270)" text-anchor="middle">2.75 m</text>
+
+        <line x1="40" y1="528" x2="360" y2="528" stroke="#b04a3a" stroke-width="0.6"/>
+        <line x1="40" y1="524" x2="40" y2="532" stroke="#b04a3a" stroke-width="0.6"/>
+        <line x1="360" y1="524" x2="360" y2="532" stroke="#b04a3a" stroke-width="0.6"/>
+        <text x="200" y="540" fill="#b04a3a" text-anchor="middle">4.00 m</text>
+      </g>
+    </svg>
+
+    <ul class="layer-list">
+      <li>
+        <span class="tag">RAIL</span>
+        <div>
+          <div class="name">波型レール</div>
+          <div class="desc">半径 0.84–1.16 m の円環状木製レール。1周に6つの波（±5 cm）。ポール下端のキャスターが転がって馬を上下に揺らす。</div>
+        </div>
+      </li>
+      <li>
+        <span class="tag">L1</span>
+        <div>
+          <div class="name">下井桁 — 鉄パイプ ＋字</div>
+          <div class="desc">4 m 鉄パイプを＋字に組み、地面と平行に固定。中央にフランジで中心軸（2.5 m）を立てる。</div>
+        </div>
+      </li>
+      <li>
+        <span class="tag">L2</span>
+        <div>
+          <div class="name">下板 — 直径 4 m 円形ベニヤ</div>
+          <div class="desc">中央＋外周4点に貫通穴を加工。各ポール穴に塩ビ短管ブッシュを打ち込み、ポールの摺動摩擦を低減。</div>
+        </div>
+      </li>
+      <li>
+        <span class="tag">POLE</span>
+        <div>
+          <div class="name">馬吊りポール × 4 本<span class="v4-mark">V4</span></div>
+          <div class="desc">2 m 鉄パイプ。下端にキャスター、中央に馬を結束。L3 のすぐ上に <strong>止め輪</strong> を装着し、波の谷で L3 に着座、山で +10 cm 浮上する。</div>
+        </div>
+      </li>
+      <li>
+        <span class="tag">L3</span>
+        <div>
+          <div class="name">上枠 — ワゴンホイール骨組み<span class="v4-mark">V4</span></div>
+          <div class="desc">V3 の合板を撤去し、ハブ＋8スポーク＋外輪リングの骨組みに置換。ポール上端を横方向に拘束し、止め輪の着座面として機能。板1枚分（≈90 kg）の軽量化。</div>
+        </div>
+      </li>
+      <li>
+        <span class="tag">ROOF</span>
+        <div>
+          <div class="name">屋根 — 円錐</div>
+          <div class="desc">L2 から立つ4本の支柱で屋根のフチを支持。赤白8分割の円錐型、頂点に金色の飾り。屋根支柱は L3 の外輪リングにも横ブラケットで連結する。</div>
+        </div>
+      </li>
+      <li>
+        <span class="tag">SUP</span>
+        <div>
+          <div class="name">外周支柱 × 8 本</div>
+          <div class="desc">L2 の底面を支える木製角材＋キャスター。床面の凹凸を吸収し、回転を安定させる。</div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ========== §03 設計判断 ========== -->
+<section class="wrap">
+  <div class="sec-head">
+    <span class="sec-num">§ 03</span>
+    <h2>設計判断</h2>
+    <span class="sec-en">ENGINEERING DECISIONS</span>
+  </div>
+  <p>V3 初稿には機械的矛盾が一点あり、構造的にも最適化の余地があった。V4 では下記の3点を修正している。</p>
+
+  <div class="decisions">
+    <div class="decision">
+      <div class="dec-head">
+        <div class="dec-num">01</div>
+        <div class="dec-status">矛盾解消</div>
+      </div>
+      <h3>L4井桁を撤去</h3>
+      <p class="dec-prob"><strong>PROBLEM</strong>「ポール上端を L4 にクランプ固定」と「ポールが L2・L3 に対して上下スライド」は両立できない。さらに4本のポールはそれぞれ別の波位置にあるため、L4 は4つの異なる高さに同時に存在できず、過剰拘束となる。</p>
+      <p class="dec-fix"><strong>SOLUTION</strong>L4 井桁そのものを撤去。屋根は L2 から立つ4本の支柱で支持するため、L4 は構造的に不要だった。クランプ・パイプ・フランジを削減できる副次効果も。</p>
+    </div>
+
+    <div class="decision">
+      <div class="dec-head">
+        <div class="dec-num">02</div>
+        <div class="dec-status">−90 KG</div>
+      </div>
+      <h3>L3 をワゴンホイール化</h3>
+      <p class="dec-prob"><strong>PROBLEM</strong>径 4 m 合板1枚で約 90 kg。L2 + L3 で 180 kg は人力回転には重い。さらに L3 は荷重を受けない（人が乗らない）にもかかわらず L2 と同質量だった。</p>
+      <p class="dec-fix"><strong>SOLUTION</strong>L3 から合板を撤去し、中央ハブ＋8本のスポーク＋外輪リングのワゴンホイール構造に置換。約 −90 kg の軽量化。ポール上端の横方向拘束という本来機能は維持。</p>
+    </div>
+
+    <div class="decision">
+      <div class="dec-head">
+        <div class="dec-num">03</div>
+        <div class="dec-status">機構追加</div>
+      </div>
+      <h3>ポールに止め輪を追加</h3>
+      <p class="dec-prob"><strong>PROBLEM</strong>L4 撤去後、ポールが上方向に抜け出す危険がある。同時に、波の谷でポールが過剰に下降して馬が床に近づきすぎないようにする必要もある。</p>
+      <p class="dec-fix"><strong>SOLUTION</strong>各ポールに止め輪（D-07）を装着し、L3 のすぐ上に固定。波の谷では止め輪が L3 に着座してポール重量を支え、山では +10 cm 浮上する。「自由スライド・脱落防止・上下動」を同時成立。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========== §04 部品表 ========== -->
+<section class="wrap">
+  <div class="sec-head">
+    <span class="sec-num">§ 04</span>
+    <h2>部品表</h2>
+    <span class="sec-en">BILL OF MATERIALS</span>
+  </div>
+  <p>V4 の物理部品をすべて列挙。鉄パイプ（カテゴリ A）とキャスター（カテゴリ C）は<span class="borrowed-tag">借用 ¥0</span>として計上。新規部品（D-07 止め輪、D-08 塩ビブッシュ、B-04 角材）は<span class="new-tag">V4 NEW</span>でマーキング。</p>
+
+  <div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th style="width:64px;">No.</th>
+        <th>部品</th>
+        <th>規格・寸法</th>
+        <th class="center" style="width:60px;">数量</th>
+        <th class="right" style="width:120px;">単価 ¥</th>
+        <th class="right" style="width:120px;">小計 ¥</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="cat-row"><td colspan="6"><span class="cat-label">A · 鉄パイプ（単管）</span><span class="borrowed-tag">借用 ¥0</span></td></tr>
+      <tr>
+        <td><span class="pn">A-01</span></td>
+        <td><div class="partname">鉄パイプ 4 m</div><div class="partnote">単管 φ48.6 × 1.8 mm / L1 井桁用（L4撤去で V3比 8 → 4 本）</div></td>
+        <td><span class="pn">L=4000</span></td>
+        <td class="center qty">4</td>
+        <td class="right price zero">0</td>
+        <td class="right price zero">0</td>
+      </tr>
+      <tr>
+        <td><span class="pn">A-02</span></td>
+        <td><div class="partname">鉄パイプ 2 m</div><div class="partnote">単管 φ48.6 × 1.8 mm / 馬吊りポール</div></td>
+        <td><span class="pn">L=2000</span></td>
+        <td class="center qty">4</td>
+        <td class="right price zero">0</td>
+        <td class="right price zero">0</td>
+      </tr>
+      <tr>
+        <td><span class="pn">A-03</span></td>
+        <td><div class="partname">鉄パイプ 2.5 m</div><div class="partnote">単管 φ48.6 × 1.8 mm / 中心固定軸</div></td>
+        <td><span class="pn">L=2500</span></td>
+        <td class="center qty">1</td>
+        <td class="right price zero">0</td>
+        <td class="right price zero">0</td>
+      </tr>
+      <tr>
+        <td><span class="pn">A-04</span></td>
+        <td><div class="partname">鉄パイプ 2 m（細）</div><div class="partnote">φ32 mm / 屋根支柱 ×4 ＋ 押し棒 T 字 ×2 を切り出し</div></td>
+        <td><span class="pn">L=2000</span></td>
+        <td class="center qty">3</td>
+        <td class="right price zero">0</td>
+        <td class="right price zero">0</td>
+      </tr>
+
+      <tr class="cat-row"><td colspan="6"><span class="cat-label">B · 木材・合板</span></td></tr>
+      <tr>
+        <td><span class="pn">B-01</span></td>
+        <td><div class="partname">構造用合板 12 mm</div><div class="partnote">L2 円形天板 1枚分。1820×910 を継いで径 4 m に切り出す（L3撤去で V3比 16 → 8 枚）</div></td>
+        <td><span class="pn">1820×910×12</span></td>
+        <td class="center qty">8</td>
+        <td class="right price">2,500</td>
+        <td class="right price">20,000</td>
+      </tr>
+      <tr>
+        <td><span class="pn">B-02</span></td>
+        <td><div class="partname">合板 15 mm（波型レール用）</div><div class="partnote">幅 320 mm の円弧を 6 片に切り出し、波の凹凸を成形</div></td>
+        <td><span class="pn">1820×910×15</span></td>
+        <td class="center qty">3</td>
+        <td class="right price">3,400</td>
+        <td class="right price">10,200</td>
+      </tr>
+      <tr>
+        <td><span class="pn">B-03</span></td>
+        <td><div class="partname">角材 55×55 mm</div><div class="partnote">外周支柱（L2 を下から支える）/ 250 mm 長に切断</div></td>
+        <td><span class="pn">55×55×2000</span></td>
+        <td class="center qty">2</td>
+        <td class="right price">900</td>
+        <td class="right price">1,800</td>
+      </tr>
+      <tr>
+        <td><span class="pn">B-04</span></td>
+        <td><div class="partname">角材 30×30 mm<span class="new-tag">V4 NEW</span></div><div class="partnote">L3 ワゴンホイールのスポーク 8本＋外輪リング材</div></td>
+        <td><span class="pn">30×30×2000</span></td>
+        <td class="center qty">2</td>
+        <td class="right price">600</td>
+        <td class="right price">1,200</td>
+      </tr>
+
+      <tr class="cat-row"><td colspan="6"><span class="cat-label">C · キャスター</span><span class="borrowed-tag">借用 ¥0</span></td></tr>
+      <tr>
+        <td><span class="pn">C-01</span></td>
+        <td><div class="partname">プレート付キャスター（固定）</div><div class="partnote">φ100 mm / 馬吊りポール下端 / 波型レール走行用</div></td>
+        <td><span class="pn">φ100, fix</span></td>
+        <td class="center qty">4</td>
+        <td class="right price zero">0</td>
+        <td class="right price zero">0</td>
+      </tr>
+      <tr>
+        <td><span class="pn">C-02</span></td>
+        <td><div class="partname">プレート付キャスター（固定）</div><div class="partnote">φ65 mm / 外周支柱下端 / 床走行用</div></td>
+        <td><span class="pn">φ65, fix</span></td>
+        <td class="center qty">8</td>
+        <td class="right price zero">0</td>
+        <td class="right price zero">0</td>
+      </tr>
+
+      <tr class="cat-row"><td colspan="6"><span class="cat-label">D · 接合金物</span></td></tr>
+      <tr>
+        <td><span class="pn">D-01</span></td>
+        <td><div class="partname">単管クランプ 直交</div><div class="partnote">L1 井桁交差部・ポール固定など（L4 撤去で V3比 24 → 16）</div></td>
+        <td><span class="pn">φ48.6</span></td>
+        <td class="center qty">16</td>
+        <td class="right price">350</td>
+        <td class="right price">5,600</td>
+      </tr>
+      <tr>
+        <td><span class="pn">D-02</span></td>
+        <td><div class="partname">単管クランプ 自在</div><div class="partnote">押し棒・屋根支柱の角度調整用</div></td>
+        <td><span class="pn">φ48.6</span></td>
+        <td class="center qty">8</td>
+        <td class="right price">400</td>
+        <td class="right price">3,200</td>
+      </tr>
+      <tr>
+        <td><span class="pn">D-03</span></td>
+        <td><div class="partname">フランジ金具</div><div class="partnote">中心軸の下端のみ（L4 撤去で上側不要 V3比 2 → 1）</div></td>
+        <td><span class="pn">φ48.6</span></td>
+        <td class="center qty">1</td>
+        <td class="right price">1,200</td>
+        <td class="right price">1,200</td>
+      </tr>
+      <tr>
+        <td><span class="pn">D-04</span></td>
+        <td><div class="partname">U ボルト＋ナット</div><div class="partnote">L2 ベニヤと L1 井桁の締結（V3比 16 → 12）</div></td>
+        <td><span class="pn">φ48.6 用</span></td>
+        <td class="center qty">12</td>
+        <td class="right price">280</td>
+        <td class="right price">3,360</td>
+      </tr>
+      <tr>
+        <td><span class="pn">D-05</span></td>
+        <td><div class="partname">L 字金具（中）</div><div class="partnote">ベニヤ周縁・L3 ワゴンホイール組立・各部の補強</div></td>
+        <td><span class="pn">75 mm</span></td>
+        <td class="center qty">16</td>
+        <td class="right price">150</td>
+        <td class="right price">2,400</td>
+      </tr>
+      <tr>
+        <td><span class="pn">D-06</span></td>
+        <td><div class="partname">金属ハトメ／補強プレート</div><div class="partnote">L2 ベニヤのポール貫通穴の補強</div></td>
+        <td><span class="pn">φ50</span></td>
+        <td class="center qty">8</td>
+        <td class="right price">200</td>
+        <td class="right price">1,600</td>
+      </tr>
+      <tr>
+        <td><span class="pn">D-07</span></td>
+        <td><div class="partname">止め輪（シャフトカラー）<span class="new-tag">V4 NEW</span></div><div class="partnote">ポール脱落防止＋上下動の上限規制。φ48.6 用、止めネジ式</div></td>
+        <td><span class="pn">φ48.6, set screw</span></td>
+        <td class="center qty">4</td>
+        <td class="right price">600</td>
+        <td class="right price">2,400</td>
+      </tr>
+      <tr>
+        <td><span class="pn">D-08</span></td>
+        <td><div class="partname">塩ビ短管 ブッシュ用<span class="new-tag">V4 NEW</span></div><div class="partnote">L2 のポール貫通穴に打ち込み、鉄パイプとの摩擦を低減（VP50 を 40 mm に切断）</div></td>
+        <td><span class="pn">VP50, 40 mm</span></td>
+        <td class="center qty">8</td>
+        <td class="right price">150</td>
+        <td class="right price">1,200</td>
+      </tr>
+
+      <tr class="cat-row"><td colspan="6"><span class="cat-label">E · 屋根・装飾</span></td></tr>
+      <tr>
+        <td><span class="pn">E-01</span></td>
+        <td><div class="partname">屋根布（赤・白）</div><div class="partnote">テント生地 / 8分割ストライプ仕上げ用</div></td>
+        <td><span class="pn">3 m × 1 m</span></td>
+        <td class="center qty">2</td>
+        <td class="right price">2,800</td>
+        <td class="right price">5,600</td>
+      </tr>
+      <tr>
+        <td><span class="pn">E-02</span></td>
+        <td><div class="partname">頂飾ボール（金）</div><div class="partnote">屋根頂部の飾り。発泡スチロール球＋金スプレー塗装で代用可</div></td>
+        <td><span class="pn">φ150</span></td>
+        <td class="center qty">1</td>
+        <td class="right price">800</td>
+        <td class="right price">800</td>
+      </tr>
+      <tr>
+        <td><span class="pn">E-03</span></td>
+        <td><div class="partname">馬（装飾）</div><div class="partnote">スタイロフォーム or 木組み＋塗装 / 自作前提</div></td>
+        <td><span class="pn">L≈900 mm</span></td>
+        <td class="center qty">4</td>
+        <td class="right price">3,000</td>
+        <td class="right price">12,000</td>
+      </tr>
+
+      <tr class="cat-row"><td colspan="6"><span class="cat-label">F · 消耗品</span></td></tr>
+      <tr>
+        <td><span class="pn">F-01</span></td>
+        <td><div class="partname">結束バンド・番線・ボルト・塗料 一式</div><div class="partnote">細部固定および全体仕上げ</div></td>
+        <td><span class="pn">—</span></td>
+        <td class="center qty">1</td>
+        <td class="right price">5,000</td>
+        <td class="right price">5,000</td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="5" style="color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;font-size:11px;">合計 概算 ／ <span style="font-size:10px;">PIPES & CASTERS BORROWED</span></td>
+        <td class="right" style="font-family:var(--serif);font-size:22px;">¥ 77,560</td>
+      </tr>
+    </tfoot>
+  </table>
+  </div>
+</section>
+
+<!-- ========== §05 金額内訳 ========== -->
+<section class="wrap">
+  <div class="sec-head">
+    <span class="sec-num">§ 05</span>
+    <h2>金額内訳</h2>
+    <span class="sec-en">COST BREAKDOWN</span>
+  </div>
+  <p>カテゴリ別の概算。鉄パイプ（A）とキャスター（C）の借用化と、L3 合板撤去（B-01 削減）が大きく効いて、V3 の ¥141,980 から約 45 % 圧縮。</p>
+
+  <div class="cost-grid">
+    <div class="cost-cell">
+      <div class="cost-was">was ¥33,900</div>
+      <div class="cost-cat">A · 鉄パイプ</div>
+      <div class="cost-amount borrowed"><span class="yen">¥</span>0</div>
+      <div class="cost-detail">単管 4 m × 4、2 m × 4、2.5 m × 1、細パイプ × 3 — すべて借用</div>
+    </div>
+    <div class="cost-cell">
+      <div class="cost-was">was ¥52,000</div>
+      <div class="cost-cat">B · 木材・合板</div>
+      <div class="cost-amount"><span class="yen">¥</span>33,200</div>
+      <div class="cost-detail">L2 合板 × 8（L3 撤去で半減）、波型レール用 × 3、外周支柱、L3 スポーク材</div>
+    </div>
+    <div class="cost-cell">
+      <div class="cost-was">was ¥9,600</div>
+      <div class="cost-cat">C · キャスター</div>
+      <div class="cost-amount borrowed"><span class="yen">¥</span>0</div>
+      <div class="cost-detail">φ100 × 4（ポール下）／ φ65 × 8（外周支柱下）— すべて借用</div>
+    </div>
+    <div class="cost-cell">
+      <div class="cost-was">was ¥23,080</div>
+      <div class="cost-cat">D · 接合金物</div>
+      <div class="cost-amount"><span class="yen">¥</span>20,960</div>
+      <div class="cost-detail">L4 撤去で点数減、止め輪・ブッシュを新規追加して相殺</div>
+    </div>
+    <div class="cost-cell">
+      <div class="cost-was">was ¥18,400</div>
+      <div class="cost-cat">E · 屋根・装飾</div>
+      <div class="cost-amount"><span class="yen">¥</span>18,400</div>
+      <div class="cost-detail">テント生地、頂飾、馬 × 4（自作前提）</div>
+    </div>
+    <div class="cost-cell">
+      <div class="cost-was">was ¥5,000</div>
+      <div class="cost-cat">F · 消耗品</div>
+      <div class="cost-amount"><span class="yen">¥</span>5,000</div>
+      <div class="cost-detail">結束バンド、塗料、ボルト、ワッシャーなど一式</div>
+    </div>
+  </div>
+
+  <div class="total-block">
+    <div>
+      <div class="total-label">合計 概算</div>
+      <div class="total-val"><span class="yen">¥</span>77,560<span class="total-was">was ¥141,980</span><span class="total-saved">−¥64,420 / −45 %</span></div>
+    </div>
+    <div class="total-note">※ ホームセンター単価ベース。馬は段ボール・スタイロフォーム自作なら 1 体あたり ¥500 以下も可能。学校備品の合板流用ができれば B カテゴリも大幅圧縮可。</div>
+  </div>
+</section>
+
+<!-- ========== §06 組み立て手順 ========== -->
+<section class="wrap">
+  <div class="sec-head">
+    <span class="sec-num">§ 06</span>
+    <h2>組み立て手順</h2>
+    <span class="sec-en">ASSEMBLY SEQUENCE</span>
+  </div>
+  <p>下から上へ、層ごとに完成させてから次へ進む。中心軸を最初に立てれば、すべての層がそれを基準に位置決めできる。所要時間の目安は 4 〜 6 人で 8 〜 10 時間。<span class="v4-mark" style="margin-left:0;">V4</span> マークの工程が V3 から変更／新設された箇所。</p>
+
+  <ol class="steps">
+    <li>
+      <div>
+        <div class="step-title">設置場所の墨出し</div>
+        <div class="step-body">
+          床に半径 2 m の円と、中心、4 本のポール位置（中心から半径 1 m の 90 度間隔 4 点）をチョークでマーキング。波型レールの内外周（半径 0.84 m と 1.16 m）も併せて描く。
+        </div>
+        <div class="step-meta">所要 30 分</div>
+      </div>
+    </li>
+    <li>
+      <div>
+        <div class="step-title">下井桁（L1）を組む</div>
+        <div class="step-body">
+          借用した 4 m 鉄パイプ 4 本を＋字に配置。X 方向 2 本と Z 方向 2 本がポール直径分だけ離れた「対パイプ」になるよう組む。交差点を直交クランプで本締め、対角に筋交いを 1 本追加して揺れ止め。
+          <ul>
+            <li>使用部品 — A-01 × 4（借用）、D-01 × 8、D-02 × 2</li>
+          </ul>
+        </div>
+        <div class="step-meta">所要 90 分</div>
+      </div>
+    </li>
+    <li>
+      <div>
+        <div class="step-title">中心軸を立てる<span class="v4-mark">V4</span></div>
+        <div class="step-body">
+          L1 中央にフランジ金具を取り付け、2.5 m 鉄パイプを直立させてボルト本締め。垂直水準を必ず確認。V4 では L4 を撤去したため、上端のフランジは不要（軸の上端は自由端、屋根の中央に紐で吊って整える）。
+          <ul>
+            <li>使用部品 — A-03 × 1（借用）、D-03 × 1（下端のみ）</li>
+          </ul>
+        </div>
+        <div class="step-meta">所要 30 分</div>
+      </div>
+    </li>
+    <li>
+      <div>
+        <div class="step-title">波型レールを設置</div>
+        <div class="step-body">
+          B-02 合板から幅 320 mm の円弧 6 片を切り出し、各片を 6 等分（=1 波）の波形に成形。L1 の外周内側、半径 0.84–1.16 m の位置に床面固定（直接ビス止めまたは重し）。波の山と谷の差は ±5 cm。
+          <ul>
+            <li>使用部品 — B-02 × 3</li>
+          </ul>
+        </div>
+        <div class="step-meta">所要 120 分</div>
+      </div>
+    </li>
+    <li>
+      <div>
+        <div class="step-title">下板（L2）を載せる＋ブッシュ取付<span class="v4-mark">V4</span></div>
+        <div class="step-body">
+          径 4 m の円形に切り出した合板（B-01 を継ぎ合わせ加工）に、中央 1 + 外周 4（中心から半径 1 m）の貫通穴を加工。中央穴は中心軸より +10 mm 大きく、外周穴はポール径 +10 mm。<strong>各ポール穴に塩ビ短管ブッシュ（D-08）を打ち込み、鉄パイプとの摩擦を低減</strong>。中心軸を通して井桁に乗せ、U ボルト＋ L 字金具で締結。穴のフチは金属ハトメで補強。
+          <ul>
+            <li>使用部品 — B-01 × 8、D-04 × 8、D-05 × 8、D-06 × 4、<strong>D-08 × 8</strong></li>
+          </ul>
+        </div>
+        <div class="step-meta">所要 150 分</div>
+      </div>
+    </li>
+    <li>
+      <div>
+        <div class="step-title">外周支柱（8 本）を取り付け</div>
+        <div class="step-body">
+          B-03 角材から 250 mm 長を 8 本切り出し、下端にキャスター（C-02、借用）をビス止め。L2 の底面外周（半径 1.65 m の 8 等分位置）にビスで固定。L2 の重量を分散し、回転を安定させる。
+          <ul>
+            <li>使用部品 — B-03 切断分、C-02 × 8（借用）</li>
+          </ul>
+        </div>
+        <div class="step-meta">所要 60 分</div>
+      </div>
+    </li>
+    <li>
+      <div>
+        <div class="step-title">馬吊りポール（4 本）を立てる</div>
+        <div class="step-body">
+          2 m 鉄パイプの下端にプレート付キャスター（C-01、借用）をボルト止め。キャスターを波型レールの上に乗せ、ポールを L2 の塩ビブッシュ穴に通す。ポールは穴に対して上下にスライド可能（=馬の上下動の源）。この時点ではまだ止め輪は付けない。
+          <ul>
+            <li>使用部品 — A-02 × 4（借用）、C-01 × 4（借用）</li>
+          </ul>
+        </div>
+        <div class="step-meta">所要 60 分</div>
+      </div>
+    </li>
+    <li>
+      <div>
+        <div class="step-title">L3 ワゴンホイールを組み立てて被せる<span class="v4-mark">V4</span></div>
+        <div class="step-body">
+          地面で L3 を先に組み立てる：中央ハブ（合板小片）＋ 8 本のスポーク（B-04 角材を 0.95 m に切断、22.5° 間隔）＋ 外輪リング（B-04 を継いで径 4 m に）＋ ポール位置の補強プレート 4 枚。L 字金具で全接合を固定。完成後、4 本のポール上端から差し込みながら降ろし、L3 を高さ 2.00 m まで下げる。中心軸は中央ハブ穴を貫通。
+          <ul>
+            <li>使用部品 — B-04 × 2、D-05 × 8</li>
+          </ul>
+        </div>
+        <div class="step-meta">所要 120 分</div>
+      </div>
+    </li>
+    <li>
+      <div>
+        <div class="step-title">屋根支柱・止め輪・L3 固定<span class="v4-mark">V4</span></div>
+        <div class="step-body">
+          細パイプ（A-04、借用）4 本を、馬と馬の間（45°,135°,225°,315°）に L2 から立てる。屋根支柱の中ほどで L3 外輪リングと水平ブラケット（L 字金具）で連結し、L3 を吊り保持。続けて<strong>各ポールに止め輪（D-07）を装着</strong>：ポールを波の谷位置（最下）まで押し下げた状態で、止め輪を L3 上面に着座するように位置決め、止めネジを本締め。これでポールは「下方向に抜けない／自由スライド／+10 cm 浮上可能」となる。
+          <ul>
+            <li>使用部品 — A-04（屋根支柱分、借用）、<strong>D-07 × 4</strong>、D-02 × 4、D-05 × 4</li>
+          </ul>
+        </div>
+        <div class="step-meta">所要 120 分</div>
+      </div>
+    </li>
+    <li>
+      <div>
+        <div class="step-title">屋根を取り付け</div>
+        <div class="step-body">
+          テント生地（E-01）を 8 分割の赤白ストライプに縫合またはガムテで貼り合わせ、屋根支柱の上端 4 点に被せる。頂部に頂飾ボール（E-02）を取り付け、中心軸の上端から紐で吊って円錐形を整える。
+          <ul>
+            <li>使用部品 — E-01 × 2、E-02 × 1</li>
+          </ul>
+        </div>
+        <div class="step-meta">所要 90 分</div>
+      </div>
+    </li>
+    <li>
+      <div>
+        <div class="step-title">馬と押し棒の取付・最終確認</div>
+        <div class="step-body">
+          各ポールの中央 H = 0.95 m の位置に馬を結束バンド・針金・金具で固定。L2 外周の対角 2 箇所に T 字グリップ付き押し棒（A-04 切り出し分、借用）を取り付け。<strong>試運転時の確認項目</strong>：(a) スタッフが押して全層が一体回転すること、(b) 馬がレールの波で上下に揺れること（止め輪が L3 から離れて再着座する）、(c) ポールの抜けがないこと、(d) 全クランプ・ボルトを再増し締め。
+          <ul>
+            <li>使用部品 — E-03 × 4、A-04（押し棒分、借用）、D-02 × 4、F-01</li>
+          </ul>
+        </div>
+        <div class="step-meta">所要 90 分</div>
+      </div>
+    </li>
+  </ol>
+</section>
+
+<!-- ========== §07 安全・注意 ========== -->
+<section class="wrap">
+  <div class="sec-head">
+    <span class="sec-num">§ 07</span>
+    <h2>安全と注意</h2>
+    <span class="sec-en">SAFETY NOTES</span>
+  </div>
+
+  <div class="notes">
+    <h3>運営前に必ず確認する項目</h3>
+    <ul>
+      <li><strong>荷重</strong>：馬には子供のみ、体重 30 kg 以下を目安。1 馬につき 1 名、4 馬同時最大。総積載荷重は 120 kg 以下を厳守。</li>
+      <li><strong>回転速度</strong>：1 rpm 程度に抑える（外周の周速は約 12.6 m/分 = 歩行よりやや遅い）。速度を上げると遠心力で馬の挙動が不安定化する。</li>
+      <li><strong>クランプ本締め</strong>：全クランプ・ボルトをスパナで本締めしてから初回試運転。試運転後に再度全箇所を増し締め。</li>
+      <li><strong>止め輪のチェック<span class="v4-mark">V4</span></strong>：V4 ではポール脱落防止が止め輪の止めネジに依存している。運営前と運営中の休憩時に必ず増し締めを実施。緩むとポールが上方向に外れる危険あり。</li>
+      <li><strong>馬の固定</strong>：馬は針金 ＋ 結束バンドの二重固定。回転中に脱落しないこと。</li>
+      <li><strong>立入禁止帯</strong>：外周から 0.5 m 外側にコーンとロープで立入禁止帯を設置。回転中のキャスターに足が触れない距離を確保。</li>
+      <li><strong>緊急停止</strong>：押しスタッフは常に押し棒から手を離せば即停止できる位置にいること。慣性で 1 〜 2 秒は回り続けるので余裕を見る。</li>
+      <li><strong>天井クリアランス</strong>：全高 2.75 m、教室天井 3.0 m 想定で +25 cm の余裕。蛍光灯位置と必ず干渉確認。</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="wrap">
+  <div class="sig">DRAWN BY · 文化祭設計班</div>
+  <div>MERRY-GO-ROUND V4 · END OF DOCUMENT</div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>メリーゴーランド V4 - 3Dシミュレーション</title>
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; padding: 0; overflow: hidden; background: #0f1419;
+  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic', sans-serif;
+  color: #e8e8e8; }
+#scene { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: block; touch-action: none; }
+.panel {
+  position: fixed; background: rgba(20, 25, 40, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-radius: 14px;
+  font-size: 13px; line-height: 1.5;
+}
+#info-panel {
+  top: 12px; left: 12px;
+  width: 300px;
+  max-height: calc(100vh - 24px);
+  display: flex; flex-direction: column;
+}
+.panel-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 14px;
+  cursor: pointer; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.panel-header h1 {
+  font-size: 14px; font-weight: 600; margin: 0; letter-spacing: 0.02em;
+}
+.panel-header .v4-badge {
+  font-size: 10px; background: #b04a3a; color: #fff;
+  padding: 2px 6px; border-radius: 3px; margin-left: 6px;
+  font-weight: 500; letter-spacing: 0.1em;
+}
+.toggle-icon {
+  width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; opacity: 0.6;
+  transition: transform 0.25s ease;
+}
+.collapsed .toggle-icon { transform: rotate(-90deg); }
+.panel-body {
+  padding: 0 14px 14px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.collapsed .panel-body { display: none; }
+.stat { display: flex; justify-content: space-between; padding: 3px 0; font-size: 12px; }
+.stat-label { color: #8a92a3; }
+.stat-value { color: #fff; font-variant-numeric: tabular-nums; font-weight: 500; }
+.divider { height: 1px; background: rgba(255,255,255,0.08); margin: 12px 0; }
+.control { margin: 12px 0; }
+.control label { display: block; font-size: 11px; color: #8a92a3; margin-bottom: 6px; }
+.control label .val { float: right; color: #e8e8e8; font-weight: 500; }
+.control input[type="range"] {
+  width: 100%; -webkit-appearance: none; appearance: none; background: transparent; outline: none;
+  height: 28px;
+}
+.control input[type="range"]::-webkit-slider-runnable-track {
+  height: 3px; background: rgba(255,255,255,0.12); border-radius: 2px;
+}
+.control input[type="range"]::-moz-range-track {
+  height: 3px; background: rgba(255,255,255,0.12); border-radius: 2px;
+}
+.control input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+  background: #6b9eff; margin-top: -7.5px; cursor: pointer; border: none;
+}
+.control input[type="range"]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #6b9eff; cursor: pointer; border: none;
+}
+.btn-row { display: flex; gap: 6px; margin-top: 14px; }
+button {
+  flex: 1; background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.12); color: #d4d4d4;
+  padding: 9px 6px; border-radius: 8px; cursor: pointer;
+  font-size: 11px; font-family: inherit; transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+button:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); }
+button:active { background: rgba(255,255,255,0.16); }
+button.active { background: rgba(107, 158, 255, 0.22); border-color: rgba(107, 158, 255, 0.7); color: #fff; }
+.note {
+  margin-top: 14px; padding: 9px 10px;
+  background: rgba(176, 74, 58, 0.09);
+  border-left: 2px solid rgba(176, 74, 58, 0.55);
+  font-size: 11px; line-height: 1.5; color: #c8c4b8;
+  border-radius: 0 4px 4px 0;
+}
+.note .label { color: #e07a6a; font-weight: 600; font-size: 10px; letter-spacing: 0.1em; display: block; margin-bottom: 4px; }
+#legend-panel {
+  bottom: 12px; left: 12px; max-width: 340px;
+  font-size: 11px; opacity: 0.6;
+  padding: 8px 12px;
+  pointer-events: none;
+}
+#loading {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  color: #8a92a3; font-size: 13px;
+}
+@media (max-width: 640px) {
+  #info-panel {
+    width: calc(100vw - 16px); left: 8px; top: 8px;
+    max-height: calc(100vh - 16px);
+  }
+  .panel-header { padding: 14px; }
+  .panel-header h1 { font-size: 15px; }
+  .toggle-icon { width: 28px; height: 28px; font-size: 13px; opacity: 0.75; }
+  .panel-body { padding: 0 14px 16px; }
+  .stat { font-size: 13px; padding: 4px 0; }
+  .control label { font-size: 12px; }
+  .control input[type="range"] { height: 32px; }
+  button { padding: 11px 6px; font-size: 12px; }
+  .btn-row { flex-wrap: wrap; gap: 8px; }
+  .btn-row button { flex: 1 1 calc(50% - 4px); min-width: 0; }
+  #legend-panel { font-size: 10px; bottom: 8px; left: 8px; max-width: calc(100vw - 16px); padding: 6px 10px; }
+}
+</style>
+</head>
+<body>
+<canvas id="scene"></canvas>
+<div id="loading">読み込み中...</div>
+
+<div id="info-panel" class="panel" style="display:none;">
+  <div class="panel-header" id="panel-toggle">
+    <h1>メリーゴーランド<span class="v4-badge">V4</span></h1>
+    <div class="toggle-icon">▼</div>
+  </div>
+  <div class="panel-body">
+    <div class="stat"><span class="stat-label">直径</span><span class="stat-value">4.00 m</span></div>
+    <div class="stat"><span class="stat-label">全高(屋根まで)</span><span class="stat-value">2.75 m</span></div>
+    <div class="stat"><span class="stat-label">天井(3m)クリアランス</span><span class="stat-value" style="color:#7dd3a3;">+0.25 m</span></div>
+    <div class="divider"></div>
+    <div class="stat"><span class="stat-label">回転速度</span><span class="stat-value" id="speed-display">1.0 rpm</span></div>
+    <div class="stat"><span class="stat-label">馬の上下振幅</span><span class="stat-value" id="amp-display">±5 cm</span></div>
+    <div class="stat"><span class="stat-label">波の数 / 1周</span><span class="stat-value" id="count-display">6</span></div>
+
+    <div class="divider"></div>
+
+    <div class="control">
+      <label>回転速度 <span class="val"><span id="speed-val">1.0</span> rpm</span></label>
+      <input type="range" id="speed" min="0" max="5" step="0.1" value="1">
+    </div>
+    <div class="control">
+      <label>波の振幅 <span class="val">±<span id="amp-val">5</span> cm</span></label>
+      <input type="range" id="amp" min="0" max="15" step="0.5" value="5">
+    </div>
+    <div class="control">
+      <label>波の数(1周あたり) <span class="val"><span id="count-val">6</span></span></label>
+      <input type="range" id="count" min="2" max="12" step="1" value="6">
+    </div>
+
+    <div class="btn-row">
+      <button id="btn-room">教室(9×7×3m)</button>
+      <button id="btn-skeleton">骨組み表示</button>
+      <button id="btn-reset">視点リセット</button>
+    </div>
+
+    <div class="note">
+      <span class="label">V4 変更点</span>
+      L4 井桁を撤去。L3 を合板→ワゴンホイール骨組みに置換（−90 kg）。各ポールに止め輪を追加してポール脱落防止・上下動を両立。
+    </div>
+  </div>
+</div>
+
+<div id="legend-panel" class="panel" style="display:none;">
+  ドラッグ: 視点回転 | スクロール/ピンチ: ズーム
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+window.addEventListener('load', function() {
+  if (typeof THREE === 'undefined') {
+    document.getElementById('loading').textContent = 'Three.jsの読み込みに失敗しました';
+    return;
+  }
+
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('info-panel').style.display = '';
+  document.getElementById('legend-panel').style.display = '';
+
+  const infoPanel = document.getElementById('info-panel');
+  document.getElementById('panel-toggle').addEventListener('click', function() {
+    infoPanel.classList.toggle('collapsed');
+  });
+  if (window.innerWidth <= 640) {
+    infoPanel.classList.add('collapsed');
+  }
+
+  const canvas = document.getElementById('scene');
+
+  // ===== Constants =====
+  const WAVE_CENTER_Y = 0.15;
+  const LAYER1_Y      = 0.22;
+  const LAYER2_Y      = 0.34;
+  const LAYER3_Y      = 2.00;   // wagon wheel level (L4 removed in V4)
+  const ROOF_BRIM_Y   = 2.20;
+  const AXIS_BOTTOM_Y = 0.05;
+  const AXIS_HEIGHT   = 2.6;
+  const POLE_LEN      = 2.0;
+  const POLE_RADIUS   = 1.0;
+  const POLE_DIAMETER = 0.048;
+  const HORSE_Y       = 0.95;
+  // Stop collar positioned so it rests on L3 when pole is at wave trough
+  const COLLAR_Y_ON_POLE = LAYER3_Y - (WAVE_CENTER_Y - 0.05); // ≈ 1.90
+
+  // ===== Scene =====
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0f1419);
+  scene.fog = new THREE.Fog(0x0f1419, 18, 48);
+
+  const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+
+  const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.05;
+
+  // ===== Custom orbit controls =====
+  const target = new THREE.Vector3(0, 1.2, 0);
+  let azimuth  = Math.PI * 0.25;
+  let polar    = Math.PI * 0.38;
+  let distance = 11;
+  const minDistance = 3, maxDistance = 25;
+  const minPolar = 0.1, maxPolar = Math.PI / 2 + 0.05;
+
+  function updateCamera() {
+    const sinP = Math.sin(polar);
+    camera.position.set(
+      target.x + distance * sinP * Math.sin(azimuth),
+      target.y + distance * Math.cos(polar),
+      target.z + distance * sinP * Math.cos(azimuth)
+    );
+    camera.lookAt(target);
+  }
+  updateCamera();
+
+  let dragging = false, lastX = 0, lastY = 0;
+  canvas.addEventListener('mousedown', function(e) { dragging = true; lastX = e.clientX; lastY = e.clientY; e.preventDefault(); });
+  window.addEventListener('mouseup',   function()  { dragging = false; });
+  window.addEventListener('mousemove', function(e) {
+    if (!dragging) return;
+    azimuth -= (e.clientX - lastX) * 0.005;
+    polar   -= (e.clientY - lastY) * 0.005;
+    polar    = Math.max(minPolar, Math.min(maxPolar, polar));
+    lastX = e.clientX; lastY = e.clientY;
+    updateCamera();
+  });
+  canvas.addEventListener('wheel', function(e) {
+    e.preventDefault();
+    distance *= e.deltaY > 0 ? 1.1 : 0.9;
+    distance  = Math.max(minDistance, Math.min(maxDistance, distance));
+    updateCamera();
+  }, { passive: false });
+
+  let touchMode = null, lastTouchDist = 0;
+  canvas.addEventListener('touchstart', function(e) {
+    if (e.touches.length === 1) {
+      touchMode = 'rotate'; lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+    } else if (e.touches.length === 2) {
+      touchMode = 'zoom';
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      lastTouchDist = Math.sqrt(dx*dx + dy*dy);
+    }
+    e.preventDefault();
+  }, { passive: false });
+  canvas.addEventListener('touchmove', function(e) {
+    if (touchMode === 'rotate' && e.touches.length === 1) {
+      azimuth -= (e.touches[0].clientX - lastX) * 0.005;
+      polar   -= (e.touches[0].clientY - lastY) * 0.005;
+      polar    = Math.max(minPolar, Math.min(maxPolar, polar));
+      lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+      updateCamera();
+    } else if (touchMode === 'zoom' && e.touches.length === 2) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      const d  = Math.sqrt(dx*dx + dy*dy);
+      if (lastTouchDist > 0) {
+        distance *= lastTouchDist / d;
+        distance  = Math.max(minDistance, Math.min(maxDistance, distance));
+        updateCamera();
+      }
+      lastTouchDist = d;
+    }
+    e.preventDefault();
+  }, { passive: false });
+  canvas.addEventListener('touchend', function() { touchMode = null; });
+
+  // ===== Lighting =====
+  scene.add(new THREE.AmbientLight(0xffffff, 0.42));
+  scene.add(new THREE.HemisphereLight(0xb1d6ff, 0x303040, 0.38));
+  const keyLight = new THREE.DirectionalLight(0xffe8c8, 1.05);
+  keyLight.position.set(6, 12, 5);
+  keyLight.castShadow = true;
+  keyLight.shadow.mapSize.set(2048, 2048);
+  keyLight.shadow.camera.left = -7; keyLight.shadow.camera.right = 7;
+  keyLight.shadow.camera.top  =  7; keyLight.shadow.camera.bottom = -7;
+  keyLight.shadow.camera.near = 0.5; keyLight.shadow.camera.far = 25;
+  keyLight.shadow.bias = -0.0005;
+  scene.add(keyLight);
+  const fillLight = new THREE.DirectionalLight(0x6b9eff, 0.32);
+  fillLight.position.set(-5, 4, -5);
+  scene.add(fillLight);
+
+  // ===== Materials =====
+  const pipeMat        = new THREE.MeshStandardMaterial({ color: 0xc8ccd0, metalness: 0.82, roughness: 0.28 });
+  const plywoodMat     = new THREE.MeshStandardMaterial({ color: 0xd2a06a, roughness: 0.86 });
+  const horseBodyMat   = new THREE.MeshStandardMaterial({ color: 0xf2efe6, roughness: 0.55 });
+  const horseManeMat   = new THREE.MeshStandardMaterial({ color: 0xb74040, roughness: 0.62 });
+  const horseSaddleMat = new THREE.MeshStandardMaterial({ color: 0x6b3d1e, roughness: 0.7 });
+  const roofRedMat     = new THREE.MeshStandardMaterial({ color: 0xc83838, roughness: 0.62, side: THREE.DoubleSide });
+  const roofCreamMat   = new THREE.MeshStandardMaterial({ color: 0xf2efe6, roughness: 0.62, side: THREE.DoubleSide });
+  const casterMat      = new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.65 });
+  const woodMat        = new THREE.MeshStandardMaterial({ color: 0x9a7548, roughness: 0.88 });
+  const railWoodMat    = new THREE.MeshStandardMaterial({ color: 0x7a5a3a, roughness: 0.92 });
+  const finialMat      = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.7, roughness: 0.28 });
+  const clampMat       = new THREE.MeshStandardMaterial({ color: 0x4a4a4a, metalness: 0.7, roughness: 0.4 });
+  const collarMat      = new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.85, roughness: 0.22 });
+  const spokeWoodMat   = new THREE.MeshStandardMaterial({ color: 0x8a6a40, roughness: 0.9 });
+  const skinMat        = new THREE.MeshStandardMaterial({ color: 0xf4c8a8, roughness: 0.7 });
+  const shirtMat       = new THREE.MeshStandardMaterial({ color: 0x3a6db5, roughness: 0.75 });
+  const pantsMat       = new THREE.MeshStandardMaterial({ color: 0x2a2a3a, roughness: 0.8 });
+  const hairMat        = new THREE.MeshStandardMaterial({ color: 0x2a1a0a, roughness: 0.85 });
+
+  // ===== Ground =====
+  const ground = new THREE.Mesh(
+    new THREE.CircleGeometry(11, 64),
+    new THREE.MeshStandardMaterial({ color: 0x252830, roughness: 0.95 })
+  );
+  ground.rotation.x = -Math.PI / 2;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  // ===== Wavy rail =====
+  let waveAmplitude = 0.05;
+  let waveCount     = 6;
+
+  function makeWavyRailGeometry() {
+    const segments = 256;
+    const innerR = 0.84, outerR = 1.16, thickness = 0.025;
+    const positions = [], indices = [];
+    for (let i = 0; i <= segments; i++) {
+      const t = (i / segments) * Math.PI * 2;
+      const y = WAVE_CENTER_Y + waveAmplitude * Math.sin(waveCount * t);
+      positions.push(outerR * Math.cos(t), y, outerR * Math.sin(t));
+      positions.push(innerR * Math.cos(t), y, innerR * Math.sin(t));
+    }
+    for (let i = 0; i < segments; i++) {
+      const a = i*2, b = i*2+1, c = (i+1)*2, d = (i+1)*2+1;
+      indices.push(a, c, b, c, d, b);
+    }
+    const base = positions.length / 3;
+    for (let i = 0; i <= segments; i++) {
+      const t = (i / segments) * Math.PI * 2;
+      const y = WAVE_CENTER_Y + waveAmplitude * Math.sin(waveCount * t) - thickness;
+      positions.push(outerR * Math.cos(t), y, outerR * Math.sin(t));
+      positions.push(innerR * Math.cos(t), y, innerR * Math.sin(t));
+    }
+    for (let i = 0; i < segments; i++) {
+      const a = base+i*2, b = base+i*2+1, c = base+(i+1)*2, d = base+(i+1)*2+1;
+      indices.push(a, b, c, c, b, d);
+    }
+    for (let i = 0; i < segments; i++) {
+      const a = i*2, c = (i+1)*2, a2 = base+i*2, c2 = base+(i+1)*2;
+      indices.push(a, a2, c, c, a2, c2);
+      const b = i*2+1, d = (i+1)*2+1, b2 = base+i*2+1, d2 = base+(i+1)*2+1;
+      indices.push(b, d, b2, d, d2, b2);
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setIndex(indices);
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    geo.computeVertexNormals();
+    return geo;
+  }
+
+  const wavyRail = new THREE.Mesh(makeWavyRailGeometry(), railWoodMat);
+  wavyRail.receiveShadow = true;
+  wavyRail.castShadow = true;
+  scene.add(wavyRail);
+
+  function updateWavyRail() {
+    wavyRail.geometry.dispose();
+    wavyRail.geometry = makeWavyRailGeometry();
+  }
+
+  // ===== Center axis =====
+  const centerAxis = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.032, 0.032, AXIS_HEIGHT, 16),
+    pipeMat
+  );
+  centerAxis.position.y = AXIS_BOTTOM_Y + AXIS_HEIGHT / 2;
+  centerAxis.castShadow = true;
+  scene.add(centerAxis);
+
+  // ===== Rotating assembly =====
+  const rotatingGroup = new THREE.Group();
+  scene.add(rotatingGroup);
+
+  // ----- L1 lower cross frame -----
+  function makeLowerCrossFrame() {
+    const group = new THREE.Group();
+    const pipeR = 0.028, pipeLen = 4.4;
+    const halfGap = POLE_DIAMETER / 2 + 0.005;
+    for (let i = 0; i < 2; i++) {
+      const z = i === 0 ? -halfGap : halfGap;
+      const pipe = new THREE.Mesh(new THREE.CylinderGeometry(pipeR, pipeR, pipeLen, 12), pipeMat);
+      pipe.rotation.z = Math.PI / 2; pipe.position.set(0, LAYER1_Y, z); pipe.castShadow = true;
+      group.add(pipe);
+    }
+    for (let i = 0; i < 2; i++) {
+      const x = i === 0 ? -halfGap : halfGap;
+      const pipe = new THREE.Mesh(new THREE.CylinderGeometry(pipeR, pipeR, pipeLen, 12), pipeMat);
+      pipe.rotation.x = Math.PI / 2; pipe.position.set(x, LAYER1_Y + 0.07, 0); pipe.castShadow = true;
+      group.add(pipe);
+    }
+    const poleAngles = [0, Math.PI/2, Math.PI, 3*Math.PI/2];
+    for (let i = 0; i < poleAngles.length; i++) {
+      const a = poleAngles[i];
+      const clamp = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.18, 0.09), clampMat);
+      clamp.position.set(POLE_RADIUS * Math.cos(a), (i%2===0 ? LAYER1_Y : LAYER1_Y+0.07), POLE_RADIUS * Math.sin(a));
+      clamp.castShadow = true;
+      group.add(clamp);
+    }
+    return group;
+  }
+  rotatingGroup.add(makeLowerCrossFrame());
+
+  // ----- L2 plywood disk -----
+  const layer2 = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 0.022, 64), plywoodMat);
+  layer2.position.y = LAYER2_Y;
+  layer2.receiveShadow = true;
+  layer2.castShadow = true;
+  rotatingGroup.add(layer2);
+
+  // ----- L3 wagon wheel skeleton (V4) — hub + 8 spokes + outer ring -----
+  const wagonWheelGroup = new THREE.Group();
+  wagonWheelGroup.position.y = LAYER3_Y;
+
+  // Hub (small cylinder at center)
+  const hub = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.12, 0.12, 0.06, 16),
+    spokeWoodMat
+  );
+  hub.castShadow = true;
+  wagonWheelGroup.add(hub);
+
+  // 8 spokes at 22.5° intervals
+  const SPOKE_COUNT  = 8;
+  const SPOKE_LENGTH = 1.9;  // slightly shorter than 2m to fit inside outer ring
+  for (let i = 0; i < SPOKE_COUNT; i++) {
+    const angle = (i / SPOKE_COUNT) * Math.PI * 2;
+    const spoke = new THREE.Mesh(
+      new THREE.BoxGeometry(0.03, 0.05, SPOKE_LENGTH),
+      spokeWoodMat
+    );
+    spoke.rotation.y = angle;
+    spoke.position.set(
+      Math.sin(angle) * SPOKE_LENGTH / 2,
+      0,
+      Math.cos(angle) * SPOKE_LENGTH / 2
+    );
+    spoke.castShadow = true;
+    wagonWheelGroup.add(spoke);
+  }
+
+  // Outer ring (torus)
+  const outerRing = new THREE.Mesh(
+    new THREE.TorusGeometry(1.98, 0.025, 8, 80),
+    spokeWoodMat
+  );
+  outerRing.rotation.x = Math.PI / 2;
+  outerRing.castShadow = true;
+  wagonWheelGroup.add(outerRing);
+
+  // Reinforcement plates at pole positions (4 plates at 0°, 90°, 180°, 270°)
+  const poleAngles4 = [0, Math.PI/2, Math.PI, 3*Math.PI/2];
+  for (let i = 0; i < poleAngles4.length; i++) {
+    const a = poleAngles4[i];
+    const plate = new THREE.Mesh(
+      new THREE.BoxGeometry(0.12, 0.04, 0.12),
+      spokeWoodMat
+    );
+    plate.position.set(Math.sin(a) * POLE_RADIUS, 0, Math.cos(a) * POLE_RADIUS);
+    plate.castShadow = true;
+    wagonWheelGroup.add(plate);
+  }
+
+  rotatingGroup.add(wagonWheelGroup);
+
+  // ===== 8 support posts under L2 =====
+  const SUPPORT_R = 1.65;
+  const SUPPORT_TOP = LAYER2_Y - 0.011;
+  const SUPPORT_BOTTOM = 0.085;
+  const SUPPORT_HEIGHT = SUPPORT_TOP - SUPPORT_BOTTOM;
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2;
+    const g = new THREE.Group();
+    const post = new THREE.Mesh(new THREE.BoxGeometry(0.055, SUPPORT_HEIGHT, 0.055), woodMat);
+    post.position.y = SUPPORT_BOTTOM + SUPPORT_HEIGHT / 2; post.castShadow = true;
+    g.add(post);
+    const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.05, 0.07), casterMat);
+    bracket.position.y = 0.055; g.add(bracket);
+    const caster = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.035, 14), casterMat);
+    caster.position.y = 0.032; caster.rotation.x = Math.PI / 2; caster.rotation.z = a; caster.castShadow = true;
+    g.add(caster);
+    g.position.set(SUPPORT_R * Math.cos(a), 0, SUPPORT_R * Math.sin(a));
+    rotatingGroup.add(g);
+  }
+
+  // ===== Push handles =====
+  const handlePositions = [
+    { x: 2.0, z: 0,    baseY: LAYER1_Y },
+    { x: 0,   z: -2.0, baseY: LAYER1_Y + 0.07 },
+  ];
+  for (let i = 0; i < handlePositions.length; i++) {
+    const h = handlePositions[i];
+    const handleHeight = 0.95;
+    const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, handleHeight, 12), pipeMat);
+    handle.position.set(h.x, h.baseY + handleHeight / 2, h.z); handle.castShadow = true;
+    rotatingGroup.add(handle);
+    const r = Math.sqrt(h.x*h.x + h.z*h.z);
+    const tx = -h.z / r, tz = h.x / r;
+    const grip = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.30, 12), pipeMat);
+    grip.position.set(h.x, h.baseY + handleHeight, h.z);
+    grip.rotation.y = Math.atan2(tx, tz); grip.rotation.z = Math.PI / 2; grip.castShadow = true;
+    rotatingGroup.add(grip);
+  }
+
+  // ===== Staff =====
+  function createPerson() {
+    const person = new THREE.Group();
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.11, 16, 12), skinMat);
+    head.position.y = 1.58; head.castShadow = true; person.add(head);
+    const hair = new THREE.Mesh(new THREE.SphereGeometry(0.115, 16, 12, 0, Math.PI*2, 0, Math.PI*0.55), hairMat);
+    hair.position.y = 1.59; hair.castShadow = true; person.add(hair);
+    const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.05, 0.07, 10), skinMat);
+    neck.position.y = 1.43; person.add(neck);
+    const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.13, 0.58, 14), shirtMat);
+    torso.position.y = 1.10; torso.castShadow = true; person.add(torso);
+    for (let i = 0; i < 2; i++) {
+      const s = i === 0 ? -1 : 1;
+      const shoulder = new THREE.Mesh(new THREE.SphereGeometry(0.06, 10, 8), shirtMat);
+      shoulder.position.set(s * 0.17, 1.35, 0); person.add(shoulder);
+      const upperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.045, 0.28, 10), shirtMat);
+      upperArm.position.set(s * 0.18, 1.22, 0.13); upperArm.rotation.x = Math.PI / 4; upperArm.castShadow = true; person.add(upperArm);
+      const forearm = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.035, 0.26, 10), skinMat);
+      forearm.position.set(s * 0.18, 1.09, 0.32); forearm.rotation.x = Math.PI / 2.3; forearm.castShadow = true; person.add(forearm);
+      const hand = new THREE.Mesh(new THREE.SphereGeometry(0.045, 10, 8), skinMat);
+      hand.position.set(s * 0.18, 1.02, 0.44); hand.scale.set(1, 0.7, 1.2); person.add(hand);
+    }
+    for (let i = 0; i < 2; i++) {
+      const s = i === 0 ? -1 : 1;
+      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.055, 0.82, 10), pantsMat);
+      leg.position.set(s * 0.07, 0.41, 0); leg.castShadow = true; person.add(leg);
+      const shoe = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.06, 0.20), new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.7 }));
+      shoe.position.set(s * 0.07, 0.03, 0.03); shoe.castShadow = true; person.add(shoe);
+    }
+    return person;
+  }
+  for (let i = 0; i < handlePositions.length; i++) {
+    const h = handlePositions[i];
+    const r = Math.sqrt(h.x*h.x + h.z*h.z);
+    const tx = -h.z / r, tz = h.x / r;
+    const person = createPerson();
+    person.position.set(h.x - tx * 0.48, 0, h.z - tz * 0.48);
+    person.rotation.y = Math.atan2(tx, tz);
+    rotatingGroup.add(person);
+  }
+
+  // ===== Roof support pillars (4) from L2 to roof brim =====
+  const ROOF_PILLAR_R = 1.55;
+  for (let i = 0; i < 4; i++) {
+    const a = Math.PI/4 + i * Math.PI/2;
+    const pillarLen = ROOF_BRIM_Y - LAYER2_Y;
+    const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, pillarLen, 10), pipeMat);
+    pillar.position.set(ROOF_PILLAR_R * Math.cos(a), LAYER2_Y + pillarLen / 2, ROOF_PILLAR_R * Math.sin(a));
+    pillar.castShadow = true;
+    rotatingGroup.add(pillar);
+
+    // Horizontal bracket connecting pillar to wagon wheel outer ring at L3 height
+    const bracketLen = 0.43;
+    const bracket = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, bracketLen, 8), pipeMat);
+    const midR = ROOF_PILLAR_R + bracketLen / 2 * Math.sign(POLE_RADIUS - ROOF_PILLAR_R) * -1;
+    // bracket from pillar (r=1.55) toward ring (r=1.98), at L3 height
+    bracket.position.set(
+      (ROOF_PILLAR_R + 0.215) * Math.cos(a),
+      LAYER3_Y,
+      (ROOF_PILLAR_R + 0.215) * Math.sin(a)
+    );
+    bracket.rotation.z = Math.PI / 2;
+    bracket.rotation.y = a;
+    bracket.castShadow = true;
+    rotatingGroup.add(bracket);
+  }
+
+  // ===== Roof cone =====
+  const ROOF_CONE_HEIGHT = 0.50;
+  const roofGroup = new THREE.Group();
+  for (let i = 0; i < 8; i++) {
+    const t0 = (i / 8) * Math.PI * 2;
+    const stripe = new THREE.Mesh(
+      new THREE.ConeGeometry(2.2, ROOF_CONE_HEIGHT, 14, 1, true, t0, Math.PI/4),
+      i % 2 === 0 ? roofRedMat : roofCreamMat
+    );
+    stripe.position.y = ROOF_BRIM_Y + ROOF_CONE_HEIGHT / 2; stripe.castShadow = true;
+    roofGroup.add(stripe);
+  }
+  const brim = new THREE.Mesh(new THREE.TorusGeometry(2.2, 0.025, 8, 64), roofRedMat);
+  brim.position.y = ROOF_BRIM_Y; brim.rotation.x = Math.PI / 2;
+  roofGroup.add(brim);
+  const finial = new THREE.Mesh(new THREE.SphereGeometry(0.07, 18, 14), finialMat);
+  finial.position.y = ROOF_BRIM_Y + ROOF_CONE_HEIGHT + 0.05; finial.castShadow = true;
+  roofGroup.add(finial);
+  rotatingGroup.add(roofGroup);
+
+  // ===== Horse =====
+  function createHorse() {
+    const horse = new THREE.Group();
+    const body = new THREE.Mesh(new THREE.SphereGeometry(0.18, 18, 14), horseBodyMat);
+    body.scale.set(1.9, 1.0, 1.0); body.castShadow = true; horse.add(body);
+    const chest = new THREE.Mesh(new THREE.SphereGeometry(0.15, 14, 12), horseBodyMat);
+    chest.position.set(0.3, 0.04, 0); chest.castShadow = true; horse.add(chest);
+    const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.11, 0.34, 12), horseBodyMat);
+    neck.position.set(0.36, 0.2, 0); neck.rotation.z = -Math.PI / 5; neck.castShadow = true; horse.add(neck);
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.14, 0.14), horseBodyMat);
+    head.position.set(0.52, 0.34, 0); head.castShadow = true; horse.add(head);
+    const snout = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.08, 0.1), horseBodyMat);
+    snout.position.set(0.64, 0.3, 0); snout.castShadow = true; horse.add(snout);
+    for (let i = 0; i < 2; i++) {
+      const ear = new THREE.Mesh(new THREE.ConeGeometry(0.028, 0.07, 6), horseBodyMat);
+      ear.position.set(0.48, 0.44, i === 0 ? -0.05 : 0.05); horse.add(ear);
+    }
+    const eyeMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.4 });
+    for (let i = 0; i < 2; i++) {
+      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.018, 8, 6), eyeMat);
+      eye.position.set(0.56, 0.36, i === 0 ? -0.07 : 0.07); horse.add(eye);
+    }
+    for (let i = 0; i < 6; i++) {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.2 - i*0.02, 0.12), horseManeMat);
+      m.position.set(0.36 - i*0.04, 0.24 - i*0.018, 0); m.castShadow = true; horse.add(m);
+    }
+    const tail = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.32, 8), horseManeMat);
+    tail.position.set(-0.34, 0, 0); tail.rotation.z = Math.PI * 0.55; tail.castShadow = true; horse.add(tail);
+    const legGeo = new THREE.CylinderGeometry(0.028, 0.022, 0.44, 8);
+    const legPs = [[0.22,-0.3,-0.1],[0.22,-0.3,0.1],[-0.22,-0.3,-0.1],[-0.22,-0.3,0.1]];
+    const hoofMat = new THREE.MeshStandardMaterial({ color: 0x2a1a0a, roughness: 0.7 });
+    for (let i = 0; i < legPs.length; i++) {
+      const leg = new THREE.Mesh(legGeo, horseBodyMat);
+      leg.position.set(legPs[i][0], legPs[i][1], legPs[i][2]); leg.castShadow = true; horse.add(leg);
+      const hoof = new THREE.Mesh(new THREE.CylinderGeometry(0.033, 0.033, 0.04, 8), hoofMat);
+      hoof.position.set(legPs[i][0], -0.52, legPs[i][2]); horse.add(hoof);
+    }
+    const saddle = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.05, 0.26), horseSaddleMat);
+    saddle.position.set(0, 0.19, 0); saddle.castShadow = true; horse.add(saddle);
+    const horn = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.025, 0.06, 8), horseSaddleMat);
+    horn.position.set(0.1, 0.24, 0); horse.add(horn);
+    return horse;
+  }
+
+  // ===== Poles + horses + stop collars (V4) =====
+  const poles = [];
+  for (let i = 0; i < 4; i++) {
+    const baseAngle = (i / 4) * Math.PI * 2;
+    const poleGroup = new THREE.Group();
+
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(POLE_DIAMETER/2, POLE_DIAMETER/2, POLE_LEN, 12), pipeMat);
+    pole.position.y = POLE_LEN / 2; pole.castShadow = true;
+    poleGroup.add(pole);
+
+    // Caster at bottom
+    const caster = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.045, 16), casterMat);
+    caster.position.y = 0.05; caster.rotation.z = Math.PI / 2; caster.castShadow = true;
+    poleGroup.add(caster);
+    const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.07, 0.09), casterMat);
+    bracket.position.y = 0.11;
+    poleGroup.add(bracket);
+
+    // Stop collar (シャフトカラー) — V4 addition
+    // Outer ring (collar body)
+    const collar = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.042, 0.042, 0.04, 16, 1, true),
+      collarMat
+    );
+    collar.position.y = COLLAR_Y_ON_POLE;
+    collar.castShadow = true;
+    poleGroup.add(collar);
+    // Collar top and bottom caps
+    const collarCapGeo = new THREE.RingGeometry(POLE_DIAMETER/2 + 0.001, 0.042, 16);
+    for (let c = 0; c < 2; c++) {
+      const cap = new THREE.Mesh(collarCapGeo, collarMat);
+      cap.rotation.x = Math.PI / 2;
+      cap.position.y = COLLAR_Y_ON_POLE + (c === 0 ? 0.02 : -0.02);
+      poleGroup.add(cap);
+    }
+    // Set screw (small box on collar)
+    const setScrew = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.015, 0.012), collarMat);
+    setScrew.position.set(0.044, COLLAR_Y_ON_POLE, 0);
+    poleGroup.add(setScrew);
+
+    // Horse
+    const horse = createHorse();
+    horse.position.y = HORSE_Y;
+    poleGroup.add(horse);
+
+    poleGroup.position.set(POLE_RADIUS * Math.cos(baseAngle), 0, POLE_RADIUS * Math.sin(baseAngle));
+    poleGroup.rotation.y = Math.PI / 2 - baseAngle;
+
+    rotatingGroup.add(poleGroup);
+    poles.push({ group: poleGroup, baseAngle: baseAngle });
+  }
+
+  // ===== Room overlay =====
+  const roomGroup = new THREE.Group();
+  roomGroup.visible = false;
+  {
+    const edges = new THREE.LineSegments(
+      new THREE.EdgesGeometry(new THREE.BoxGeometry(9, 3, 7)),
+      new THREE.LineBasicMaterial({ color: 0x6b9eff, transparent: true, opacity: 0.75 })
+    );
+    edges.position.y = 1.5;
+    roomGroup.add(edges);
+    const floor = new THREE.Mesh(
+      new THREE.PlaneGeometry(9, 7),
+      new THREE.MeshBasicMaterial({ color: 0x6b9eff, transparent: true, opacity: 0.06, side: THREE.DoubleSide })
+    );
+    floor.rotation.x = -Math.PI / 2; floor.position.y = 0.005;
+    roomGroup.add(floor);
+  }
+  scene.add(roomGroup);
+
+  // ===== UI =====
+  let rotationSpeed = 1;
+
+  document.getElementById('speed').oninput = function(e) {
+    rotationSpeed = parseFloat(e.target.value);
+    document.getElementById('speed-val').textContent = rotationSpeed.toFixed(1);
+    document.getElementById('speed-display').textContent = rotationSpeed.toFixed(1) + ' rpm';
+  };
+  document.getElementById('amp').oninput = function(e) {
+    waveAmplitude = parseFloat(e.target.value) / 100;
+    document.getElementById('amp-val').textContent = e.target.value;
+    document.getElementById('amp-display').textContent = '±' + e.target.value + ' cm';
+    updateWavyRail();
+  };
+  document.getElementById('count').oninput = function(e) {
+    waveCount = parseInt(e.target.value);
+    document.getElementById('count-val').textContent = waveCount;
+    document.getElementById('count-display').textContent = waveCount;
+    updateWavyRail();
+  };
+
+  document.getElementById('btn-room').onclick = function() {
+    roomGroup.visible = !roomGroup.visible;
+    this.classList.toggle('active', roomGroup.visible);
+  };
+
+  let skeletonView = false;
+  document.getElementById('btn-skeleton').onclick = function() {
+    skeletonView = !skeletonView;
+    layer2.material.transparent = skeletonView;
+    layer2.material.opacity = skeletonView ? 0.22 : 1;
+    roofGroup.visible = !skeletonView;
+    this.classList.toggle('active', skeletonView);
+  };
+
+  document.getElementById('btn-reset').onclick = function() {
+    target.set(0, 1.2, 0);
+    azimuth = Math.PI * 0.25; polar = Math.PI * 0.38; distance = 11;
+    updateCamera();
+  };
+
+  // ===== Animation =====
+  let lastT = 0;
+  function animate(t) {
+    requestAnimationFrame(animate);
+    const dt = Math.min((t - lastT) / 1000, 0.1);
+    lastT = t;
+    rotatingGroup.rotation.y += rotationSpeed * Math.PI * 2 / 60 * dt;
+    for (let i = 0; i < poles.length; i++) {
+      const p = poles[i];
+      const worldAngle = p.baseAngle - rotatingGroup.rotation.y;
+      p.group.position.y = WAVE_CENTER_Y + waveAmplitude * Math.sin(waveCount * worldAngle);
+    }
+    renderer.render(scene, camera);
+  }
+  animate(0);
+
+  window.addEventListener('resize', function() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+});
+</script>
+</body>
+</html>

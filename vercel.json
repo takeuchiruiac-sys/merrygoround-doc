@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/blueprint_v6.html" }
+  ],
+  "cleanUrls": true,
+  "trailingSlash": false
+}

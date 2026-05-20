@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>メリーゴーランド V6 設計図</title>
+<style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0;
+  background: #f5f3ee;
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+  color: #1f2733;
+  line-height: 1.7;
+}
+.page {
+  max-width: 1080px; margin: 0 auto; padding: 48px 56px;
+  background: #fff;
+  box-shadow: 0 2px 18px rgba(0,0,0,0.06);
+}
+.page + .page { margin-top: 24px; }
+header.title {
+  border-bottom: 3px solid #1f2733;
+  padding-bottom: 24px; margin-bottom: 32px;
+}
+header.title .label {
+  font-size: 12px; letter-spacing: 0.2em; color: #6c7588; margin: 0;
+}
+header.title h1 {
+  font-size: 34px; font-weight: 700; margin: 4px 0 6px;
+}
+header.title .sub {
+  font-size: 14px; color: #6c7588; margin: 0;
+}
+h2 {
+  font-size: 22px; margin: 36px 0 12px;
+  border-left: 5px solid #b04a3a; padding-left: 12px;
+}
+h3 {
+  font-size: 16px; margin: 22px 0 8px;
+  color: #2f3947;
+}
+p { font-size: 14px; margin: 6px 0; }
+table.spec {
+  width: 100%; border-collapse: collapse;
+  font-size: 13px; margin: 12px 0 20px;
+}
+table.spec th, table.spec td {
+  border: 1px solid #ccc; padding: 7px 11px;
+  text-align: left;
+}
+table.spec th {
+  background: #ecebe6; font-weight: 600; width: 32%;
+}
+table.bom {
+  width: 100%; border-collapse: collapse;
+  font-size: 13px; margin: 12px 0 20px;
+}
+table.bom th, table.bom td {
+  border: 1px solid #cbcbcb; padding: 6px 9px;
+  text-align: left; vertical-align: top;
+}
+table.bom th {
+  background: #1f2733; color: #fff; font-weight: 600;
+  text-align: center;
+}
+table.bom td.num, table.bom td.qty {
+  text-align: center; font-variant-numeric: tabular-nums;
+}
+table.bom tbody tr:nth-child(even) { background: #fafaf7; }
+.fig {
+  margin: 20px 0 28px;
+  background: #fdfcf8;
+  border: 1px solid #d6d2c6;
+  border-radius: 4px;
+  padding: 18px;
+}
+.fig svg { display: block; width: 100%; height: auto; }
+.fig-caption {
+  font-size: 12px; color: #6c7588;
+  margin-top: 10px; text-align: center;
+}
+.callout {
+  margin: 16px 0;
+  background: #fef5ee; border-left: 4px solid #b04a3a;
+  padding: 12px 16px; font-size: 13px;
+}
+.callout .label {
+  font-weight: 600; color: #b04a3a; font-size: 11px;
+  letter-spacing: 0.15em; display: block; margin-bottom: 4px;
+}
+.assembly { padding-left: 24px; }
+.assembly li { margin: 6px 0; font-size: 14px; }
+.legend {
+  display: flex; gap: 18px; flex-wrap: wrap;
+  font-size: 12px; margin: 8px 0 0; color: #455064;
+}
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i {
+  display: inline-block; width: 14px; height: 14px;
+  border-radius: 2px; border: 1px solid #1f2733;
+}
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.viewer-3d {
+  margin: 24px 0 32px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #d6d2c6;
+  background: #0f1419;
+  position: relative;
+}
+.viewer-3d iframe {
+  display: block; width: 100%; height: 640px;
+  border: none;
+}
+.viewer-3d .hint {
+  position: absolute; bottom: 10px; right: 14px;
+  font-size: 11px; color: rgba(255,255,255,0.5);
+  background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 4px;
+  pointer-events: none;
+}
+.viewer-3d-link {
+  display: inline-block; margin-top: 8px; font-size: 12px;
+  color: #2563a0; text-decoration: none;
+}
+.viewer-3d-link:hover { text-decoration: underline; }
+@media (max-width: 720px) {
+  .page { padding: 28px 18px; }
+  .two-col { grid-template-columns: 1fr; }
+  .viewer-3d iframe { height: 420px; }
+}
+
+/* SVG common styles */
+.svg-line { fill: none; stroke: #1f2733; stroke-width: 1.4; }
+.svg-line-thick { fill: none; stroke: #1f2733; stroke-width: 2.5; }
+.svg-line-thin { fill: none; stroke: #4a5267; stroke-width: 0.9; }
+.svg-dim { stroke: #2563a0; stroke-width: 0.8; fill: none; }
+.svg-dim-text { fill: #2563a0; font-size: 11px; font-family: monospace; }
+.svg-label { fill: #1f2733; font-size: 11px; font-family: -apple-system, sans-serif; }
+.svg-label-small { fill: #4a5267; font-size: 9px; font-family: -apple-system, sans-serif; }
+.svg-center { stroke: #b04a3a; stroke-width: 0.6; stroke-dasharray: 6,3,2,3; fill: none; }
+.svg-hidden { stroke-dasharray: 5,3; }
+.fill-wood { fill: #d2a06a; }
+.fill-veneer { fill: #e3c78f; }
+.fill-pipe { fill: #c8ccd0; stroke: #1f2733; stroke-width: 1.0; }
+.fill-clamp { fill: #c8a02e; stroke: #1f2733; stroke-width: 0.8; }
+.fill-caster { fill: #2a2a2a; stroke: #1f2733; stroke-width: 0.6; }
+.fill-horse { fill: #f2efe6; stroke: #1f2733; stroke-width: 0.6; }
+.fill-roof { fill: #c83838; }
+.fill-roof-cream { fill: #f2efe6; }
+.fill-finial { fill: #d4af37; stroke: #8a6a20; }
+.fill-weight { fill: #2a2a2a; stroke: #1f2733; }
+</style>
+</head>
+<body>
+
+<!-- ============================================================== -->
+<!-- ページ 1: タイトル & 全体仕様 -->
+<!-- ============================================================== -->
+<div class="page">
+<header class="title">
+  <p class="label">DETAILED BLUEPRINT — V6</p>
+  <h1>メリーゴーランド V6 設計図</h1>
+  <p class="sub">教室設置・手押し駆動・乗員 4 名(子供) / 直径 4 m × 全高 約 2.82 m / 単管+クランプ構造</p>
+</header>
+
+<h2>0. 3D インタラクティブビューア</h2>
+<p>
+ドラッグで視点回転、スクロール / ピンチでズーム、右上パネルのスライダーで回転速度・波の振幅・波数を調整できます。教室壁の表示や骨組み透視も切り替え可能です。
+</p>
+<div class="viewer-3d">
+  <iframe src="./model_v4.html" title="メリーゴーランド V6 3D シミュレーション" loading="lazy"></iframe>
+  <div class="hint">ドラッグ: 回転 / スクロール: ズーム</div>
+</div>
+<a class="viewer-3d-link" href="./model_v4.html" target="_blank" rel="noopener">→ 全画面で 3D モデルを開く</a>
+
+<h2>1. 設計コンセプト</h2>
+<p>
+本機は屋内教室(9×7×3 m)に収まる手押し駆動の小型メリーゴーランドである。
+構造的特徴は <strong>「中心支柱を床に固定し、上部プラットフォーム全体が中心軸まわりに回転する」</strong>
+古典的なメリーゴーランドの構造を、足場用 <strong>単管(φ48.6 mm)</strong> と
+<strong>直交クランプ</strong> で実装した点にある。
+波形レール(カム機構)は床上に据え置き、馬ポール底のキャスター(φ200 mm)がそれを
+転がることで、回転に伴って馬が <strong>±7.5 cm</strong> 上下するスクリュー機構を生む。
+</p>
+
+<h2>2. 全体仕様</h2>
+<table class="spec">
+  <tr><th>項目</th><th>仕様</th></tr>
+  <tr><td>外形寸法</td><td>直径 4.00 m × 高さ 約 2.82 m(玉飾り頂部まで)</td></tr>
+  <tr><td>設置面積</td><td>4.00 m × 4.00 m(円形フットプリント)</td></tr>
+  <tr><td>馬の数</td><td>4 体(半径 1.00 m に 90° 等間隔配置)</td></tr>
+  <tr><td>馬の上下振幅</td><td>±7.5 cm(波形レール6波/周)</td></tr>
+  <tr><td>回転速度</td><td>0 〜 5 rpm(可変・手押し)</td></tr>
+  <tr><td>乗員定員</td><td>4 名(子供、1 人あたり最大体重 30 kg 目安)</td></tr>
+  <tr><td>主構造材</td><td>単管 φ48.6 mm × 厚さ 2.4 mm(JIS G 3444 STK500 相当)</td></tr>
+  <tr><td>接続金具</td><td>足場用直交クランプ(亜鉛メッキ、定格 5 kN)</td></tr>
+  <tr><td>動力</td><td>手押し(押し棒 2 本、L1 フレーム接線方向に取付)</td></tr>
+  <tr><td>駆動方式</td><td>受動回転 + 床キャスター転がり</td></tr>
+  <tr><td>構造重量</td><td>約 350 kg(V6 軽量化済み)</td></tr>
+  <tr><td>総重量(乗員込)</td><td>約 470 kg</td></tr>
+  <tr><td>天井クリアランス</td><td>+ 約 18 cm(3 m 天井に対し)</td></tr>
+</table>
+
+<h2>3. 構造原理 — 静止部と回転部</h2>
+<p>本機は中心支柱を境に静止部と回転部に分かれる。</p>
+<div class="two-col">
+  <div>
+    <h3>🟥 静止部</h3>
+    <ul>
+      <li>中心支柱(単管 φ48.6)</li>
+      <li>床合板アンカー + パイプソケット</li>
+      <li>鋳鉄重し × 4</li>
+      <li>波形レール + 紙束基台</li>
+    </ul>
+  </div>
+  <div>
+    <h3>🟦 回転部</h3>
+    <ul>
+      <li>L1 井形 # フレーム(単管 × 4)</li>
+      <li>L2 デッキ(補強板 4 + ベニヤ円盤)</li>
+      <li>L3 十字 + フレーム(単管 × 2)</li>
+      <li>馬ポール × 4 + 馬 + キャスター</li>
+      <li>木の支柱 × 4(対角)+ キャスター</li>
+      <li>高支柱 × 4(端)+ キャスター</li>
+      <li>屋根全体</li>
+      <li>中心支柱スリーブクランプ × 2(緩めで中心支柱を抱える)</li>
+    </ul>
+  </div>
+</div>
+<div class="callout">
+  <span class="label">重要</span>
+  L3 十字パイプ上端の 2 つの緩めクランプは <strong>スリーブベアリング</strong> として
+  機能する。中心支柱(静止)は固定で、クランプは L3 パイプにしっかり固定されているため、
+  L3 とともに回転しながら中心支柱の周りを摺動する。
+</div>
+</div>
+
+<!-- ============================================================== -->
+<!-- ページ 2: 立面図 -->
+<!-- ============================================================== -->
+<div class="page">
+<h2>4. 立面図(正面・側面共通)</h2>
+
+<div class="fig">
+<svg viewBox="0 0 1000 720" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- 床ライン -->
+  <line x1="60" y1="640" x2="940" y2="640" class="svg-line-thick" />
+  <!-- 床下のハッチング -->
+  <g stroke="#6c7588" stroke-width="0.7">
+    <line x1="60" y1="640" x2="80" y2="660"/>
+    <line x1="120" y1="640" x2="140" y2="660"/>
+    <line x1="180" y1="640" x2="200" y2="660"/>
+    <line x1="240" y1="640" x2="260" y2="660"/>
+    <line x1="300" y1="640" x2="320" y2="660"/>
+    <line x1="360" y1="640" x2="380" y2="660"/>
+    <line x1="420" y1="640" x2="440" y2="660"/>
+    <line x1="480" y1="640" x2="500" y2="660"/>
+    <line x1="540" y1="640" x2="560" y2="660"/>
+    <line x1="600" y1="640" x2="620" y2="660"/>
+    <line x1="660" y1="640" x2="680" y2="660"/>
+    <line x1="720" y1="640" x2="740" y2="660"/>
+    <line x1="780" y1="640" x2="800" y2="660"/>
+    <line x1="840" y1="640" x2="860" y2="660"/>
+    <line x1="900" y1="640" x2="920" y2="660"/>
+  </g>
+  <text x="60" y="676" class="svg-label-small">床(教室)</text>
+
+  <!-- 中心線 -->
+  <line x1="500" y1="40" x2="500" y2="660" class="svg-center" />
+
+  <!-- 床合板アンカー (中心) -->
+  <rect x="430" y="635" width="140" height="6" class="fill-wood" stroke="#1f2733" stroke-width="0.6"/>
+  <!-- フランジ -->
+  <rect x="488" y="629" width="24" height="6" class="fill-caster"/>
+  <!-- ソケット -->
+  <rect x="493" y="595" width="14" height="34" class="fill-caster"/>
+  <!-- 重し(4個、見えるのは2個) -->
+  <ellipse cx="448" cy="623" rx="15" ry="6" class="fill-weight"/>
+  <ellipse cx="552" cy="623" rx="15" ry="6" class="fill-weight"/>
+
+  <!-- 波形レール基台リング (見えない側を破線で) -->
+  <line x1="285" y1="638" x2="380" y2="638" class="svg-line-thin"/>
+  <line x1="620" y1="638" x2="715" y2="638" class="svg-line-thin"/>
+  <!-- 波形レール -->
+  <path d="M 285 600 Q 305 580 325 600 T 365 600 T 405 600 T 445 600 T 485 600 T 525 600 T 565 600 T 605 600 T 645 600 T 685 600 T 715 600"
+        fill="none" stroke="#7a5a3a" stroke-width="3"/>
+  <text x="270" y="588" class="svg-label-small" text-anchor="end">波形レール</text>
+
+  <!-- 中心支柱(単管) -->
+  <rect x="497" y="60" width="6" height="540" class="fill-pipe"/>
+
+  <!-- L1 井形(断面で見えるパイプ2本: 左右に1本ずつ) -->
+  <ellipse cx="295" cy="475" rx="5" ry="3" class="fill-pipe"/>
+  <ellipse cx="705" cy="475" rx="5" ry="3" class="fill-pipe"/>
+  <line x1="295" y1="475" x2="705" y2="475" class="svg-line"/>
+  <text x="60" y="478" class="svg-label">L1 (0.53 m)</text>
+
+  <!-- L2 補強板 + ベニヤ円盤 -->
+  <rect x="290" y="450" width="420" height="3" class="fill-veneer" stroke="#1f2733" stroke-width="0.4"/>
+  <!-- 補強板(2枚見える) -->
+  <rect x="395" y="446" width="20" height="9" class="fill-wood"/>
+  <rect x="585" y="446" width="20" height="9" class="fill-wood"/>
+  <text x="60" y="453" class="svg-label">L2 (0.65 m)</text>
+
+  <!-- 木の支柱 (対角、見えるのは1本だけ — 全部対角なので側面投影には現れない 省略) -->
+  <text x="60" y="500" class="svg-label-small">※対角の木の支柱はこの投影では現れない</text>
+
+  <!-- 馬ポール(2本見える: 左右に1本ずつ) -->
+  <rect x="397" y="240" width="6" height="295" class="fill-pipe"/>
+  <rect x="597" y="240" width="6" height="295" class="fill-pipe"/>
+
+  <!-- 馬ポール底のキャスター + ブラケット -->
+  <!-- 左馬ポール -->
+  <rect x="385" y="528" width="30" height="14" class="fill-caster"/>
+  <circle cx="400" cy="555" r="22" class="fill-caster"/>
+  <!-- 右馬ポール -->
+  <rect x="585" y="528" width="30" height="14" class="fill-caster"/>
+  <circle cx="600" cy="555" r="22" class="fill-caster"/>
+
+  <!-- 馬本体 (側面シルエット) -->
+  <g transform="translate(380, 280)">
+    <ellipse cx="20" cy="20" rx="32" ry="18" class="fill-horse"/>
+    <ellipse cx="48" cy="14" rx="14" ry="9" class="fill-horse"/>
+    <rect x="56" y="0" width="14" height="6" rx="2" class="fill-horse"/>
+    <line x1="0" y1="35" x2="5" y2="50" class="svg-line-thin"/>
+    <line x1="38" y1="35" x2="42" y2="50" class="svg-line-thin"/>
+  </g>
+  <g transform="translate(580, 280)">
+    <ellipse cx="20" cy="20" rx="32" ry="18" class="fill-horse"/>
+    <ellipse cx="48" cy="14" rx="14" ry="9" class="fill-horse"/>
+    <rect x="56" y="0" width="14" height="6" rx="2" class="fill-horse"/>
+    <line x1="0" y1="35" x2="5" y2="50" class="svg-line-thin"/>
+    <line x1="38" y1="35" x2="42" y2="50" class="svg-line-thin"/>
+  </g>
+
+  <!-- 高支柱 (端、半径2.05m) -->
+  <rect x="100" y="80" width="6" height="555" class="fill-pipe"/>
+  <rect x="894" y="80" width="6" height="555" class="fill-pipe"/>
+  <!-- 高支柱底のキャスター -->
+  <circle cx="103" cy="624" r="11" class="fill-caster"/>
+  <circle cx="897" cy="624" r="11" class="fill-caster"/>
+  <text x="60" y="100" class="svg-label">高支柱 (4本)</text>
+
+  <!-- L3 十字パイプ(断面で見えるのは1本) -->
+  <ellipse cx="295" cy="200" rx="5" ry="3" class="fill-pipe"/>
+  <ellipse cx="705" cy="200" rx="5" ry="3" class="fill-pipe"/>
+  <line x1="295" y1="200" x2="705" y2="200" class="svg-line"/>
+  <!-- 中心支柱とL3のスリーブクランプ -->
+  <rect x="488" y="193" width="24" height="14" class="fill-clamp"/>
+  <text x="60" y="203" class="svg-label">L3 (2.00 m)</text>
+
+  <!-- 上止め輪 (馬ポール上にコラー) -->
+  <rect x="395" y="248" width="10" height="6" class="fill-clamp"/>
+  <rect x="595" y="248" width="10" height="6" class="fill-clamp"/>
+
+  <!-- 屋根ブリム -->
+  <ellipse cx="500" cy="158" rx="220" ry="6" fill="#c83838" stroke="#8a2020"/>
+  <!-- 屋根円錐 -->
+  <path d="M 280 158 L 500 50 L 720 158 Z" fill="#c83838" stroke="#8a2020"/>
+  <!-- ストライプ (簡易) -->
+  <path d="M 280 158 L 500 50 L 390 155 Z" fill="#f2efe6" stroke="#8a2020" stroke-width="0.5"/>
+  <path d="M 720 158 L 500 50 L 610 155 Z" fill="#f2efe6" stroke="#8a2020" stroke-width="0.5"/>
+  <!-- 玉飾り -->
+  <circle cx="500" cy="42" r="7" class="fill-finial"/>
+
+  <!-- ============== 寸法線 ============== -->
+  <!-- 高さ寸法 (右側) -->
+  <line x1="760" y1="640" x2="800" y2="640" class="svg-dim"/>
+  <line x1="760" y1="475" x2="800" y2="475" class="svg-dim"/>
+  <line x1="760" y1="453" x2="800" y2="453" class="svg-dim"/>
+  <line x1="760" y1="200" x2="800" y2="200" class="svg-dim"/>
+  <line x1="760" y1="158" x2="800" y2="158" class="svg-dim"/>
+  <line x1="760" y1="42" x2="800" y2="42" class="svg-dim"/>
+
+  <line x1="780" y1="640" x2="780" y2="475" class="svg-dim"/>
+  <line x1="780" y1="475" x2="780" y2="453" class="svg-dim"/>
+  <line x1="780" y1="453" x2="780" y2="200" class="svg-dim"/>
+  <line x1="780" y1="200" x2="780" y2="158" class="svg-dim"/>
+  <line x1="780" y1="158" x2="780" y2="42" class="svg-dim"/>
+
+  <text x="790" y="563" class="svg-dim-text">530</text>
+  <text x="790" y="468" class="svg-dim-text">120</text>
+  <text x="790" y="330" class="svg-dim-text">1350</text>
+  <text x="790" y="183" class="svg-dim-text">200</text>
+  <text x="790" y="105" class="svg-dim-text">620</text>
+
+  <text x="830" y="345" class="svg-dim-text" font-size="13">単位: mm</text>
+
+  <!-- 横幅寸法 (下側) -->
+  <line x1="100" y1="685" x2="100" y2="700" class="svg-dim"/>
+  <line x1="397" y1="685" x2="397" y2="700" class="svg-dim"/>
+  <line x1="500" y1="685" x2="500" y2="700" class="svg-dim"/>
+  <line x1="603" y1="685" x2="603" y2="700" class="svg-dim"/>
+  <line x1="900" y1="685" x2="900" y2="700" class="svg-dim"/>
+
+  <line x1="100" y1="695" x2="900" y2="695" class="svg-dim"/>
+  <text x="500" y="715" class="svg-dim-text" text-anchor="middle">φ 4000 (高支柱外面外面)</text>
+
+  <line x1="397" y1="673" x2="603" y2="673" class="svg-dim" stroke-width="0.6"/>
+  <text x="500" y="668" class="svg-dim-text" text-anchor="middle">馬ポール 直径 φ2000</text>
+
+  <!-- 注記 -->
+  <text x="60" y="60" class="svg-label" font-size="13" font-weight="bold">立面図(側面)</text>
+  <text x="60" y="40" class="svg-label-small">縮尺: 約 1/30 表示</text>
+
+</svg>
+<div class="fig-caption">図 1: 立面図 — 側面から見たメリーゴーランド全体。寸法はミリメートル</div>
+</div>
+
+<h3>主要高さ寸法表</h3>
+<table class="spec">
+  <tr><th>位置</th><th>床からの高さ (Y)</th><th>備考</th></tr>
+  <tr><td>波形レール 谷底</td><td>+ 0.075 m (75 mm)</td><td>馬ポール下死点</td></tr>
+  <tr><td>波形レール 中央</td><td>+ 0.150 m</td><td>WAVE_CENTER_Y</td></tr>
+  <tr><td>波形レール 山頂</td><td>+ 0.225 m</td><td>馬ポール上死点</td></tr>
+  <tr><td>馬ポールタイヤ上端 (山時)</td><td>+ 0.425 m</td><td>キャスターφ200mm</td></tr>
+  <tr><td>馬ポールブラケット上端 (山時)</td><td>+ 0.495 m</td><td>クリアランス 35mm</td></tr>
+  <tr><td><strong>L1 # フレーム</strong></td><td>+ 0.530 m / + 0.600 m</td><td>X-pipe / Z-pipe(段差 70 mm)</td></tr>
+  <tr><td><strong>L2 デッキ</strong></td><td>+ 0.650 m</td><td>補強板 + ベニヤ円盤</td></tr>
+  <tr><td>馬の鞍位置 (中央時)</td><td>+ 1.10 m</td><td>HORSE_Y + WAVE_CENTER_Y</td></tr>
+  <tr><td>馬ポール上止め輪</td><td>+ 1.925 m</td><td>L3 で抜け止め</td></tr>
+  <tr><td><strong>L3 十字 X-pipe</strong></td><td>+ 2.000 m</td><td>LAYER3_Y</td></tr>
+  <tr><td><strong>L3 十字 Z-pipe</strong></td><td>+ 2.070 m</td><td>段差 70 mm</td></tr>
+  <tr><td>屋根ブリム</td><td>+ 2.200 m</td><td>ROOF_BRIM_Y</td></tr>
+  <tr><td>屋根円錐頂部</td><td>+ 2.700 m</td><td>円錐高さ 500 mm</td></tr>
+  <tr><td>玉飾り頂部</td><td>+ 2.82 m</td><td>全高</td></tr>
+</table>
+</div>
+
+<!-- ============================================================== -->
+<!-- ページ 3: 平面図 -->
+<!-- ============================================================== -->
+<div class="page">
+<h2>5. 平面図(上面)</h2>
+
+<div class="fig">
+<svg viewBox="-550 -550 1100 1100" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- 床合板アンカー (中心、半径600mm = 円スケールの150) -->
+  <circle cx="0" cy="0" r="150" class="fill-wood" stroke="#1f2733" stroke-width="0.6"/>
+  <!-- 中心支柱(上から見るとパイプ断面) -->
+  <circle cx="0" cy="0" r="7" class="fill-pipe"/>
+  <!-- フランジ -->
+  <circle cx="0" cy="0" r="25" class="svg-line" fill="none"/>
+  <!-- ソケット -->
+  <circle cx="0" cy="0" r="13" class="svg-line" fill="none"/>
+  <!-- 重し 4個(対角) -->
+  <g class="fill-weight">
+    <circle cx="64" cy="64" r="19"/>
+    <circle cx="-64" cy="64" r="19"/>
+    <circle cx="64" cy="-64" r="19"/>
+    <circle cx="-64" cy="-64" r="19"/>
+  </g>
+
+  <!-- 波形レール (上から見ると円環) -->
+  <circle cx="0" cy="0" r="290" class="svg-line-thin" fill="none"/>
+  <circle cx="0" cy="0" r="210" class="svg-line-thin" fill="none"/>
+  <text x="0" y="-296" text-anchor="middle" class="svg-label-small">波形レール(r=210〜290)</text>
+
+  <!-- L1 # frame(2 X-pipe + 2 Z-pipe) -->
+  <!-- X方向(z=±halfGap、halfGap=51.6mm→約13) -->
+  <line x1="-450" y1="-13" x2="450" y2="-13" class="svg-line-thick" stroke="#c8ccd0" stroke-width="3.0"/>
+  <line x1="-450" y1="+13" x2="450" y2="+13" class="svg-line-thick" stroke="#c8ccd0" stroke-width="3.0"/>
+  <line x1="-450" y1="-13" x2="450" y2="-13" class="svg-line-thin"/>
+  <line x1="-450" y1="+13" x2="450" y2="+13" class="svg-line-thin"/>
+  <!-- Z方向(x=±halfGap)、線の上に重ねる -->
+  <line x1="-13" y1="-450" x2="-13" y2="450" class="svg-line-thick" stroke="#c8ccd0" stroke-width="3.0"/>
+  <line x1="+13" y1="-450" x2="+13" y2="450" class="svg-line-thick" stroke="#c8ccd0" stroke-width="3.0"/>
+  <line x1="-13" y1="-450" x2="-13" y2="450" class="svg-line-thin"/>
+  <line x1="+13" y1="-450" x2="+13" y2="450" class="svg-line-thin"/>
+
+  <text x="455" y="-3" class="svg-label-small">L1 # 単管 (φ48.6)</text>
+
+  <!-- L2 ベニヤ円盤 (半径2.0m → スケール500) — 透過表示 -->
+  <circle cx="0" cy="0" r="500" fill="rgba(227,199,143,0.18)" stroke="#a07c4a" stroke-width="0.8" stroke-dasharray="6,3"/>
+  <text x="354" y="-354" class="svg-label-small">L2 ベニヤ円盤 (φ4000)</text>
+
+  <!-- 4 馬ポール (半径1.0m → スケール250) -->
+  <g class="fill-horse">
+    <circle cx="250" cy="0" r="14"/>
+    <circle cx="0" cy="250" r="14"/>
+    <circle cx="-250" cy="0" r="14"/>
+    <circle cx="0" cy="-250" r="14"/>
+  </g>
+  <!-- 馬 (簡易図形 — radialに長い楕円で表現) -->
+  <ellipse cx="250" cy="0" rx="60" ry="22" fill="#f2efe6" stroke="#1f2733" stroke-width="0.6" transform="rotate(0,250,0)"/>
+  <ellipse cx="0" cy="250" rx="60" ry="22" fill="#f2efe6" stroke="#1f2733" stroke-width="0.6" transform="rotate(90,0,250)"/>
+  <ellipse cx="-250" cy="0" rx="60" ry="22" fill="#f2efe6" stroke="#1f2733" stroke-width="0.6" transform="rotate(180,-250,0)"/>
+  <ellipse cx="0" cy="-250" rx="60" ry="22" fill="#f2efe6" stroke="#1f2733" stroke-width="0.6" transform="rotate(270,0,-250)"/>
+  <text x="250" y="48" text-anchor="middle" class="svg-label-small">馬1</text>
+  <text x="0" y="298" text-anchor="middle" class="svg-label-small">馬2</text>
+  <text x="-250" y="48" text-anchor="middle" class="svg-label-small">馬3</text>
+  <text x="0" y="-265" text-anchor="middle" class="svg-label-small">馬4</text>
+
+  <!-- L2 補強板 (180×90 → スケール45×22.5) -->
+  <g fill="#d2a06a" stroke="#1f2733" stroke-width="0.6">
+    <rect x="227.5" y="-11.25" width="45" height="22.5"/>
+    <rect x="-11.25" y="227.5" width="22.5" height="45"/>
+    <rect x="-272.5" y="-11.25" width="45" height="22.5"/>
+    <rect x="-11.25" y="-272.5" width="22.5" height="45"/>
+  </g>
+
+  <!-- 4 木の支柱(対角、半径1.65m → 412.5) -->
+  <g fill="#9a7548" stroke="#1f2733" stroke-width="0.6">
+    <rect x="278" y="278" width="14" height="14"/>
+    <rect x="-292" y="278" width="14" height="14"/>
+    <rect x="278" y="-292" width="14" height="14"/>
+    <rect x="-292" y="-292" width="14" height="14"/>
+  </g>
+  <text x="285" y="270" class="svg-label-small">木支柱</text>
+
+  <!-- 4 高支柱 (端、半径2.05m → 512.5) -->
+  <g class="fill-pipe">
+    <circle cx="512.5" cy="0" r="7"/>
+    <circle cx="0" cy="512.5" r="7"/>
+    <circle cx="-512.5" cy="0" r="7"/>
+    <circle cx="0" cy="-512.5" r="7"/>
+  </g>
+  <text x="525" y="0" class="svg-label-small">高支柱</text>
+
+  <!-- 押し棒 2 本 (接線方向) -->
+  <line x1="500" y1="0" x2="500" y2="0" stroke="none"/>
+  <g stroke="#1f2733" stroke-width="2">
+    <line x1="525" y1="0" x2="535" y2="35"/>
+    <line x1="0" y1="-525" x2="35" y2="-535"/>
+  </g>
+  <text x="540" y="40" class="svg-label-small">押し棒</text>
+  <text x="40" y="-538" class="svg-label-small">押し棒</text>
+
+  <!-- 屋根ブリム (φ4400 → 550) -->
+  <circle cx="0" cy="0" r="550" class="svg-line-thin" fill="none" stroke-dasharray="10,5"/>
+  <text x="389" y="389" class="svg-label-small">屋根ブリム (φ4400)</text>
+
+  <!-- 中心線 -->
+  <line x1="-540" y1="0" x2="540" y2="0" class="svg-center"/>
+  <line x1="0" y1="-540" x2="0" y2="540" class="svg-center"/>
+
+  <!-- 方位 -->
+  <g transform="translate(-470, -470)">
+    <circle cx="0" cy="0" r="25" fill="white" stroke="#1f2733"/>
+    <polygon points="0,-18 5,5 0,0 -5,5" fill="#1f2733"/>
+    <text x="0" y="-22" text-anchor="middle" font-size="9" font-weight="bold">回転方向</text>
+  </g>
+
+  <!-- スケール表示 -->
+  <line x1="-450" y1="500" x2="-200" y2="500" class="svg-dim" stroke-width="1"/>
+  <line x1="-450" y1="495" x2="-450" y2="505" class="svg-dim"/>
+  <line x1="-200" y1="495" x2="-200" y2="505" class="svg-dim"/>
+  <text x="-325" y="490" text-anchor="middle" class="svg-dim-text">1000 mm</text>
+
+  <text x="-540" y="-490" class="svg-label" font-size="13" font-weight="bold">平面図</text>
+  <text x="-540" y="-475" class="svg-label-small">縮尺: 1/40 表示</text>
+</svg>
+<div class="fig-caption">図 2: 平面図 — 上から見た部材配置。中心から放射状に 4 体の馬、4 本の高支柱、対角に 4 本の木の支柱</div>
+</div>
+
+<table class="spec">
+  <tr><th>部位</th><th>配置(半径 r、角度 θ)</th><th>個数</th></tr>
+  <tr><td>馬ポール</td><td>r = 1.00 m、θ = 0°, 90°, 180°, 270°</td><td>4</td></tr>
+  <tr><td>木の支柱(対角)</td><td>r = 1.65 m、θ = 45°, 135°, 225°, 315°</td><td>4</td></tr>
+  <tr><td>高支柱(端)</td><td>r = 2.05 m、θ = 0°, 90°, 180°, 270°</td><td>4</td></tr>
+  <tr><td>L2 補強板(180×90)</td><td>r = 1.00 m、馬ポール真下、180mm 長は半径方向</td><td>4</td></tr>
+  <tr><td>L1 # フレーム 単管 4 本</td><td>X 方向 2 本(z=±51.6)、Z 方向 2 本(x=±51.6)、長さ 4.4 m</td><td>4</td></tr>
+  <tr><td>L3 + 十字パイプ</td><td>X 方向 1 本(z=+51.6)、Z 方向 1 本(x=+51.6)、長さ 4.4 m</td><td>2</td></tr>
+  <tr><td>波形レール</td><td>r = 0.84〜1.16 m、6 波 / 周</td><td>1</td></tr>
+  <tr><td>床合板アンカー(中心)</td><td>r = 0.60 m</td><td>1</td></tr>
+</table>
+</div>
+
+<!-- ============================================================== -->
+<!-- ページ 4: 詳細図 A — 中心支柱アンカー -->
+<!-- ============================================================== -->
+<div class="page">
+<h2>6. 詳細図 A — 中心支柱アンカー(V6 新規)</h2>
+<p>
+中心支柱を床に剛固定する基礎部。床合板 → フランジ → パイプソケット → 中心支柱(単管)
+の順で組み立て、周囲に鋳鉄重し 4 個(各約 5 kg、合計 20 kg)を配置して転倒モーメント
+に抵抗する。レール内側(r < 0.84 m)に収まるサイズなのでレールとの干渉なし。
+</p>
+
+<div class="fig">
+<svg viewBox="0 0 800 540" xmlns="http://www.w3.org/2000/svg">
+  <!-- 床ライン -->
+  <line x1="40" y1="450" x2="760" y2="450" class="svg-line-thick"/>
+  <g stroke="#6c7588" stroke-width="0.6">
+    <line x1="60" y1="450" x2="80" y2="470"/>
+    <line x1="120" y1="450" x2="140" y2="470"/>
+    <line x1="180" y1="450" x2="200" y2="470"/>
+    <line x1="240" y1="450" x2="260" y2="470"/>
+    <line x1="300" y1="450" x2="320" y2="470"/>
+    <line x1="360" y1="450" x2="380" y2="470"/>
+    <line x1="420" y1="450" x2="440" y2="470"/>
+    <line x1="480" y1="450" x2="500" y2="470"/>
+    <line x1="540" y1="450" x2="560" y2="470"/>
+    <line x1="600" y1="450" x2="620" y2="470"/>
+    <line x1="660" y1="450" x2="680" y2="470"/>
+    <line x1="720" y1="450" x2="740" y2="470"/>
+  </g>
+
+  <!-- 中心線 -->
+  <line x1="400" y1="40" x2="400" y2="490" class="svg-center"/>
+
+  <!-- 床合板 (1200mm幅 → 縮尺 0.5px/mm → 600px幅) -->
+  <rect x="100" y="432" width="600" height="18" class="fill-wood" stroke="#1f2733"/>
+  <text x="100" y="425" class="svg-label">床合板 φ1200 × t18 mm</text>
+
+  <!-- フランジ -->
+  <rect x="350" y="420" width="100" height="12" class="fill-caster"/>
+  <text x="460" y="430" class="svg-label-small">鋼製フランジ</text>
+  <text x="460" y="442" class="svg-label-small">φ200 × t12</text>
+  <!-- フランジボルト穴 (簡易) -->
+  <circle cx="375" cy="426" r="3" fill="#1f2733"/>
+  <circle cx="425" cy="426" r="3" fill="#1f2733"/>
+
+  <!-- パイプソケット -->
+  <rect x="375" y="300" width="50" height="120" class="fill-caster"/>
+  <text x="445" y="360" class="svg-label">パイプソケット</text>
+  <text x="445" y="375" class="svg-label-small">φ100 × H120</text>
+  <text x="445" y="390" class="svg-label-small">内径φ48.6+1.5</text>
+  <!-- セットスクリュー -->
+  <rect x="425" y="350" width="14" height="12" class="fill-clamp"/>
+  <text x="445" y="345" class="svg-label-small">セットスクリュー M10</text>
+
+  <!-- 中心支柱(単管) -->
+  <rect x="388" y="50" width="24" height="380" class="fill-pipe"/>
+  <text x="180" y="200" class="svg-label">中心支柱(単管 φ48.6 × t2.4)</text>
+  <text x="180" y="215" class="svg-label-small">全長 2.6 m、JIS G 3444 STK500</text>
+
+  <!-- 重し 4個 (見えるのは2個、対角配置) -->
+  <ellipse cx="245" cy="432" rx="38" ry="6" fill="#1f2733"/>
+  <rect x="207" y="408" width="76" height="24" class="fill-weight"/>
+  <ellipse cx="245" cy="408" rx="38" ry="6" fill="#3a3a3a"/>
+  <text x="245" y="395" text-anchor="middle" class="svg-label-small">鋳鉄重し 5 kg</text>
+  <text x="245" y="385" text-anchor="middle" class="svg-label-small">φ150 × t50 mm</text>
+
+  <ellipse cx="555" cy="432" rx="38" ry="6" fill="#1f2733"/>
+  <rect x="517" y="408" width="76" height="24" class="fill-weight"/>
+  <ellipse cx="555" cy="408" rx="38" ry="6" fill="#3a3a3a"/>
+  <text x="555" y="395" text-anchor="middle" class="svg-label-small">鋳鉄重し 5 kg</text>
+
+  <!-- 寸法線 -->
+  <!-- 高さ寸法 -->
+  <line x1="40" y1="450" x2="20" y2="450" class="svg-dim"/>
+  <line x1="40" y1="432" x2="20" y2="432" class="svg-dim"/>
+  <line x1="40" y1="420" x2="20" y2="420" class="svg-dim"/>
+  <line x1="40" y1="300" x2="20" y2="300" class="svg-dim"/>
+  <line x1="30" y1="450" x2="30" y2="300" class="svg-dim"/>
+  <text x="22" y="380" class="svg-dim-text" transform="rotate(-90,22,380)" text-anchor="middle">150</text>
+
+  <!-- 幅寸法 -->
+  <line x1="100" y1="470" x2="100" y2="490" class="svg-dim"/>
+  <line x1="700" y1="470" x2="700" y2="490" class="svg-dim"/>
+  <line x1="100" y1="485" x2="700" y2="485" class="svg-dim"/>
+  <text x="400" y="510" text-anchor="middle" class="svg-dim-text">1200</text>
+
+  <!-- 各部の番号 -->
+  <g font-size="11" font-family="monospace" font-weight="bold">
+    <circle cx="700" cy="442" r="11" fill="#b04a3a"/>
+    <text x="700" y="445" text-anchor="middle" fill="white">1</text>
+
+    <circle cx="455" cy="420" r="11" fill="#b04a3a"/>
+    <text x="455" y="423" text-anchor="middle" fill="white">2</text>
+
+    <circle cx="450" cy="305" r="11" fill="#b04a3a"/>
+    <text x="450" y="308" text-anchor="middle" fill="white">3</text>
+
+    <circle cx="245" cy="380" r="11" fill="#b04a3a"/>
+    <text x="245" y="383" text-anchor="middle" fill="white">4</text>
+
+    <circle cx="430" cy="80" r="11" fill="#b04a3a"/>
+    <text x="430" y="83" text-anchor="middle" fill="white">5</text>
+  </g>
+
+  <text x="40" y="60" class="svg-label" font-size="13" font-weight="bold">詳細図 A — 中心支柱アンカー(断面)</text>
+</svg>
+<div class="fig-caption">図 3: 中心支柱を床に固定する基礎部詳細</div>
+</div>
+
+<table class="spec">
+  <tr><th>番号</th><th>部品</th><th>仕様</th></tr>
+  <tr><td>①</td><td>床合板</td><td>構造用合板 t18 mm、外径 φ1200 mm 円板</td></tr>
+  <tr><td>②</td><td>鋼製フランジ</td><td>SS400 鋼板 φ200 × t12 mm、合板にM10ボルト4本で固定</td></tr>
+  <tr><td>③</td><td>パイプソケット</td><td>鋼製、外径φ100 × 高さ120 mm、内径φ51.6(挿入時1.5mmクリアランス)</td></tr>
+  <tr><td>④</td><td>鋳鉄重し</td><td>φ150 × t50 mm、5 kg × 4 個 = 20 kg、対角に放射状配置</td></tr>
+  <tr><td>⑤</td><td>中心支柱</td><td>単管 φ48.6 × t2.4 × L2600 mm、JIS STK500、亜鉛メッキ仕上げ</td></tr>
+</table>
+
+<div class="callout">
+<span class="label">転倒モーメント計算</span>
+床合板半径 0.6 m、重し合計 20 kg。中心支柱に水平方向の力が 5 kg(50 N)かかった場合、
+転倒モーメント = 50 × 2.6 = 130 N·m。
+重しによる復元モーメント = 20 × 9.8 × 0.36(平均配置半径) = 70 N·m。
+さらに合板自重 + 上部構造の自重(中心支柱経由でフランジに伝わる垂直荷重)が
+復元側に効くため、実質的に転倒安全率は十分。
+</div>
+</div>
+
+<!-- ============================================================== -->
+<!-- ページ 5: 詳細図 B — 馬ポールアセンブリ -->
+<!-- ============================================================== -->
+<div class="page">
+<h2>7. 詳細図 B — 馬ポール アセンブリ</h2>
+<p>
+馬ポールは単管 φ48.6 mm × 2.0 m、下端にキャスター(φ200 mm)とブラケットを装着し、
+波形レール上を転がる。L1 # フレームに緩め直交クランプで連結され、上下動を許容する。
+上端付近に止め輪を 1 個装着し、L3 を抜けて飛び出さないようにする。
+</p>
+
+<div class="fig">
+<svg viewBox="0 0 800 640" xmlns="http://www.w3.org/2000/svg">
+  <!-- 床 -->
+  <line x1="40" y1="600" x2="760" y2="600" class="svg-line-thick"/>
+
+  <!-- 中心線(ポール) -->
+  <line x1="400" y1="40" x2="400" y2="620" class="svg-center"/>
+
+  <!-- 波形レール (側面で見ると断面) -->
+  <rect x="320" y="555" width="160" height="20" rx="2" fill="#7a5a3a"/>
+  <text x="490" y="567" class="svg-label-small">波形レール</text>
+  <text x="490" y="580" class="svg-label-small">(上下振幅±75mm)</text>
+
+  <!-- キャスター(φ200) -->
+  <circle cx="400" cy="475" r="100" class="fill-caster"/>
+  <circle cx="400" cy="475" r="12" fill="#1f2733"/>
+  <text x="500" y="475" class="svg-label">キャスター φ200</text>
+
+  <!-- ブラケット(80×70×130) -->
+  <rect x="365" y="350" width="70" height="35" class="fill-caster"/>
+  <text x="500" y="370" class="svg-label">ブラケット 80×70×130</text>
+
+  <!-- 馬ポール -->
+  <rect x="388" y="80" width="24" height="270" class="fill-pipe"/>
+  <text x="445" y="240" class="svg-label">馬ポール</text>
+  <text x="445" y="255" class="svg-label-small">単管 φ48.6 × L2000</text>
+
+  <!-- L1 X-pipe (高さ530) — 馬ポール上の方 -->
+  <ellipse cx="380" cy="320" rx="8" ry="4" class="fill-pipe"/>
+  <text x="280" y="318" class="svg-label-small" text-anchor="end">L1 X-pipe</text>
+  <!-- L1 # クランプ (馬ポール×L1 X-pipe) -->
+  <g class="fill-clamp">
+    <ellipse cx="400" cy="318" rx="22" ry="9" stroke="#1f2733" stroke-width="0.8"/>
+    <ellipse cx="385" cy="318" rx="9" ry="4" stroke="#1f2733" stroke-width="0.6"/>
+    <line x1="372" y1="320" x2="362" y2="320" stroke="#1f2733" stroke-width="2"/>
+  </g>
+  <text x="445" y="315" class="svg-label-small">緩めクランプ(L1)</text>
+
+  <!-- 上止め輪 -->
+  <rect x="380" y="135" width="40" height="14" class="fill-clamp"/>
+  <text x="445" y="143" class="svg-label">上止め輪(シャフトカラー)</text>
+  <text x="445" y="158" class="svg-label-small">φ84 × t20</text>
+
+  <!-- 馬 -->
+  <g transform="translate(330,180)">
+    <ellipse cx="40" cy="40" rx="60" ry="28" class="fill-horse"/>
+    <ellipse cx="92" cy="28" rx="22" ry="14" class="fill-horse"/>
+    <rect x="108" y="8" width="22" height="10" class="fill-horse"/>
+    <line x1="-2" y1="63" x2="5" y2="100" class="svg-line-thin"/>
+    <line x1="20" y1="63" x2="20" y2="100" class="svg-line-thin"/>
+    <line x1="60" y1="63" x2="60" y2="100" class="svg-line-thin"/>
+    <line x1="82" y1="63" x2="82" y2="100" class="svg-line-thin"/>
+  </g>
+  <text x="500" y="220" class="svg-label">馬本体</text>
+  <text x="500" y="232" class="svg-label-small">FRP製または木製</text>
+  <text x="500" y="245" class="svg-label-small">乗員想定 30 kg</text>
+
+  <!-- 寸法線 -->
+  <line x1="40" y1="600" x2="20" y2="600" class="svg-dim"/>
+  <line x1="40" y1="475" x2="20" y2="475" class="svg-dim"/>
+  <line x1="40" y1="380" x2="20" y2="380" class="svg-dim"/>
+  <line x1="40" y1="320" x2="20" y2="320" class="svg-dim"/>
+  <line x1="40" y1="220" x2="20" y2="220" class="svg-dim"/>
+  <line x1="40" y1="140" x2="20" y2="140" class="svg-dim"/>
+
+  <line x1="30" y1="600" x2="30" y2="140" class="svg-dim"/>
+
+  <text x="60" y="538" class="svg-dim-text">125 (キャスター中心)</text>
+  <text x="60" y="478" class="svg-dim-text">キャスター φ200</text>
+  <text x="60" y="385" class="svg-dim-text">ブラケット 70</text>
+  <text x="60" y="325" class="svg-dim-text">L1 530</text>
+  <text x="60" y="225" class="svg-dim-text">馬 950</text>
+  <text x="60" y="145" class="svg-dim-text">止め輪 1925</text>
+
+  <text x="40" y="60" class="svg-label" font-size="13" font-weight="bold">詳細図 B — 馬ポール アセンブリ(波の中央位置)</text>
+</svg>
+<div class="fig-caption">図 4: 馬ポール 1 本のアセンブリ詳細(高さ寸法はポール底基準ではなく床基準)</div>
+</div>
+
+<div class="callout">
+<span class="label">緩めクランプの設計意図</span>
+L1 # フレームに取り付けるクランプは <strong>意図的に締め込みを軽くする</strong>。
+馬ポール(φ48.6)はクランプの内径(φ50 程度)を緩く貫通し、波形レールに従って
+最大 ±75 mm の上下動を行う。これにより複雑な機構なしに馬の上下動が実現される。
+</div>
+</div>
+
+<!-- ============================================================== -->
+<!-- ページ 6: 詳細図 C — L2 デッキ -->
+<!-- ============================================================== -->
+<div class="page">
+<h2>8. 詳細図 C — L2 デッキ構造(V6 軽量化版)</h2>
+<p>
+従来の単一円盤(t22 合板、約 166 kg)を撤去し、馬ポール真下の高荷重部分に
+180×90×12 mm の補強合板 4 枚を配置、残りの広い面積を t6 mm の薄ベニヤで覆う。
+これにより L2 デッキ重量は約 50 kg に軽量化される。
+</p>
+
+<div class="fig">
+<svg viewBox="0 0 800 460" xmlns="http://www.w3.org/2000/svg">
+  <!-- 上面図 (左半分) -->
+  <text x="100" y="36" class="svg-label" font-weight="bold">[上面図]</text>
+
+  <!-- ベニヤ円盤 (φ4000) -->
+  <circle cx="200" cy="220" r="180" fill="rgba(227,199,143,0.4)" stroke="#a07c4a" stroke-width="0.8" stroke-dasharray="6,3"/>
+  <text x="200" y="36" text-anchor="middle" class="svg-label-small">ベニヤ円盤 φ4000 × t6</text>
+
+  <!-- 4 補強板 (馬ポール位置) — 半径方向に180mm長 -->
+  <!-- 馬ポール at (45,0) → rect 16×8 centered there -->
+  <g fill="#d2a06a" stroke="#1f2733" stroke-width="0.7">
+    <rect x="91" y="216" width="18" height="8"/>  <!-- 馬1 (x方向) -->
+    <rect x="291" y="216" width="18" height="8"/>  <!-- 馬3 -->
+    <rect x="196" y="121" width="8" height="18"/>  <!-- 馬2 (z方向) -->
+    <rect x="196" y="301" width="8" height="18"/>  <!-- 馬4 -->
+  </g>
+  <text x="300" y="232" class="svg-label-small">180×90×12 mm</text>
+
+  <!-- 馬ポール位置 -->
+  <g class="fill-horse">
+    <circle cx="100" cy="220" r="3"/>
+    <circle cx="300" cy="220" r="3"/>
+    <circle cx="200" cy="130" r="3"/>
+    <circle cx="200" cy="310" r="3"/>
+  </g>
+
+  <!-- L1 #フレーム (細い線で表示) -->
+  <line x1="20" y1="217" x2="380" y2="217" stroke="#c8ccd0" stroke-width="2"/>
+  <line x1="20" y1="223" x2="380" y2="223" stroke="#c8ccd0" stroke-width="2"/>
+  <line x1="197" y1="40" x2="197" y2="400" stroke="#c8ccd0" stroke-width="2"/>
+  <line x1="203" y1="40" x2="203" y2="400" stroke="#c8ccd0" stroke-width="2"/>
+  <text x="22" y="232" class="svg-label-small">L1 # 単管</text>
+
+  <!-- 中心 -->
+  <circle cx="200" cy="220" r="4" fill="#1f2733"/>
+
+  <!-- 寸法線 -->
+  <line x1="100" y1="395" x2="100" y2="410" class="svg-dim"/>
+  <line x1="300" y1="395" x2="300" y2="410" class="svg-dim"/>
+  <line x1="100" y1="405" x2="300" y2="405" class="svg-dim"/>
+  <text x="200" y="420" text-anchor="middle" class="svg-dim-text">2000 (馬ポール間距離)</text>
+
+  <!-- =====================================
+       断面図 (右半分)
+       ===================================== -->
+  <text x="600" y="36" class="svg-label" font-weight="bold">[A-A 断面]</text>
+
+  <!-- L1 X-pipe (低い方) -->
+  <ellipse cx="450" cy="280" rx="8" ry="4" class="fill-pipe"/>
+  <ellipse cx="750" cy="280" rx="8" ry="4" class="fill-pipe"/>
+  <line x1="450" y1="280" x2="750" y2="280" class="svg-line" stroke="#c8ccd0" stroke-width="3"/>
+  <line x1="450" y1="284" x2="750" y2="284" class="svg-line" stroke="#1f2733" stroke-width="0.5"/>
+  <line x1="450" y1="276" x2="750" y2="276" class="svg-line" stroke="#1f2733" stroke-width="0.5"/>
+
+  <!-- L1 Z-pipe (高い方) -->
+  <ellipse cx="600" cy="250" rx="4" ry="8" class="fill-pipe"/>
+
+  <!-- 補強板 (180×90×12) -->
+  <rect x="555" y="222" width="90" height="6" class="fill-wood" stroke="#1f2733"/>
+  <text x="660" y="225" class="svg-label-small">補強板 180mm</text>
+  <text x="660" y="240" class="svg-label-small">(12 mm 厚)</text>
+
+  <!-- ベニヤ円盤 -->
+  <rect x="430" y="215" width="340" height="3" class="fill-veneer" stroke="#1f2733" stroke-width="0.4"/>
+  <text x="500" y="208" class="svg-label-small">ベニヤ t6 (連続)</text>
+
+  <!-- 馬ポール -->
+  <rect x="595" y="100" width="10" height="180" class="fill-pipe"/>
+  <text x="615" y="160" class="svg-label-small">馬ポール</text>
+  <text x="615" y="174" class="svg-label-small">(穴φ55mm)</text>
+
+  <!-- 寸法 -->
+  <line x1="550" y1="195" x2="550" y2="180" class="svg-dim"/>
+  <line x1="650" y1="195" x2="650" y2="180" class="svg-dim"/>
+  <line x1="550" y1="187" x2="650" y2="187" class="svg-dim"/>
+  <text x="600" y="182" text-anchor="middle" class="svg-dim-text">90 (90mm)</text>
+
+  <text x="430" y="60" class="svg-label-small">L2 (Y=650mm)</text>
+  <text x="430" y="74" class="svg-label-small">L1 X-pipe (Y=530mm)</text>
+  <text x="430" y="88" class="svg-label-small">L1 Z-pipe (Y=600mm)</text>
+
+  <!-- A-A 線 -->
+  <line x1="100" y1="220" x2="300" y2="220" class="svg-dim" stroke-width="1.0" stroke-dasharray="6,3"/>
+  <text x="100" y="215" class="svg-dim-text">A</text>
+  <text x="300" y="215" class="svg-dim-text">A</text>
+
+</svg>
+<div class="fig-caption">図 5: L2 デッキ — 上面図(左)と A-A 断面(右)</div>
+</div>
+
+<table class="spec">
+  <tr><th>部材</th><th>仕様</th><th>個数</th><th>重量</th></tr>
+  <tr><td>補強板</td><td>構造用合板 180×90×12 mm</td><td>4</td><td>約 0.12 kg/枚 → 0.5 kg</td></tr>
+  <tr><td>ベニヤ円盤</td><td>3 mm + 3 mm 重ね合板 = t6 mm、外径 φ4000 mm、内側に馬ポール用 φ55 mm 穴 × 4</td><td>1</td><td>約 45 kg</td></tr>
+  <tr><td>固定金具</td><td>木ネジ φ4 × 30 mm</td><td>約 80 本</td><td>—</td></tr>
+  <tr><td>L2 デッキ合計</td><td>—</td><td>—</td><td><strong>約 46 kg</strong>(従来比 −120 kg)</td></tr>
+</table>
+</div>
+
+<!-- ============================================================== -->
+<!-- ページ 7: 詳細図 D — L3 + 中心スリーブ -->
+<!-- ============================================================== -->
+<div class="page">
+<h2>9. 詳細図 D — L3 十字パイプ + 中心スリーブクランプ</h2>
+<p>
+L3 は 2 本の単管を「+」字に組んだ上部フレーム。X-pipe は LAYER3_Y、Z-pipe は
+70 mm 上にオフセットして交差させる。中心支柱と L3 を 2 つの直交クランプで
+連結するが、これらは <strong>緩めに締めて中心支柱との間に約 1.5 mm のクリアランス
+を確保</strong> し、回転を妨げないスリーブベアリングとして機能させる。
+</p>
+
+<div class="fig">
+<svg viewBox="0 0 800 440" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- 上面図 (左) -->
+  <text x="100" y="36" class="svg-label" font-weight="bold">[上面図]</text>
+
+  <!-- L3 X-pipe (z=+halfGap) -->
+  <line x1="40" y1="218" x2="380" y2="218" class="svg-line-thick" stroke="#c8ccd0" stroke-width="6"/>
+  <line x1="40" y1="218" x2="380" y2="218" class="svg-line"/>
+  <text x="60" y="240" class="svg-label-small">L3 X-pipe (z=+52)</text>
+
+  <!-- L3 Z-pipe (x=+halfGap, y はY軸方向に少しオフセット) -->
+  <line x1="208" y1="50" x2="208" y2="380" class="svg-line-thick" stroke="#c8ccd0" stroke-width="6"/>
+  <line x1="208" y1="50" x2="208" y2="380" class="svg-line"/>
+  <text x="220" y="80" class="svg-label-small">L3 Z-pipe (x=+52)</text>
+
+  <!-- 中心支柱 (パイプ断面) -->
+  <circle cx="200" cy="210" r="12" class="fill-pipe"/>
+
+  <!-- 中心クランプ #1 (Y × X) -->
+  <ellipse cx="200" cy="218" rx="22" ry="9" class="fill-clamp" stroke="#1f2733"/>
+  <line x1="178" y1="218" x2="166" y2="218" stroke="#1f2733" stroke-width="2"/>
+  <text x="170" y="208" class="svg-label-small">クランプ#1</text>
+
+  <!-- 中心クランプ #2 (Y × Z) -->
+  <ellipse cx="208" cy="210" rx="9" ry="22" class="fill-clamp" stroke="#1f2733"/>
+  <line x1="208" y1="232" x2="208" y2="244" stroke="#1f2733" stroke-width="2"/>
+  <text x="232" y="234" class="svg-label-small">クランプ#2</text>
+
+  <!-- 高支柱 (端) - 4本 -->
+  <g class="fill-pipe">
+    <circle cx="370" cy="210" r="6"/>
+    <circle cx="30" cy="210" r="6"/>
+    <circle cx="200" cy="40" r="6"/>
+    <circle cx="200" cy="380" r="6"/>
+  </g>
+  <!-- 高支柱×L3 クランプ位置 -->
+  <g class="fill-clamp" stroke="#1f2733" stroke-width="0.6">
+    <ellipse cx="370" cy="218" rx="14" ry="7"/>
+    <ellipse cx="30" cy="218" rx="14" ry="7"/>
+    <ellipse cx="208" cy="40" rx="7" ry="14"/>
+    <ellipse cx="208" cy="380" rx="7" ry="14"/>
+  </g>
+
+  <!-- ===== 拡大断面図 (右) ===== -->
+  <text x="450" y="36" class="svg-label" font-weight="bold">[中心部 拡大断面]</text>
+
+  <!-- 中心支柱 -->
+  <rect x="585" y="80" width="30" height="320" class="fill-pipe"/>
+  <text x="630" y="200" class="svg-label">中心支柱</text>
+  <text x="630" y="215" class="svg-label-small">φ48.6 静止</text>
+
+  <!-- L3 X-pipe (左右に伸びる) -->
+  <line x1="470" y1="220" x2="730" y2="220" stroke="#c8ccd0" stroke-width="12"/>
+  <line x1="470" y1="226" x2="730" y2="226" class="svg-line" stroke-width="0.5"/>
+  <line x1="470" y1="214" x2="730" y2="214" class="svg-line" stroke-width="0.5"/>
+  <text x="450" y="216" class="svg-label-small" text-anchor="end">L3 X-pipe</text>
+  <text x="450" y="228" class="svg-label-small" text-anchor="end">(回転)</text>
+
+  <!-- スリーブクランプ#1 -->
+  <g>
+    <!-- リング1 (中心支柱用) -->
+    <ellipse cx="600" cy="222" rx="20" ry="14" fill="none" stroke="#c8a02e" stroke-width="3"/>
+    <!-- リング2 (X-pipe用) -->
+    <ellipse cx="625" cy="220" rx="14" ry="20" fill="none" stroke="#c8a02e" stroke-width="3"/>
+    <!-- ボルト -->
+    <line x1="580" y1="240" x2="572" y2="248" stroke="#a07b1e" stroke-width="3"/>
+    <line x1="625" y1="245" x2="630" y2="255" stroke="#a07b1e" stroke-width="3"/>
+  </g>
+  <text x="500" y="250" class="svg-label-small" text-anchor="end">緩めスリーブ</text>
+  <text x="500" y="263" class="svg-label-small" text-anchor="end">クランプ#1</text>
+
+  <!-- L3 Z-pipe (Y方向にオフセット = 70mm上) -->
+  <ellipse cx="600" cy="150" rx="12" ry="6" class="fill-pipe"/>
+  <text x="630" y="148" class="svg-label-small">L3 Z-pipe</text>
+  <text x="630" y="160" class="svg-label-small">(z軸方向、奥行)</text>
+
+  <!-- スリーブクランプ#2 -->
+  <ellipse cx="600" cy="155" rx="18" ry="13" fill="none" stroke="#c8a02e" stroke-width="3"/>
+
+  <!-- 高さ寸法 -->
+  <line x1="440" y1="150" x2="430" y2="150" class="svg-dim"/>
+  <line x1="440" y1="220" x2="430" y2="220" class="svg-dim"/>
+  <line x1="435" y1="150" x2="435" y2="220" class="svg-dim"/>
+  <text x="425" y="190" class="svg-dim-text" text-anchor="end">70</text>
+
+  <!-- 中心支柱に対するクリアランス図示 -->
+  <text x="660" y="290" class="svg-label-small">クランプ内径 φ51.6</text>
+  <text x="660" y="304" class="svg-label-small">支柱外径 φ48.6</text>
+  <text x="660" y="318" class="svg-label-small">→ クリアランス 1.5mm/側</text>
+  <text x="660" y="332" class="svg-label-small" style="font-weight:bold">これにより滑り回転</text>
+</svg>
+<div class="fig-caption">図 6: L3 十字パイプと中心支柱の連結(左:上から見た配置、右:中心部の側面断面)</div>
+</div>
+
+<div class="callout">
+<span class="label">緩めクランプの実装</span>
+通常の足場用クランプは「固定」(締め込み)で使うが、本機の中心スリーブクランプは
+ボルトの締め込みを <strong>指で軽く回す程度に止める</strong>。クランプ内径(リングの
+締まる径)が支柱外径より 約 3 mm 大きくなるよう調整し、回転中の摩擦は十分小さく
+保つ。クランプ自体は L3 パイプにはきっちり固定される。
+</div>
+
+<table class="spec">
+  <tr><th>部材</th><th>仕様</th><th>個数</th></tr>
+  <tr><td>L3 X-pipe</td><td>単管 φ48.6 × t2.4 × L4400</td><td>1</td></tr>
+  <tr><td>L3 Z-pipe</td><td>同上、高さ 70 mm 上にオフセット交差</td><td>1</td></tr>
+  <tr><td>中心スリーブクランプ</td><td>足場用直交クランプ、緩め取付(支柱側のみ)</td><td>2</td></tr>
+  <tr><td>高支柱クランプ</td><td>足場用直交クランプ、本締め(両側固定)</td><td>4</td></tr>
+  <tr><td>L3 中央交差クランプ</td><td>X × Z 直交クランプ、本締め(両 L3 パイプ)</td><td>1</td></tr>
+</table>
+</div>
+
+<!-- ============================================================== -->
+<!-- ページ 8: 詳細図 E — 直交クランプ -->
+<!-- ============================================================== -->
+<div class="page">
+<h2>10. 詳細図 E — 足場用直交クランプ</h2>
+<p>市販の足場用直交クランプ(固定クランプ、亜鉛メッキ品)。本機では計 約 20 個使用。</p>
+
+<div class="fig">
+<svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- 左:側面 -->
+  <text x="100" y="40" class="svg-label" font-weight="bold">[側面図]</text>
+
+  <!-- リング1 (水平) -->
+  <ellipse cx="200" cy="180" rx="60" ry="40" fill="none" stroke="#c8a02e" stroke-width="6"/>
+  <ellipse cx="200" cy="180" rx="48" ry="32" fill="none" stroke="#c8a02e" stroke-width="2"/>
+  <!-- ボルト1 -->
+  <rect x="260" y="172" width="40" height="14" fill="#a07b1e"/>
+  <circle cx="300" cy="179" r="9" fill="#1f2733"/>
+  <text x="320" y="184" class="svg-label-small">M12 ボルト</text>
+
+  <!-- 中央コネクタ -->
+  <rect x="190" y="200" width="20" height="20" fill="#c8a02e" stroke="#1f2733"/>
+
+  <!-- リング2 (垂直) -->
+  <ellipse cx="200" cy="270" rx="40" ry="60" fill="none" stroke="#c8a02e" stroke-width="6"/>
+  <ellipse cx="200" cy="270" rx="32" ry="48" fill="none" stroke="#c8a02e" stroke-width="2"/>
+  <!-- ボルト2 -->
+  <rect x="172" y="330" width="14" height="40" fill="#a07b1e"/>
+  <circle cx="179" cy="370" r="9" fill="#1f2733"/>
+
+  <!-- パイプ1 (水平、リング1内) -->
+  <line x1="100" y1="180" x2="300" y2="180" stroke="#c8ccd0" stroke-width="20"/>
+  <line x1="100" y1="170" x2="300" y2="170" class="svg-line"/>
+  <line x1="100" y1="190" x2="300" y2="190" class="svg-line"/>
+  <text x="80" y="184" class="svg-label-small" text-anchor="end">パイプ1</text>
+
+  <!-- パイプ2 (垂直、リング2内) -->
+  <line x1="200" y1="200" x2="200" y2="380" stroke="#c8ccd0" stroke-width="20"/>
+  <line x1="190" y1="200" x2="190" y2="380" class="svg-line"/>
+  <line x1="210" y1="200" x2="210" y2="380" class="svg-line"/>
+
+  <!-- 寸法 -->
+  <line x1="140" y1="220" x2="140" y2="240" class="svg-dim"/>
+  <line x1="260" y1="220" x2="260" y2="240" class="svg-dim"/>
+  <line x1="140" y1="232" x2="260" y2="232" class="svg-dim"/>
+  <text x="200" y="252" text-anchor="middle" class="svg-dim-text">120 (リング外径)</text>
+
+  <!-- 右側説明 -->
+  <text x="450" y="40" class="svg-label" font-weight="bold">[特徴]</text>
+  <g font-size="13" fill="#1f2733">
+    <text x="450" y="80">• 用途: 単管を直角に連結(90°固定)</text>
+    <text x="450" y="105">• 材質: ダクタイル鋳鉄、亜鉛メッキ</text>
+    <text x="450" y="130">• 受け径: φ48.6 mm 専用</text>
+    <text x="450" y="155">• 定格滑り荷重: 5.0 kN</text>
+    <text x="450" y="180">• 締付トルク: 40 N·m(本締時)</text>
+    <text x="450" y="205">• 重量: 約 0.7 kg/個</text>
+    <text x="450" y="230">• 価格: 約 ¥200〜400 / 個(2026 時点)</text>
+  </g>
+
+  <text x="450" y="280" class="svg-label" font-weight="bold">[使用箇所と総数]</text>
+  <g font-size="13" fill="#1f2733">
+    <text x="450" y="305">• 馬ポール×L1(緩め)... 4 個</text>
+    <text x="450" y="325">• 高支柱×L1(本締)... 4 個</text>
+    <text x="450" y="345">• 高支柱×L3(本締)... 4 個</text>
+    <text x="450" y="365">• L3 中央 X×Z(本締)... 1 個</text>
+    <text x="450" y="385">• 中心支柱×L3(緩め)... 2 個 = 計 15 個</text>
+  </g>
+</svg>
+<div class="fig-caption">図 7: 足場用直交クランプ詳細(JIS A 8951 準拠相当)</div>
+</div>
+</div>
+
+<!-- ============================================================== -->
+<!-- ページ 9: 詳細図 F — 波形レール DIY 構造 -->
+<!-- ============================================================== -->
+<div class="page">
+<h2>11. 詳細図 F — 波形レール DIY 構造</h2>
+<p>
+カム機構の核となる波形レールを、低コストで実現する DIY 構造。
+プライウッドの環状ベース(基台)の上に <strong>市販雑誌(ジャンプ、マガジン等)
+のページを段階的にカット</strong> して積層し、波形の高低を作る。仕上げに薄い
+曲げ木(t3 mm)または段ボール(2 枚重ね)を被せて滑らかな転がり面とする。
+</p>
+
+<div class="fig">
+<svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- 平面図 (上、左半分) -->
+  <text x="40" y="36" class="svg-label" font-weight="bold">[平面図(部分拡大)]</text>
+
+  <!-- 環状ベース -->
+  <path d="M 50 200 L 350 200 L 350 230 L 50 230 Z" fill="#d2a06a" stroke="#1f2733"/>
+  <text x="60" y="220" class="svg-label-small">プライウッドベース t12</text>
+
+  <!-- 紙束の段階的高さ -->
+  <g>
+    <!-- 12分割の波の片半分 (上から見ると山と谷の繰り返し) -->
+    <rect x="70" y="180" width="40" height="20" fill="#fef3d8" stroke="#a07c4a" stroke-width="0.5"/>
+    <rect x="120" y="190" width="40" height="10" fill="#fef3d8" stroke="#a07c4a" stroke-width="0.5"/>
+    <rect x="170" y="170" width="40" height="30" fill="#fef3d8" stroke="#a07c4a" stroke-width="0.5"/>
+    <rect x="220" y="195" width="40" height="5" fill="#fef3d8" stroke="#a07c4a" stroke-width="0.5"/>
+    <rect x="270" y="160" width="40" height="40" fill="#fef3d8" stroke="#a07c4a" stroke-width="0.5"/>
+  </g>
+  <text x="170" y="155" text-anchor="middle" class="svg-label-small">↑ 紙の高さで波形を作る</text>
+
+  <!-- 断面拡大 (右半分) -->
+  <text x="450" y="36" class="svg-label" font-weight="bold">[断面詳細]</text>
+
+  <!-- 床 -->
+  <line x1="430" y1="430" x2="770" y2="430" class="svg-line-thick"/>
+
+  <!-- プライウッドベース -->
+  <rect x="450" y="416" width="300" height="14" class="fill-wood" stroke="#1f2733"/>
+  <text x="780" y="425" class="svg-label-small" text-anchor="end" transform="translate(0,0)"></text>
+  <text x="770" y="455" class="svg-label-small" text-anchor="end">プライウッド t12</text>
+
+  <!-- 紙束 (段階的に積層) -->
+  <g>
+    <!-- 1段目 -->
+    <rect x="450" y="402" width="300" height="14" fill="#fef3d8" stroke="#a07c4a" stroke-width="0.4"/>
+    <!-- 2段目: 中央部のみ -->
+    <rect x="490" y="388" width="220" height="14" fill="#fef3d8" stroke="#a07c4a" stroke-width="0.4"/>
+    <!-- 3段目: より中央のみ -->
+    <rect x="530" y="374" width="140" height="14" fill="#fef3d8" stroke="#a07c4a" stroke-width="0.4"/>
+    <!-- 4段目: 中央少し -->
+    <rect x="570" y="360" width="60" height="14" fill="#fef3d8" stroke="#a07c4a" stroke-width="0.4"/>
+  </g>
+  <text x="380" y="395" class="svg-label-small">紙束 ×4段</text>
+  <text x="380" y="408" class="svg-label-small">(ジャンプを階段状に切る)</text>
+
+  <!-- 仕上げ材 (薄い曲げ木 or 段ボール) -->
+  <path d="M 450 402 Q 480 396 510 392 Q 540 384 570 360 Q 600 348 630 360 Q 660 384 690 392 Q 720 396 750 402 L 750 397 Q 720 391 690 387 Q 660 379 630 355 Q 600 343 570 355 Q 540 379 510 387 Q 480 391 450 397 Z" fill="#c8a87e" stroke="#1f2733" stroke-width="1.2"/>
+  <text x="600" y="340" text-anchor="middle" class="svg-label">薄い曲げ木 t3</text>
+  <text x="600" y="354" text-anchor="middle" class="svg-label-small">(または段ボール 2 重)</text>
+
+  <!-- キャスター (上に乗ってる) -->
+  <circle cx="600" cy="320" r="34" class="fill-caster"/>
+  <text x="640" y="320" class="svg-label-small">馬ポール キャスター φ200</text>
+
+  <!-- 寸法 -->
+  <line x1="420" y1="430" x2="410" y2="430" class="svg-dim"/>
+  <line x1="420" y1="360" x2="410" y2="360" class="svg-dim"/>
+  <line x1="415" y1="430" x2="415" y2="360" class="svg-dim"/>
+  <text x="408" y="395" class="svg-dim-text" text-anchor="end">70</text>
+
+  <!-- 寸法線 (波) -->
+  <line x1="780" y1="400" x2="800" y2="400" class="svg-dim"/>
+  <line x1="780" y1="356" x2="800" y2="356" class="svg-dim"/>
+  <line x1="790" y1="400" x2="790" y2="356" class="svg-dim"/>
+  <text x="795" y="380" class="svg-dim-text">75 (振幅)</text>
+</svg>
+<div class="fig-caption">図 8: 波形レール DIY 構造の断面詳細</div>
+</div>
+
+<div class="callout">
+<span class="label">製作のコツ</span>
+<ul style="margin:8px 0; padding-left:20px;">
+  <li>ベースは外径 φ1160 / 内径 φ800 mm の環状にカット。市販合板から円弧 6 枚を切り出しジョイントするのが現実的</li>
+  <li>紙束は 1 段あたり 5 mm 程度の高さで、4 段で計 20 mm。波頂部の高さを上げる場合は段数を増やす</li>
+  <li>1 周 6 波形 → 60° ごとに山頂。波形の高低差は ±75 mm が目標(=計 150 mm の段差)</li>
+  <li>仕上げ材の曲げ木はバンドソーで薄く切るか、ベニヤ複数枚を熱湯で柔らかくして曲げる</li>
+  <li>定期点検: 紙束は湿気で潰れることがあるため、月 1 回は仕上げ材を外して確認</li>
+</ul>
+</div>
+</div>
+
+<!-- ============================================================== -->
+<!-- ページ 10: 部品表(BOM) -->
+<!-- ============================================================== -->
+<div class="page">
+<h2>12. 部品表(BOM)</h2>
+
+<h3>12.1 主要パイプ材(単管)</h3>
+<table class="bom">
+  <tr><th>No.</th><th>部品</th><th>仕様</th><th class="num">長さ (mm)</th><th class="qty">数量</th><th>単重</th></tr>
+  <tr><td class="num">1</td><td>中心支柱</td><td>単管 φ48.6 × t2.4 STK500</td><td class="num">2600</td><td class="qty">1</td><td>10.4 kg</td></tr>
+  <tr><td class="num">2</td><td>L1 # フレーム X-pipe</td><td>同上</td><td class="num">4400</td><td class="qty">2</td><td>17.6 kg/本</td></tr>
+  <tr><td class="num">3</td><td>L1 # フレーム Z-pipe</td><td>同上</td><td class="num">4400</td><td class="qty">2</td><td>17.6 kg/本</td></tr>
+  <tr><td class="num">4</td><td>L3 + 十字 X-pipe</td><td>同上</td><td class="num">4400</td><td class="qty">1</td><td>17.6 kg</td></tr>
+  <tr><td class="num">5</td><td>L3 + 十字 Z-pipe</td><td>同上</td><td class="num">4400</td><td class="qty">1</td><td>17.6 kg</td></tr>
+  <tr><td class="num">6</td><td>馬ポール</td><td>同上</td><td class="num">2000</td><td class="qty">4</td><td>8.0 kg/本</td></tr>
+  <tr><td class="num">7</td><td>高支柱(端)</td><td>同上</td><td class="num">2115</td><td class="qty">4</td><td>8.5 kg/本</td></tr>
+  <tr><td class="num">8</td><td>押し棒</td><td>同上</td><td class="num">1500</td><td class="qty">2</td><td>6.0 kg/本</td></tr>
+  <tr><td colspan="4">単管小計</td><td class="qty">17 本</td><td><strong>約 211 kg</strong></td></tr>
+</table>
+
+<h3>12.2 木材 / 合板</h3>
+<table class="bom">
+  <tr><th>No.</th><th>部品</th><th>仕様</th><th class="num">寸法 (mm)</th><th class="qty">数量</th><th>備考</th></tr>
+  <tr><td class="num">9</td><td>木の支柱(対角)</td><td>SPF 角材</td><td class="num">55 × 55 × 565</td><td class="qty">4</td><td>L2 高さ調整可</td></tr>
+  <tr><td class="num">10</td><td>L2 補強板</td><td>構造用合板</td><td class="num">180 × 90 × 12</td><td class="qty">4</td><td>馬ポール真下</td></tr>
+  <tr><td class="num">11</td><td>L2 ベニヤ円盤</td><td>ラワン合板 t6</td><td class="num">φ4000</td><td class="qty">1</td><td>馬ポール用 φ55 穴 × 4</td></tr>
+  <tr><td class="num">12</td><td>中心アンカー床合板</td><td>構造用合板 t18</td><td class="num">φ1200</td><td class="qty">1</td><td>—</td></tr>
+  <tr><td class="num">13</td><td>波形レール基台</td><td>構造用合板 t12</td><td class="num">φ800〜1200 環状</td><td class="qty">1</td><td>6 ピース円弧</td></tr>
+  <tr><td class="num">14</td><td>波形レール仕上げ材</td><td>曲げ木 or 段ボール</td><td class="num">t3 × W320 × 全周</td><td class="qty">1</td><td>—</td></tr>
+  <tr><td class="num">15</td><td>紙束(波形)</td><td>市販雑誌 階段切り</td><td class="num">—</td><td class="qty">適量</td><td>4 段、計 20 mm 高</td></tr>
+</table>
+
+<h3>12.3 金具・クランプ類</h3>
+<table class="bom">
+  <tr><th>No.</th><th>部品</th><th>仕様</th><th class="qty">数量</th><th>備考</th></tr>
+  <tr><td class="num">16</td><td>足場直交クランプ</td><td>JIS A 8951 相当、亜鉛メッキ、定格 5 kN</td><td class="qty">15</td><td>15 番〜29 番のうち 11 本締・4 緩め</td></tr>
+  <tr><td class="num">17</td><td>キャスター(馬ポール)</td><td>φ200 mm ナイロン、ボルト留め</td><td class="qty">4</td><td>—</td></tr>
+  <tr><td class="num">18</td><td>キャスター(高支柱/木支柱)</td><td>φ100 mm ナイロン、ボルト留め</td><td class="qty">8</td><td>—</td></tr>
+  <tr><td class="num">19</td><td>中心パイプソケット</td><td>鋼 φ100 × H120、内径 φ51.6</td><td class="qty">1</td><td>セットスクリュー M10</td></tr>
+  <tr><td class="num">20</td><td>中心フランジ</td><td>SS400 φ200 × t12</td><td class="qty">1</td><td>M10 ボルト 4 穴</td></tr>
+  <tr><td class="num">21</td><td>シャフトカラー(上止め輪)</td><td>φ48.6 用 φ80 × t20</td><td class="qty">4</td><td>馬ポール用</td></tr>
+  <tr><td class="num">22</td><td>鋳鉄重し</td><td>φ150 × t50、約 5 kg/個</td><td class="qty">4</td><td>—</td></tr>
+  <tr><td class="num">23</td><td>M10 ボルト・ナット・ワッシャ</td><td>ステンレス</td><td class="qty">セット</td><td>フランジ留め、その他</td></tr>
+  <tr><td class="num">24</td><td>木ネジ φ4 × 30</td><td>—</td><td class="qty">約 100 本</td><td>ベニヤ留め</td></tr>
+</table>
+
+<h3>12.4 装飾類</h3>
+<table class="bom">
+  <tr><th>No.</th><th>部品</th><th>仕様</th><th class="qty">数量</th><th>備考</th></tr>
+  <tr><td class="num">25</td><td>馬本体</td><td>FRP または木製</td><td class="qty">4</td><td>外注 or 自作</td></tr>
+  <tr><td class="num">26</td><td>屋根布</td><td>テント布、赤・白ストライプ 8 分割</td><td class="qty">1 セット</td><td>φ4400 円錐</td></tr>
+  <tr><td class="num">27</td><td>玉飾り(フィニアル)</td><td>木製 φ140、金色塗装</td><td class="qty">1</td><td>—</td></tr>
+</table>
+
+<div class="callout">
+<span class="label">概算費用(2026 年時点目安)</span>
+単管 17 本 ≈ ¥35,000 / クランプ 15 個 ≈ ¥6,000 / キャスター類 ≈ ¥15,000 / 木材合板 ≈ ¥20,000 /
+鋳鉄重し ≈ ¥8,000 / 馬本体(外注) ≈ ¥80,000〜200,000 / 屋根布 ≈ ¥15,000 / 装飾 ≈ ¥10,000
+<br>→ 概算合計 <strong>¥190,000〜310,000</strong>(馬の調達方法で大きく変動)
+</div>
+</div>
+
+<!-- ============================================================== -->
+<!-- ページ 11: 組立手順 -->
+<!-- ============================================================== -->
+<div class="page">
+<h2>13. 組立手順</h2>
+
+<h3>Phase 1: 基礎工事(所要 半日)</h3>
+<ol class="assembly">
+  <li>設置場所(教室など 9×7 m 以上、平坦床)を選定し、中心点をテープでマーキング</li>
+  <li>床合板 φ1200(部品 #12)を中心に敷く。床と固定する場合は両面テープ or ゴム滑り止めシート</li>
+  <li>合板上に鋼製フランジ(部品 #20)を中心位置に M10 ボルト 4 本で締結</li>
+  <li>パイプソケット(部品 #19)をフランジに溶接 or ボルト固定</li>
+  <li>波形レール基台(部品 #13)を組み立て、床合板の外周に環状に配置(中心から半径 0.40〜0.60 m)</li>
+  <li>基台の上に紙束(部品 #15)を波形に積層、4 段で 20 mm 高、波数 6/周</li>
+  <li>仕上げ材(部品 #14)を紙束の上に被せ、両端を粘着テープで仮固定</li>
+</ol>
+
+<h3>Phase 2: 中心支柱と上部フレーム(所要 半日)</h3>
+<ol class="assembly">
+  <li>中心支柱(部品 #1、2.6 m)を <strong>2 人で</strong> パイプソケットに挿入、セットスクリュー M10 で固定</li>
+  <li>支柱が垂直か水準器で確認、必要なら重し(部品 #22)4 個を対角に配置して微調整</li>
+  <li>足場 or 脚立を準備し、L3 X-pipe(部品 #4)を高さ 2.00 m 位置に持ち上げる</li>
+  <li>L3 X-pipe を中心支柱に <strong>緩め</strong> 直交クランプ(部品 #16 の 1 個)で仮止め</li>
+  <li>L3 Z-pipe(部品 #5)を高さ 2.07 m に同様に <strong>緩め</strong> クランプ で仮止め</li>
+  <li>L3 中央交差クランプ(部品 #16 の 1 個、本締)で X-pipe と Z-pipe を直交固定</li>
+</ol>
+
+<h3>Phase 3: 高支柱(端)4 本(所要 半日)</h3>
+<ol class="assembly">
+  <li>高支柱 4 本(部品 #7)に φ100 キャスター(部品 #18)をそれぞれ取付</li>
+  <li>4 本を中心から半径 2.05 m、90° 等間隔(0°、90°、180°、270°)に配置</li>
+  <li>各高支柱を L1 高さ(0.53 m / 0.60 m)で本締クランプ(部品 #16)で L1 # フレームに固定 → ※L1 フレーム自体は次フェーズで設置するのでこの時点ではマーキングのみ</li>
+  <li>各高支柱の上端を L3 X-pipe または Z-pipe(該当方向側)に本締クランプで固定 → 屋根の支えになる</li>
+</ol>
+
+<h3>Phase 4: L1 # フレーム(所要 半日)</h3>
+<ol class="assembly">
+  <li>L1 X-pipe 2 本(部品 #2)を高さ 0.53 m、Z = ±51.6 mm の位置に配置(中心支柱を挟むように)</li>
+  <li>L1 Z-pipe 2 本(部品 #3)を高さ 0.60 m、X = ±51.6 mm の位置に配置(井形を形成)</li>
+  <li>L1 #フレームを高支柱 4 本に本締クランプで固定(計 4 個のクランプ)</li>
+  <li>各 L1 パイプの両端は遊端 → 必要なら吊り具で位置決め</li>
+</ol>
+
+<h3>Phase 5: 馬ポール 4 本(所要 半日)</h3>
+<ol class="assembly">
+  <li>馬ポール 4 本(部品 #6)の下端に φ200 キャスター(部品 #17)とブラケットを取付。<strong>車軸は半径方向</strong>に向ける</li>
+  <li>馬ポールの 1.925 m 位置に上止め輪(部品 #21、シャフトカラー)を装着しイモネジで仮固定</li>
+  <li>馬本体(部品 #25)をポールの 0.95 m 位置に固定</li>
+  <li>馬ポール 4 本を波形レールの上に配置、中心から半径 1.00 m、90° 等間隔</li>
+  <li>各馬ポールを L1 # フレームに <strong>緩めクランプ</strong>(部品 #16、計 4 個)で取付。クランプは「ポールが上下にスライドできるが横ぶれしない」程度の締め込みに調整</li>
+  <li>上止め輪が L3 X-pipe(または Z-pipe)上に乗っているか確認、抜け止め効果を確認</li>
+</ol>
+
+<h3>Phase 6: 木の支柱 + L2 デッキ(所要 半日)</h3>
+<ol class="assembly">
+  <li>木の支柱 4 本(部品 #9、SPF 55 × 55)に φ100 キャスター(部品 #18)を取付</li>
+  <li>4 本を対角線方向(45°、135°、225°、315°)、半径 1.65 m に配置</li>
+  <li>木の支柱の上端を L2 高さ(0.65 m)に揃える(必要なら木材をカット)</li>
+  <li>L2 補強板(部品 #10、180×90×12)4 枚を馬ポール真下(L1 # フレーム上)に配置、木ネジで L1 上に固定</li>
+  <li>L2 ベニヤ円盤(部品 #11、φ4000 × t6)を補強板と木の支柱上端の上に被せ、馬ポール用 φ55 穴に通す</li>
+  <li>ベニヤを各支持点に木ネジ(部品 #24)で固定</li>
+</ol>
+
+<h3>Phase 7: 屋根 + 装飾(所要 半日)</h3>
+<ol class="assembly">
+  <li>屋根布(部品 #26)を 8 枚の三角形に分割しミシン縫い、または既製品調達</li>
+  <li>屋根の中心を玉飾り(部品 #27)とテープ、外周は L3 X/Z-pipe または高支柱頂部に紐 or ステープルで固定</li>
+  <li>装飾(造花、LEDなど)を任意で追加</li>
+</ol>
+
+<h3>Phase 8: 試運転と調整(所要 1 日)</h3>
+<ol class="assembly">
+  <li>無人状態で、押し棒 2 本(部品 #8)を高支柱の接線方向に取付</li>
+  <li>大人 2 人で押して 1 〜 2 周回転テスト。回転中にどこにも当たらないか、馬の上下動が正常か確認</li>
+  <li>カチカチ音(クランプ滑り)、ガタ(ポールの横ぶれ)が出る場合は該当クランプを増し締め</li>
+  <li>子供 1 人を 1 頭目に乗せて、5 rpm 程度で試運転</li>
+  <li>問題なければ最大乗員(4 人)で運用試験。手押し力 25 kgf 以下を確認</li>
+  <li>1 週間ごとにレール仕上げ材を点検、紙束のへたりがあれば補充</li>
+</ol>
+
+<div class="callout">
+<span class="label">安全運用ルール</span>
+<ul style="margin:8px 0; padding-left:20px;">
+  <li>乗員は身長 90 cm 以上、体重 30 kg 以下の子供に限定</li>
+  <li>回転中の乗降は禁止。完全停止後のみ</li>
+  <li>運転者は常に 2 名(押し手 1 + 安全監視 1)</li>
+  <li>運転前に: 中心支柱直立確認、クランプ緩み確認、レール仕上げ材確認</li>
+  <li>悪天候時の屋外設置は避ける(本機は屋内専用)</li>
+</ul>
+</div>
+</div>
+
+<!-- ============================================================== -->
+<!-- ページ 12: 物理検証と参考資料 -->
+<!-- ============================================================== -->
+<div class="page">
+<h2>14. 物理的検証(V6 仕様)</h2>
+
+<h3>14.1 重量バランス</h3>
+<table class="spec">
+  <tr><th>区分</th><th>重量</th></tr>
+  <tr><td>単管 17 本</td><td>211 kg</td></tr>
+  <tr><td>L2 デッキ(V6 軽量化)</td><td>46 kg</td></tr>
+  <tr><td>馬本体 4 体</td><td>80 kg(20 kg/体目安)</td></tr>
+  <tr><td>木の支柱 4 本</td><td>12 kg</td></tr>
+  <tr><td>キャスター・ブラケット 12 個</td><td>15 kg</td></tr>
+  <tr><td>クランプ 15 個</td><td>10 kg</td></tr>
+  <tr><td>中心アンカー(合板+フランジ+ソケット+重し)</td><td>35 kg(うち重し 20 kg)</td></tr>
+  <tr><td>波形レール一式(基台+紙束+仕上げ材)</td><td>15 kg</td></tr>
+  <tr><td>屋根+装飾</td><td>20 kg</td></tr>
+  <tr><th>構造重量 計</th><th>約 444 kg(うち静止部 50 kg、回転部 394 kg)</th></tr>
+  <tr><td>乗員(子 4 名)</td><td>120 kg</td></tr>
+  <tr><th>運用時総重量</th><th>約 564 kg</th></tr>
+</table>
+
+<h3>14.2 床荷重</h3>
+<p>
+回転部の重量 394 + 乗員 120 = 514 kg。床に接するキャスターは:
+</p>
+<ul>
+  <li>馬ポール 4(波形レール接地、レール経由で床)</li>
+  <li>高支柱 4(直接床接地)</li>
+  <li>木の支柱 4(直接床接地)</li>
+</ul>
+<p>
+回転部荷重 514 kg は 12 キャスターに分散 → 1 つあたり <strong>約 43 kg</strong>。
+φ200 キャスター(馬ポール) は 100 kg 定格、φ100 キャスター は 60 kg 定格 → 余裕あり。
+床への接地圧 ≈ 0.18 MPa(フローリング耐圧 5 MPa) → 安全。
+</p>
+
+<h3>14.3 中心支柱への荷重</h3>
+<p>
+緩めスリーブクランプを介して L3 にかかる垂直荷重は小さい(回転部の自重は外周のキャスターで支える)。
+中心支柱が受けるのは主に <strong>水平方向の振れ止め</strong> として機能する水平力。
+最大想定水平力 50 N に対し、支柱根元の曲げ応力:<br>
+σ = M × c / I = (50 × 2.0) × 0.0243 / (π/64 × (0.0486⁴ − 0.0438⁴)) ≈ 16 MPa<br>
+STK500 の許容曲げ応力 250 MPa に対し安全率 15 → 余裕大。
+</p>
+
+<h3>14.4 手押し力(再計算)</h3>
+<p>
+回転部 394 kg + 乗員 120 = 514 kg。キャスター転がり抵抗係数 μ = 0.04(ナイロン)。<br>
+連続押し力 = 0.04 × 514 × 9.8 = 201 N ≈ <strong>20.5 kgf</strong>。
+押し棒 1500 mm をてこに、押し手が手元で必要な力は更に小さくなる。大人 1 人で十分。
+</p>
+
+<h3>14.5 残課題と V7 提案</h3>
+<ul>
+  <li>波形レールの紙束疲労 → 半年以内に劣化する可能性、定期交換手順を確立</li>
+  <li>馬本体の調達コスト → FRP 成形型を学校で共有、コスト分担可能</li>
+  <li>子供の挟み込み防止 → 高支柱と床合板の間にスカート設置(布製、安全カバー)</li>
+  <li>急停止機構 → 中心支柱に摩擦ブレーキ(レバー付きパッド)を後付け可能</li>
+</ul>
+
+<h2>15. 参考規格 / 引用</h2>
+<ul style="font-size:13px;">
+  <li>JIS G 3444 / 一般構造用炭素鋼鋼管 STK500</li>
+  <li>JIS A 8951 / 鋼管足場用継手金具(クランプ等)</li>
+  <li>JIS Z 8051 / 安全側面 — 製品に含めるための指針</li>
+  <li>JTSA(日本トイ協会) / 遊具基準</li>
+  <li>建築基準法 / 用途・床積載荷重</li>
+</ul>
+
+<div style="margin-top:48px; border-top:2px solid #1f2733; padding-top:18px; font-size:12px; color:#6c7588;">
+  <p>図面作成日: 2026-05-20 / 改訂版: V6 / 設計対象: model_v4.html(V6 世代)</p>
+  <p>本図面は概念設計レベルです。実際の製作前には構造解析と各部材の応力確認、JIS 認定品の使用を推奨します。</p>
+</div>
+</div>
+
+</body>
+</html>

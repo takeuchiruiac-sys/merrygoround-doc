@@ -129,7 +129,7 @@ button.active { background: rgba(107, 158, 255, 0.22); border-color: rgba(107, 1
 
 <div id="info-panel" class="panel" style="display:none;">
   <div class="panel-header" id="panel-toggle">
-    <h1>メリーゴーランド<span class="v4-badge">V4</span></h1>
+    <h1>メリーゴーランド<span class="v4-badge">V6</span></h1>
     <div class="toggle-icon">▼</div>
   </div>
   <div class="panel-body">
@@ -138,7 +138,7 @@ button.active { background: rgba(107, 158, 255, 0.22); border-color: rgba(107, 1
     <div class="stat"><span class="stat-label">天井(3m)クリアランス</span><span class="stat-value" style="color:#7dd3a3;">+0.25 m</span></div>
     <div class="divider"></div>
     <div class="stat"><span class="stat-label">回転速度</span><span class="stat-value" id="speed-display">1.0 rpm</span></div>
-    <div class="stat"><span class="stat-label">馬の上下振幅</span><span class="stat-value" id="amp-display">±5 cm</span></div>
+    <div class="stat"><span class="stat-label">馬の上下振幅</span><span class="stat-value" id="amp-display">±7.5 cm</span></div>
     <div class="stat"><span class="stat-label">波の数 / 1周</span><span class="stat-value" id="count-display">6</span></div>
 
     <div class="divider"></div>
@@ -148,8 +148,8 @@ button.active { background: rgba(107, 158, 255, 0.22); border-color: rgba(107, 1
       <input type="range" id="speed" min="0" max="5" step="0.1" value="1">
     </div>
     <div class="control">
-      <label>波の振幅 <span class="val">±<span id="amp-val">5</span> cm</span></label>
-      <input type="range" id="amp" min="0" max="15" step="0.5" value="5">
+      <label>波の振幅 <span class="val">±<span id="amp-val">7.5</span> cm</span></label>
+      <input type="range" id="amp" min="0" max="20" step="0.5" value="7.5">
     </div>
     <div class="control">
       <label>波の数(1周あたり) <span class="val"><span id="count-val">6</span></span></label>
@@ -163,8 +163,8 @@ button.active { background: rgba(107, 158, 255, 0.22); border-color: rgba(107, 1
     </div>
 
     <div class="note">
-      <span class="label">V4 変更点</span>
-      L4 井桁を撤去。L3 を合板→ワゴンホイール骨組みに置換（−90 kg）。各ポールに止め輪を追加してポール脱落防止・上下動を両立。
+      <span class="label">V6 変更点</span>
+      中心支柱を床合板+ソケット+重し(4個)で固定。上端はL3 X-pipe/Z-pipeに緩めクランプ2個(回転側) → 中心は静止、上部は中心軸周りに回転。L1井形を0.53m、L2デッキは180×90mm補強板4枚+ベニヤ円盤(6mm)に軽量化。波形レール下に紙束基台のための合板リングを追加。
     </div>
   </div>
 </div>
@@ -196,19 +196,22 @@ window.addEventListener('load', function() {
   const canvas = document.getElementById('scene');
 
   // ===== Constants =====
-  const WAVE_CENTER_Y = 0.15;
-  const LAYER1_Y      = 0.22;
-  const LAYER2_Y      = 0.34;
-  const LAYER3_Y      = 2.00;   // wagon wheel level (L4 removed in V4)
-  const ROOF_BRIM_Y   = 2.20;
-  const AXIS_BOTTOM_Y = 0.05;
-  const AXIS_HEIGHT   = 2.6;
-  const POLE_LEN      = 2.0;
-  const POLE_RADIUS   = 1.0;
-  const POLE_DIAMETER = 0.048;
-  const HORSE_Y       = 0.95;
-  // Stop collar positioned so it rests on L3 when pole is at wave trough
-  const COLLAR_Y_ON_POLE = LAYER3_Y - (WAVE_CENTER_Y - 0.05); // ≈ 1.90
+  const WAVE_CENTER_Y     = 0.15;
+  const LAYER1_Y          = 0.53;   // V6: lowered to ~35 mm above horse-pole bracket peak (~0.495 m)
+  const LAYER2_Y          = 0.65;   // V6: lowered correspondingly (deck level)
+  const LAYER3_Y          = 2.00;
+  const ROOF_BRIM_Y       = 2.20;
+  const AXIS_BOTTOM_Y     = 0.05;
+  const AXIS_HEIGHT       = 2.6;
+  const POLE_LEN          = 2.0;
+  const POLE_RADIUS       = 1.0;
+  const POLE_DIAMETER     = 0.0486;  // V5: standard single pipe (単管 φ48.6mm)
+  const SCAFFOLD_PIPE_R   = POLE_DIAMETER / 2;  // 0.0243 — all structural pipes use this
+  const PIPE_HALF_GAP     = POLE_DIAMETER + 0.003;  // ≈ 0.0516 — pipe sits beside pole/pillar with 3 mm clearance
+  const HORSE_Y           = 0.95;
+  // Stop collar positioned so it rests on L3 X-pipe when pole is at wave trough.
+  // Uses initial waveAmplitude (0.075). Formula: LAYER3_Y − (WAVE_CENTER_Y − waveAmplitude).
+  const COLLAR_Y_ON_POLE  = LAYER3_Y - (WAVE_CENTER_Y - 0.075); // ≈ 1.925
 
   // ===== Scene =====
   const scene = new THREE.Scene();
@@ -325,7 +328,8 @@ window.addEventListener('load', function() {
   const woodMat        = new THREE.MeshStandardMaterial({ color: 0x9a7548, roughness: 0.88 });
   const railWoodMat    = new THREE.MeshStandardMaterial({ color: 0x7a5a3a, roughness: 0.92 });
   const finialMat      = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.7, roughness: 0.28 });
-  const clampMat       = new THREE.MeshStandardMaterial({ color: 0x4a4a4a, metalness: 0.7, roughness: 0.4 });
+  const clampMat       = new THREE.MeshStandardMaterial({ color: 0xc8a02e, metalness: 0.7, roughness: 0.32 });
+  const clampBoltMat   = new THREE.MeshStandardMaterial({ color: 0xa07b1e, metalness: 0.8, roughness: 0.4 });
   const collarMat      = new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.85, roughness: 0.22 });
   const spokeWoodMat   = new THREE.MeshStandardMaterial({ color: 0x8a6a40, roughness: 0.9 });
   const skinMat        = new THREE.MeshStandardMaterial({ color: 0xf4c8a8, roughness: 0.7 });
@@ -342,8 +346,83 @@ window.addEventListener('load', function() {
   ground.receiveShadow = true;
   scene.add(ground);
 
+  // ===== Scaffold clamp helper (V5) =====
+  // Creates a right-angle scaffold clamp at the origin of its local frame.
+  // axis1, axis2 ∈ {'x','y','z'}, must be perpendicular.
+  // sep: signed distance between the two ring centers, measured along the third
+  // axis (the axis perpendicular to both axis1 and axis2). When sep > 0, ring1
+  // is placed at -sep/2 and ring2 at +sep/2 along axis3 — used when the two
+  // pipes pass each other with a small gap (as in real scaffolding).
+  function makeScaffoldClamp(axis1, axis2, sep) {
+    sep = sep || 0;
+    const group = new THREE.Group();
+    const ringR = 0.04;     // ring main radius
+    const tubeR = 0.012;    // tube cross-section radius
+
+    const allAxes = ['x','y','z'];
+    const axis3 = allAxes.find(a => a !== axis1 && a !== axis2);
+
+    function rotateTorusForAxis(mesh, axis) {
+      if (axis === 'x') mesh.rotation.y = Math.PI / 2;
+      else if (axis === 'y') mesh.rotation.x = Math.PI / 2;
+    }
+    function rotateCylForAxis(mesh, axis) {
+      if (axis === 'x') mesh.rotation.z = Math.PI / 2;
+      else if (axis === 'z') mesh.rotation.x = Math.PI / 2;
+    }
+    function setPos(mesh, axis, val) {
+      if (axis === 'x') mesh.position.x = val;
+      else if (axis === 'y') mesh.position.y = val;
+      else if (axis === 'z') mesh.position.z = val;
+    }
+
+    // Ring 1: wraps pipe along axis1, at -sep/2 along axis3
+    const ring1 = new THREE.Mesh(new THREE.TorusGeometry(ringR, tubeR, 10, 18), clampMat);
+    rotateTorusForAxis(ring1, axis1);
+    setPos(ring1, axis3, -sep / 2);
+    ring1.castShadow = true;
+    group.add(ring1);
+
+    // Ring 2: wraps pipe along axis2, at +sep/2 along axis3
+    const ring2 = new THREE.Mesh(new THREE.TorusGeometry(ringR, tubeR, 10, 18), clampMat);
+    rotateTorusForAxis(ring2, axis2);
+    setPos(ring2, axis3, +sep / 2);
+    ring2.castShadow = true;
+    group.add(ring2);
+
+    // Central connector (small block tying the two rings together)
+    const connector = new THREE.Mesh(new THREE.BoxGeometry(0.026, 0.026, 0.026), clampMat);
+    connector.castShadow = true;
+    group.add(connector);
+
+    // Bolt + nut on each ring's outward side, along axis3
+    for (let s = 0; s < 2; s++) {
+      const ringOffset = (s === 0) ? -sep / 2 : +sep / 2;
+      const sign = (s === 0) ? -1 : 1;  // outward direction along axis3
+
+      const bolt = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.005, 0.005, 0.06, 8),
+        clampBoltMat
+      );
+      rotateCylForAxis(bolt, axis3);
+      setPos(bolt, axis3, ringOffset + sign * (ringR + 0.022));
+      bolt.castShadow = true;
+      group.add(bolt);
+
+      const nut = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.011, 0.011, 0.012, 6),
+        clampBoltMat
+      );
+      rotateCylForAxis(nut, axis3);
+      setPos(nut, axis3, ringOffset + sign * (ringR + 0.055));
+      nut.castShadow = true;
+      group.add(nut);
+    }
+    return group;
+  }
+
   // ===== Wavy rail =====
-  let waveAmplitude = 0.05;
+  let waveAmplitude = 0.075;
   let waveCount     = 6;
 
   function makeWavyRailGeometry() {
@@ -389,19 +468,93 @@ window.addEventListener('load', function() {
   wavyRail.castShadow = true;
   scene.add(wavyRail);
 
+  // V6: Wavy rail substrate base.
+  // The DIY wave is built up by stacking graduated magazine pages on a plywood ring base;
+  // a thin bendable cardboard / wood sheet (= the wavyRail above) is laid over the top
+  // and follows the wave profile. The ring below represents the substrate that supports
+  // the paper stack.
+  const railSubstrate = new THREE.Mesh(
+    new THREE.RingGeometry(0.80, 1.20, 48),
+    plywoodMat
+  );
+  railSubstrate.rotation.x = -Math.PI / 2;
+  railSubstrate.position.y = 0.003;
+  railSubstrate.receiveShadow = true;
+  scene.add(railSubstrate);
+
   function updateWavyRail() {
     wavyRail.geometry.dispose();
     wavyRail.geometry = makeWavyRailGeometry();
   }
 
   // ===== Center axis =====
+  // V6: Center post is single pipe (φ48.6 mm) — same as all other structural pipes
   const centerAxis = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.032, 0.032, AXIS_HEIGHT, 16),
+    new THREE.CylinderGeometry(SCAFFOLD_PIPE_R, SCAFFOLD_PIPE_R, AXIS_HEIGHT, 16),
     pipeMat
   );
   centerAxis.position.y = AXIS_BOTTOM_Y + AXIS_HEIGHT / 2;
   centerAxis.castShadow = true;
   scene.add(centerAxis);
+
+  // ===== V6: Center-post floor anchor (stationary) =====
+  // Plywood base (r=0.6 m, inside the wavy rail's inner radius 0.84 m → no interference)
+  // + steel flange + pipe socket that the center post bolts into
+  // + 4 cast-iron weights distributed around the post for tip-over resistance.
+  function makeCenterPostAnchor() {
+    const group = new THREE.Group();
+    // Plywood base disc
+    const plywoodBase = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.6, 0.6, 0.018, 32),
+      plywoodMat
+    );
+    plywoodBase.position.y = 0.009;
+    plywoodBase.receiveShadow = true;
+    plywoodBase.castShadow = true;
+    group.add(plywoodBase);
+    // Steel mounting flange (wide, low)
+    const flange = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.10, 0.10, 0.012, 18),
+      casterMat
+    );
+    flange.position.y = 0.018 + 0.006;
+    flange.castShadow = true;
+    group.add(flange);
+    // Pipe socket (tall narrow cylinder, the post slots into this)
+    const socket = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.05, 0.05, 0.12, 16),
+      casterMat
+    );
+    socket.position.y = 0.018 + 0.06;
+    socket.castShadow = true;
+    group.add(socket);
+    // Set-screw on socket (visible bolt holding the post)
+    const setScrew = new THREE.Mesh(
+      new THREE.BoxGeometry(0.018, 0.02, 0.018),
+      clampBoltMat
+    );
+    setScrew.position.set(0.058, 0.018 + 0.06, 0);
+    group.add(setScrew);
+    // 4 cylindrical iron weights on the plywood around the post (φ150 mm × 50 mm each ≈ 5 kg)
+    const weightR = 0.075, weightH = 0.05, weightPlacementR = 0.36;
+    for (let i = 0; i < 4; i++) {
+      const a = Math.PI / 4 + (i / 4) * Math.PI * 2;  // diagonals
+      const weight = new THREE.Mesh(
+        new THREE.CylinderGeometry(weightR, weightR, weightH, 24),
+        casterMat
+      );
+      weight.position.set(
+        weightPlacementR * Math.cos(a),
+        0.018 + weightH / 2,
+        weightPlacementR * Math.sin(a)
+      );
+      weight.castShadow = true;
+      weight.receiveShadow = true;
+      group.add(weight);
+    }
+    return group;
+  }
+  scene.add(makeCenterPostAnchor());
 
   // ===== Rotating assembly =====
   const rotatingGroup = new THREE.Group();
@@ -410,8 +563,8 @@ window.addEventListener('load', function() {
   // ----- L1 lower cross frame -----
   function makeLowerCrossFrame() {
     const group = new THREE.Group();
-    const pipeR = 0.028, pipeLen = 4.4;
-    const halfGap = POLE_DIAMETER / 2 + 0.005;
+    const pipeR = SCAFFOLD_PIPE_R, pipeLen = 4.4;
+    const halfGap = PIPE_HALF_GAP;
     for (let i = 0; i < 2; i++) {
       const z = i === 0 ? -halfGap : halfGap;
       const pipe = new THREE.Mesh(new THREE.CylinderGeometry(pipeR, pipeR, pipeLen, 12), pipeMat);
@@ -427,94 +580,193 @@ window.addEventListener('load', function() {
     const poleAngles = [0, Math.PI/2, Math.PI, 3*Math.PI/2];
     for (let i = 0; i < poleAngles.length; i++) {
       const a = poleAngles[i];
-      const clamp = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.18, 0.09), clampMat);
-      clamp.position.set(POLE_RADIUS * Math.cos(a), (i%2===0 ? LAYER1_Y : LAYER1_Y+0.07), POLE_RADIUS * Math.sin(a));
-      clamp.castShadow = true;
-      group.add(clamp);
+      // L1 X-pipes are at z=±halfGap; L1 Z-pipes at x=±halfGap.
+      // Connect each pole to the +halfGap pipe on its respective axis.
+      if (i % 2 === 0) {
+        // X-axis pole (a=0 or π): connect to L1 X-pipe at z=+halfGap, height LAYER1_Y
+        const clamp = makeScaffoldClamp('y', 'x', halfGap);
+        clamp.position.set(POLE_RADIUS * Math.cos(a), LAYER1_Y, halfGap / 2);
+        group.add(clamp);
+      } else {
+        // Z-axis pole (a=π/2 or 3π/2): connect to L1 Z-pipe at x=+halfGap, height LAYER1_Y+0.07
+        const clamp = makeScaffoldClamp('y', 'z', halfGap);
+        clamp.position.set(halfGap / 2, LAYER1_Y + 0.07, POLE_RADIUS * Math.sin(a));
+        group.add(clamp);
+      }
     }
     return group;
   }
   rotatingGroup.add(makeLowerCrossFrame());
 
-  // ----- L2 plywood disk -----
-  const layer2 = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 0.022, 64), plywoodMat);
-  layer2.position.y = LAYER2_Y;
-  layer2.receiveShadow = true;
-  layer2.castShadow = true;
-  rotatingGroup.add(layer2);
-
-  // ----- L3 wagon wheel skeleton (V4) — hub + 8 spokes + outer ring -----
-  const wagonWheelGroup = new THREE.Group();
-  wagonWheelGroup.position.y = LAYER3_Y;
-
-  // Hub (small cylinder at center)
-  const hub = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.12, 0.12, 0.06, 16),
-    spokeWoodMat
+  // ----- L2 deck (V6 redesign): 4 reinforcement plates over the L1 frame + thin veneer disc -----
+  // 4 plates of 180 × 90 × 12 mm plywood sit above the L1 # frame at the horse-pole
+  // positions (where load is concentrated). A thin 6 mm veneer (ベニヤ) disc spans the
+  // remaining deck area — far lighter than the original 22 mm full disc (~166 kg → ~50 kg).
+  const layer2Group = new THREE.Group();
+  // Thin veneer disc (deck surface)
+  const layer2Veneer = new THREE.Mesh(
+    new THREE.CylinderGeometry(2.0, 2.0, 0.006, 64),
+    plywoodMat
   );
-  hub.castShadow = true;
-  wagonWheelGroup.add(hub);
-
-  // 8 spokes at 22.5° intervals
-  const SPOKE_COUNT  = 8;
-  const SPOKE_LENGTH = 1.9;  // slightly shorter than 2m to fit inside outer ring
-  for (let i = 0; i < SPOKE_COUNT; i++) {
-    const angle = (i / SPOKE_COUNT) * Math.PI * 2;
-    const spoke = new THREE.Mesh(
-      new THREE.BoxGeometry(0.03, 0.05, SPOKE_LENGTH),
-      spokeWoodMat
-    );
-    spoke.rotation.y = angle;
-    spoke.position.set(
-      Math.sin(angle) * SPOKE_LENGTH / 2,
-      0,
-      Math.cos(angle) * SPOKE_LENGTH / 2
-    );
-    spoke.castShadow = true;
-    wagonWheelGroup.add(spoke);
-  }
-
-  // Outer ring (torus)
-  const outerRing = new THREE.Mesh(
-    new THREE.TorusGeometry(1.98, 0.025, 8, 80),
-    spokeWoodMat
-  );
-  outerRing.rotation.x = Math.PI / 2;
-  outerRing.castShadow = true;
-  wagonWheelGroup.add(outerRing);
-
-  // Reinforcement plates at pole positions (4 plates at 0°, 90°, 180°, 270°)
-  const poleAngles4 = [0, Math.PI/2, Math.PI, 3*Math.PI/2];
-  for (let i = 0; i < poleAngles4.length; i++) {
-    const a = poleAngles4[i];
+  layer2Veneer.position.y = LAYER2_Y;
+  layer2Veneer.receiveShadow = true;
+  layer2Veneer.castShadow = true;
+  layer2Group.add(layer2Veneer);
+  // 4 reinforcement plates at horse-pole positions
+  for (let i = 0; i < 4; i++) {
+    const a = (i / 4) * Math.PI * 2;
     const plate = new THREE.Mesh(
-      new THREE.BoxGeometry(0.12, 0.04, 0.12),
-      spokeWoodMat
+      new THREE.BoxGeometry(0.18, 0.012, 0.09),  // 180 mm radial × 12 mm thick × 90 mm tangential
+      plywoodMat
     );
-    plate.position.set(Math.sin(a) * POLE_RADIUS, 0, Math.cos(a) * POLE_RADIUS);
+    plate.position.set(POLE_RADIUS * Math.cos(a), LAYER2_Y - 0.003, POLE_RADIUS * Math.sin(a));
+    plate.rotation.y = -a;  // align 180 mm length with the radial direction
     plate.castShadow = true;
-    wagonWheelGroup.add(plate);
+    plate.receiveShadow = true;
+    layer2Group.add(plate);
   }
+  rotatingGroup.add(layer2Group);
+  // Keep `layer2` reference (for skeleton-view toggle) pointing at the veneer
+  const layer2 = layer2Veneer;
 
-  rotatingGroup.add(wagonWheelGroup);
+  // ----- L3 upper cross frame (V5) — 2-pipe + cross, offset to ONE SIDE of pillars -----
+  // Mirrors the lower # frame style: each pipe sits beside its pillar (z=+halfGap
+  // for X-pipe, x=+halfGap for Z-pipe) instead of passing through it. Clamps wrap
+  // both the pillar and the pipe via the makeScaffoldClamp(sep=halfGap) form.
+  const HALF_GAP_L3 = PIPE_HALF_GAP;  // V5: standardized; same gap formula as L1 frame
+  function makeUpperCrossFrame() {
+    const group = new THREE.Group();
+    const pipeR = SCAFFOLD_PIPE_R;
+    const pipeLen = 4.4;
+    // X-pipe offset to +Z side
+    const pipeX = new THREE.Mesh(new THREE.CylinderGeometry(pipeR, pipeR, pipeLen, 12), pipeMat);
+    pipeX.rotation.z = Math.PI / 2;
+    pipeX.position.set(0, LAYER3_Y, +HALF_GAP_L3);
+    pipeX.castShadow = true;
+    group.add(pipeX);
+    // Z-pipe offset to +X side, slightly higher in Y (matches lower # offset)
+    const pipeZ = new THREE.Mesh(new THREE.CylinderGeometry(pipeR, pipeR, pipeLen, 12), pipeMat);
+    pipeZ.rotation.x = Math.PI / 2;
+    pipeZ.position.set(+HALF_GAP_L3, LAYER3_Y + 0.07, 0);
+    pipeZ.castShadow = true;
+    group.add(pipeZ);
 
-  // ===== 8 support posts under L2 =====
+    // Center clamp at the X-pipe × Z-pipe nearest-approach point: (+halfGap, LAYER3_Y+0.035, +halfGap)
+    // sep = 0.07 along Y (the height difference between X-pipe and Z-pipe).
+    const centerClamp = makeScaffoldClamp('x', 'z', 0.07);
+    centerClamp.position.set(+HALF_GAP_L3, LAYER3_Y + 0.035, +HALF_GAP_L3);
+    group.add(centerClamp);
+
+    // Clamps at the 4 tall-pillar intersections.
+    // X-axis pillars (i=0,2) clamp to X-pipe (sep along Z = HALF_GAP_L3).
+    // Z-axis pillars (i=1,3) clamp to Z-pipe (sep along X = HALF_GAP_L3).
+    const TALL_PILLAR_R_LOCAL = 2.05;
+    for (let i = 0; i < 4; i++) {
+      const a = (i / 4) * Math.PI * 2;
+      const isXAxis = (i % 2 === 0);
+      if (isXAxis) {
+        // Clamp at midpoint between pillar (z=0) and X-pipe (z=+halfGap), at LAYER3_Y
+        const clamp = makeScaffoldClamp('y', 'x', HALF_GAP_L3);
+        clamp.position.set(TALL_PILLAR_R_LOCAL * Math.cos(a), LAYER3_Y, HALF_GAP_L3 / 2);
+        group.add(clamp);
+      } else {
+        // Clamp at midpoint between pillar (x=0) and Z-pipe (x=+halfGap), at LAYER3_Y+0.07
+        const clamp = makeScaffoldClamp('y', 'z', HALF_GAP_L3);
+        clamp.position.set(HALF_GAP_L3 / 2, LAYER3_Y + 0.07, TALL_PILLAR_R_LOCAL * Math.sin(a));
+        group.add(clamp);
+      }
+    }
+    return group;
+  }
+  rotatingGroup.add(makeUpperCrossFrame());
+
+  // ===== V6: Loose clamps at the top of the (stationary) center post =====
+  // The center post is anchored to the floor and doesn't rotate; the L3 cross does.
+  // These two clamps grip the L3 pipes (rotating) and slide freely on the center post
+  // (stationary), acting as a sleeve bearing. They're placed in `rotatingGroup` so they
+  // orbit around the stationary post as the carousel turns.
+  function makeCenterPostSleeve() {
+    const group = new THREE.Group();
+    // Clamp 1: center post (Y) × L3 X-pipe — pipe is at z = +HALF_GAP_L3
+    const clamp1 = makeScaffoldClamp('y', 'x', HALF_GAP_L3);
+    clamp1.position.set(0, LAYER3_Y, HALF_GAP_L3 / 2);
+    group.add(clamp1);
+    // Clamp 2: center post (Y) × L3 Z-pipe — pipe is at x = +HALF_GAP_L3, height +0.07
+    const clamp2 = makeScaffoldClamp('y', 'z', HALF_GAP_L3);
+    clamp2.position.set(HALF_GAP_L3 / 2, LAYER3_Y + 0.07, 0);
+    group.add(clamp2);
+    return group;
+  }
+  rotatingGroup.add(makeCenterPostSleeve());
+
+  // ===== 4 wooden support posts under L2 (at diagonals, between new tall pillars) =====
   const SUPPORT_R = 1.65;
   const SUPPORT_TOP = LAYER2_Y - 0.011;
   const SUPPORT_BOTTOM = 0.085;
   const SUPPORT_HEIGHT = SUPPORT_TOP - SUPPORT_BOTTOM;
-  for (let i = 0; i < 8; i++) {
-    const a = (i / 8) * Math.PI * 2;
+  for (let i = 0; i < 4; i++) {
+    const a = Math.PI / 4 + (i / 4) * Math.PI * 2;  // diagonals: 45°, 135°, 225°, 315°
     const g = new THREE.Group();
     const post = new THREE.Mesh(new THREE.BoxGeometry(0.055, SUPPORT_HEIGHT, 0.055), woodMat);
     post.position.y = SUPPORT_BOTTOM + SUPPORT_HEIGHT / 2; post.castShadow = true;
     g.add(post);
     const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.05, 0.07), casterMat);
-    bracket.position.y = 0.055; g.add(bracket);
-    const caster = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.035, 14), casterMat);
-    caster.position.y = 0.032; caster.rotation.x = Math.PI / 2; caster.rotation.z = a; caster.castShadow = true;
+    bracket.position.y = 0.115;
+    bracket.rotation.y = -a;  // V5: depth (Z) along tangential direction
+    g.add(bracket);
+    // Caster wheel — diameter 0.10m, axle along radial direction (rolls tangentially)
+    const caster = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.04, 14), casterMat);
+    caster.position.y = 0.05;
+    caster.rotation.y = -a;
+    caster.rotation.z = -Math.PI / 2;
+    caster.castShadow = true;
     g.add(caster);
     g.position.set(SUPPORT_R * Math.cos(a), 0, SUPPORT_R * Math.sin(a));
+    rotatingGroup.add(g);
+  }
+
+  // ===== 4 NEW tall support pillars at EDGE (V5) — cardinal positions, just outside L2 disk =====
+  const TALL_PILLAR_R = 2.05;       // at edge, just outside L2 disk (r=2.0)
+  const TALL_PILLAR_BOTTOM = 0.085; // floor with caster
+  const TALL_PILLAR_TOP = ROOF_BRIM_Y;
+  const TALL_PILLAR_HEIGHT = TALL_PILLAR_TOP - TALL_PILLAR_BOTTOM;
+  for (let i = 0; i < 4; i++) {
+    const a = (i / 4) * Math.PI * 2;  // cardinal: 0°, 90°, 180°, 270°
+    const g = new THREE.Group();
+    const pillar = new THREE.Mesh(
+      new THREE.CylinderGeometry(SCAFFOLD_PIPE_R, SCAFFOLD_PIPE_R, TALL_PILLAR_HEIGHT, 12),
+      pipeMat
+    );
+    pillar.position.y = TALL_PILLAR_BOTTOM + TALL_PILLAR_HEIGHT / 2;
+    pillar.castShadow = true;
+    g.add(pillar);
+    // Caster bracket at bottom
+    const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.05, 0.07), casterMat);
+    bracket.position.y = 0.115;
+    bracket.rotation.y = -a;  // V5: depth (Z) along tangential direction
+    g.add(bracket);
+    // Caster wheel (tire) — diameter 0.10m, axle radial (rolls tangentially)
+    const caster = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.04, 14), casterMat);
+    caster.position.y = 0.05;
+    caster.rotation.y = -a;
+    caster.rotation.z = -Math.PI / 2;
+    caster.castShadow = true;
+    g.add(caster);
+    // Clamp at L1 # frame level (connecting pillar to L1 horizontal pipe, offset on one side)
+    const halfGap = PIPE_HALF_GAP;
+    const isXAxis = (i % 2 === 0);
+    if (isXAxis) {
+      // X-axis pillar: L1 X-pipe is at z=+halfGap in world (= +halfGap in pillar local)
+      const clampL1 = makeScaffoldClamp('y', 'x', halfGap);
+      clampL1.position.set(0, LAYER1_Y, halfGap / 2);
+      g.add(clampL1);
+    } else {
+      // Z-axis pillar: L1 Z-pipe is at x=+halfGap in world (= +halfGap in pillar local)
+      const clampL1 = makeScaffoldClamp('y', 'z', halfGap);
+      clampL1.position.set(halfGap / 2, LAYER1_Y + 0.07, 0);
+      g.add(clampL1);
+    }
+    g.position.set(TALL_PILLAR_R * Math.cos(a), 0, TALL_PILLAR_R * Math.sin(a));
     rotatingGroup.add(g);
   }
 
@@ -578,31 +830,8 @@ window.addEventListener('load', function() {
     rotatingGroup.add(person);
   }
 
-  // ===== Roof support pillars (4) from L2 to roof brim =====
-  const ROOF_PILLAR_R = 1.55;
-  for (let i = 0; i < 4; i++) {
-    const a = Math.PI/4 + i * Math.PI/2;
-    const pillarLen = ROOF_BRIM_Y - LAYER2_Y;
-    const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, pillarLen, 10), pipeMat);
-    pillar.position.set(ROOF_PILLAR_R * Math.cos(a), LAYER2_Y + pillarLen / 2, ROOF_PILLAR_R * Math.sin(a));
-    pillar.castShadow = true;
-    rotatingGroup.add(pillar);
-
-    // Horizontal bracket connecting pillar to wagon wheel outer ring at L3 height
-    const bracketLen = 0.43;
-    const bracket = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, bracketLen, 8), pipeMat);
-    const midR = ROOF_PILLAR_R + bracketLen / 2 * Math.sign(POLE_RADIUS - ROOF_PILLAR_R) * -1;
-    // bracket from pillar (r=1.55) toward ring (r=1.98), at L3 height
-    bracket.position.set(
-      (ROOF_PILLAR_R + 0.215) * Math.cos(a),
-      LAYER3_Y,
-      (ROOF_PILLAR_R + 0.215) * Math.sin(a)
-    );
-    bracket.rotation.z = Math.PI / 2;
-    bracket.rotation.y = a;
-    bracket.castShadow = true;
-    rotatingGroup.add(bracket);
-  }
+  // ===== (V5) Old diagonal roof support pillars removed.
+  //       New tall pillars at cardinal positions (added above) support the roof. =====
 
   // ===== Roof cone =====
   const ROOF_CONE_HEIGHT = 0.50;
@@ -678,12 +907,17 @@ window.addEventListener('load', function() {
     pole.position.y = POLE_LEN / 2; pole.castShadow = true;
     poleGroup.add(pole);
 
-    // Caster at bottom
-    const caster = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.045, 16), casterMat);
-    caster.position.y = 0.05; caster.rotation.z = Math.PI / 2; caster.castShadow = true;
+    // Caster at bottom — V5 spec: horse pole tire diameter 0.20m
+    // axle is radial (along pole-local Z, which the poleGroup rotation maps to the radial
+    // world direction) so the wheel rolls tangentially as the carousel rotates
+    const caster = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.10, 0.06, 16), casterMat);
+    caster.position.y = 0.10;
+    caster.rotation.x = Math.PI / 2;
+    caster.castShadow = true;
     poleGroup.add(caster);
-    const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.07, 0.09), casterMat);
-    bracket.position.y = 0.11;
+    const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.07, 0.13), casterMat);
+    bracket.position.y = 0.235;
+    bracket.rotation.y = -Math.PI / 2;  // V5: depth (Z) along tangential direction
     poleGroup.add(bracket);
 
     // Stop collar (シャフトカラー) — V4 addition

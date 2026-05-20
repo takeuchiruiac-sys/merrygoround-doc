@@ -181,7 +181,7 @@ table.bom tbody tr:nth-child(even) { background: #fafaf7; }
 構造的特徴は <strong>「中心支柱を床に固定し、上部プラットフォーム全体が中心軸まわりに回転する」</strong>
 古典的なメリーゴーランドの構造を、足場用 <strong>単管(φ48.6 mm)</strong> と
 <strong>直交クランプ</strong> で実装した点にある。
-波形レール(カム機構)は床上に据え置き、馬ポール底のキャスター(φ200 mm)がそれを
+波形レール(カム機構)は床上に据え置き、馬ポール底のキャスター(φ100 mm)がそれを
 転がることで、回転に伴って馬が <strong>±7.5 cm</strong> 上下するスクリュー機構を生む。
 </p>
 
@@ -296,14 +296,14 @@ table.bom tbody tr:nth-child(even) { background: #fafaf7; }
   <ellipse cx="295" cy="475" rx="5" ry="3" class="fill-pipe"/>
   <ellipse cx="705" cy="475" rx="5" ry="3" class="fill-pipe"/>
   <line x1="295" y1="475" x2="705" y2="475" class="svg-line"/>
-  <text x="60" y="478" class="svg-label">L1 (0.53 m)</text>
+  <text x="60" y="478" class="svg-label">L1 (0.42 m)</text>
 
   <!-- L2 補強板 + ベニヤ円盤 -->
   <rect x="290" y="450" width="420" height="3" class="fill-veneer" stroke="#1f2733" stroke-width="0.4"/>
   <!-- 補強板(2枚見える) -->
   <rect x="395" y="446" width="20" height="9" class="fill-wood"/>
   <rect x="585" y="446" width="20" height="9" class="fill-wood"/>
-  <text x="60" y="453" class="svg-label">L2 (0.65 m)</text>
+  <text x="60" y="453" class="svg-label">L2 (0.54 m)</text>
 
   <!-- 木の支柱 (対角、見えるのは1本だけ — 全部対角なので側面投影には現れない 省略) -->
   <text x="60" y="500" class="svg-label-small">※対角の木の支柱はこの投影では現れない</text>
@@ -416,10 +416,10 @@ table.bom tbody tr:nth-child(even) { background: #fafaf7; }
   <tr><td>波形レール 谷底</td><td>+ 0.075 m (75 mm)</td><td>馬ポール下死点</td></tr>
   <tr><td>波形レール 中央</td><td>+ 0.150 m</td><td>WAVE_CENTER_Y</td></tr>
   <tr><td>波形レール 山頂</td><td>+ 0.225 m</td><td>馬ポール上死点</td></tr>
-  <tr><td>馬ポールタイヤ上端 (山時)</td><td>+ 0.425 m</td><td>キャスターφ200mm</td></tr>
-  <tr><td>馬ポールブラケット上端 (山時)</td><td>+ 0.495 m</td><td>クリアランス 35mm</td></tr>
-  <tr><td><strong>L1 # フレーム</strong></td><td>+ 0.530 m / + 0.600 m</td><td>X-pipe / Z-pipe(段差 70 mm)</td></tr>
-  <tr><td><strong>L2 デッキ</strong></td><td>+ 0.650 m</td><td>補強板 + ベニヤ円盤</td></tr>
+  <tr><td>馬ポールタイヤ上端 (山時)</td><td>+ 0.325 m</td><td>キャスターφ100mm</td></tr>
+  <tr><td>馬ポールブラケット上端 (山時)</td><td>+ 0.365 m</td><td>クリアランス 35mm</td></tr>
+  <tr><td><strong>L1 # フレーム</strong></td><td>+ 0.420 m / + 0.490 m</td><td>X-pipe / Z-pipe(段差 70 mm)</td></tr>
+  <tr><td><strong>L2 デッキ</strong></td><td>+ 0.540 m</td><td>補強板 + ベニヤ円盤</td></tr>
   <tr><td>馬の鞍位置 (中央時)</td><td>+ 1.10 m</td><td>HORSE_Y + WAVE_CENTER_Y</td></tr>
   <tr><td>馬ポール上止め輪</td><td>+ 1.925 m</td><td>L3 で抜け止め</td></tr>
   <tr><td><strong>L3 十字 X-pipe</strong></td><td>+ 2.000 m</td><td>LAYER3_Y</td></tr>
@@ -704,7 +704,7 @@ table.bom tbody tr:nth-child(even) { background: #fafaf7; }
 <div class="page">
 <h2>7. 詳細図 B — 馬ポール アセンブリ</h2>
 <p>
-馬ポールは単管 φ48.6 mm × 2.0 m、下端にキャスター(φ200 mm)とブラケットを装着し、
+馬ポールは単管 φ48.6 mm × 2.0 m、下端にキャスター(φ100 mm)とブラケットを装着し、
 波形レール上を転がる。L1 # フレームに緩め直交クランプで連結され、上下動を許容する。
 上端付近に止め輪を 1 個装着し、L3 を抜けて飛び出さないようにする。
 </p>
@@ -722,14 +722,14 @@ table.bom tbody tr:nth-child(even) { background: #fafaf7; }
   <text x="490" y="567" class="svg-label-small">波形レール</text>
   <text x="490" y="580" class="svg-label-small">(上下振幅±75mm)</text>
 
-  <!-- キャスター(φ200) -->
-  <circle cx="400" cy="475" r="100" class="fill-caster"/>
-  <circle cx="400" cy="475" r="12" fill="#1f2733"/>
-  <text x="500" y="475" class="svg-label">キャスター φ200</text>
+  <!-- キャスター(φ100) -->
+  <circle cx="400" cy="505" r="50" class="fill-caster"/>
+  <circle cx="400" cy="505" r="6" fill="#1f2733"/>
+  <text x="465" y="505" class="svg-label">キャスター φ100</text>
 
-  <!-- ブラケット(80×70×130) -->
-  <rect x="365" y="350" width="70" height="35" class="fill-caster"/>
-  <text x="500" y="370" class="svg-label">ブラケット 80×70×130</text>
+  <!-- ブラケット(60×50×70) -->
+  <rect x="370" y="425" width="60" height="25" class="fill-caster"/>
+  <text x="465" y="435" class="svg-label">ブラケット 60×50×70</text>
 
   <!-- 馬ポール -->
   <rect x="388" y="80" width="24" height="270" class="fill-pipe"/>
@@ -777,7 +777,7 @@ table.bom tbody tr:nth-child(even) { background: #fafaf7; }
   <line x1="30" y1="600" x2="30" y2="140" class="svg-dim"/>
 
   <text x="60" y="538" class="svg-dim-text">125 (キャスター中心)</text>
-  <text x="60" y="478" class="svg-dim-text">キャスター φ200</text>
+  <text x="60" y="478" class="svg-dim-text">キャスター φ100</text>
   <text x="60" y="385" class="svg-dim-text">ブラケット 70</text>
   <text x="60" y="325" class="svg-dim-text">L1 530</text>
   <text x="60" y="225" class="svg-dim-text">馬 950</text>
@@ -1170,7 +1170,7 @@ L3 は 2 本の単管を「+」字に組んだ上部フレーム。X-pipe は LA
 
   <!-- キャスター (上に乗ってる) -->
   <circle cx="600" cy="320" r="34" class="fill-caster"/>
-  <text x="640" y="320" class="svg-label-small">馬ポール キャスター φ200</text>
+  <text x="640" y="320" class="svg-label-small">馬ポール キャスター φ100</text>
 
   <!-- 寸法 -->
   <line x1="420" y1="430" x2="410" y2="430" class="svg-dim"/>
@@ -1235,7 +1235,7 @@ L3 は 2 本の単管を「+」字に組んだ上部フレーム。X-pipe は LA
 <table class="bom">
   <tr><th>No.</th><th>部品</th><th>仕様</th><th class="qty">数量</th><th>備考</th></tr>
   <tr><td class="num">16</td><td>足場直交クランプ</td><td>JIS A 8951 相当、亜鉛メッキ、定格 5 kN</td><td class="qty">15</td><td>15 番〜29 番のうち 11 本締・4 緩め</td></tr>
-  <tr><td class="num">17</td><td>キャスター(馬ポール)</td><td>φ200 mm ナイロン、ボルト留め</td><td class="qty">4</td><td>—</td></tr>
+  <tr><td class="num">17</td><td>キャスター(馬ポール)</td><td>φ100 mm ナイロン、ボルト留め</td><td class="qty">4</td><td>—</td></tr>
   <tr><td class="num">18</td><td>キャスター(高支柱/木支柱)</td><td>φ100 mm ナイロン、ボルト留め</td><td class="qty">8</td><td>—</td></tr>
   <tr><td class="num">19</td><td>中心パイプソケット</td><td>鋼 φ100 × H120、内径 φ51.6</td><td class="qty">1</td><td>セットスクリュー M10</td></tr>
   <tr><td class="num">20</td><td>中心フランジ</td><td>SS400 φ200 × t12</td><td class="qty">1</td><td>M10 ボルト 4 穴</td></tr>
@@ -1292,13 +1292,13 @@ L3 は 2 本の単管を「+」字に組んだ上部フレーム。X-pipe は LA
 <ol class="assembly">
   <li>高支柱 4 本(部品 #7)に φ100 キャスター(部品 #18)をそれぞれ取付</li>
   <li>4 本を中心から半径 2.05 m、90° 等間隔(0°、90°、180°、270°)に配置</li>
-  <li>各高支柱を L1 高さ(0.53 m / 0.60 m)で本締クランプ(部品 #16)で L1 # フレームに固定 → ※L1 フレーム自体は次フェーズで設置するのでこの時点ではマーキングのみ</li>
+  <li>各高支柱を L1 高さ(0.42 m / 0.49 m)で本締クランプ(部品 #16)で L1 # フレームに固定 → ※L1 フレーム自体は次フェーズで設置するのでこの時点ではマーキングのみ</li>
   <li>各高支柱の上端を L3 X-pipe または Z-pipe(該当方向側)に本締クランプで固定 → 屋根の支えになる</li>
 </ol>
 
 <h3>Phase 4: L1 # フレーム(所要 半日)</h3>
 <ol class="assembly">
-  <li>L1 X-pipe 2 本(部品 #2)を高さ 0.53 m、Z = ±51.6 mm の位置に配置(中心支柱を挟むように)</li>
+  <li>L1 X-pipe 2 本(部品 #2)を高さ 0.42 m、Z = ±51.6 mm の位置に配置(中心支柱を挟むように)</li>
   <li>L1 Z-pipe 2 本(部品 #3)を高さ 0.60 m、X = ±51.6 mm の位置に配置(井形を形成)</li>
   <li>L1 #フレームを高支柱 4 本に本締クランプで固定(計 4 個のクランプ)</li>
   <li>各 L1 パイプの両端は遊端 → 必要なら吊り具で位置決め</li>
@@ -1306,7 +1306,7 @@ L3 は 2 本の単管を「+」字に組んだ上部フレーム。X-pipe は LA
 
 <h3>Phase 5: 馬ポール 4 本(所要 半日)</h3>
 <ol class="assembly">
-  <li>馬ポール 4 本(部品 #6)の下端に φ200 キャスター(部品 #17)とブラケットを取付。<strong>車軸は半径方向</strong>に向ける</li>
+  <li>馬ポール 4 本(部品 #6)の下端に φ100 キャスター(部品 #17)とブラケットを取付。<strong>車軸は半径方向</strong>に向ける</li>
   <li>馬ポールの 1.925 m 位置に上止め輪(部品 #21、シャフトカラー)を装着しイモネジで仮固定</li>
   <li>馬本体(部品 #25)をポールの 0.95 m 位置に固定</li>
   <li>馬ポール 4 本を波形レールの上に配置、中心から半径 1.00 m、90° 等間隔</li>
@@ -1318,7 +1318,7 @@ L3 は 2 本の単管を「+」字に組んだ上部フレーム。X-pipe は LA
 <ol class="assembly">
   <li>木の支柱 4 本(部品 #9、SPF 55 × 55)に φ100 キャスター(部品 #18)を取付</li>
   <li>4 本を対角線方向(45°、135°、225°、315°)、半径 1.65 m に配置</li>
-  <li>木の支柱の上端を L2 高さ(0.65 m)に揃える(必要なら木材をカット)</li>
+  <li>木の支柱の上端を L2 高さ(0.54 m)に揃える(必要なら木材をカット)</li>
   <li>L2 補強板(部品 #10、180×90×12)4 枚を馬ポール真下(L1 # フレーム上)に配置、木ネジで L1 上に固定</li>
   <li>L2 ベニヤ円盤(部品 #11、φ4000 × t6)を補強板と木の支柱上端の上に被せ、馬ポール用 φ55 穴に通す</li>
   <li>ベニヤを各支持点に木ネジ(部品 #24)で固定</li>
@@ -1387,7 +1387,7 @@ L3 は 2 本の単管を「+」字に組んだ上部フレーム。X-pipe は LA
 </ul>
 <p>
 回転部荷重 514 kg は 12 キャスターに分散 → 1 つあたり <strong>約 43 kg</strong>。
-φ200 キャスター(馬ポール) は 100 kg 定格、φ100 キャスター は 60 kg 定格 → 余裕あり。
+φ100 キャスター(全種類) は 60 kg 定格 → 余裕あり。
 床への接地圧 ≈ 0.18 MPa(フローリング耐圧 5 MPa) → 安全。
 </p>
 

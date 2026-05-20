@@ -164,7 +164,7 @@ button.active { background: rgba(107, 158, 255, 0.22); border-color: rgba(107, 1
 
     <div class="note">
       <span class="label">V6 変更点</span>
-      中心支柱を床合板+ソケット+重し(4個)で固定。上端はL3 X-pipe/Z-pipeに緩めクランプ2個(回転側) → 中心は静止、上部は中心軸周りに回転。L1井形を0.53m、L2デッキは180×90mm補強板4枚+ベニヤ円盤(6mm)に軽量化。波形レール下に紙束基台のための合板リングを追加。
+      中心支柱を床合板+ソケット+重し(4個)で固定。上端はL3 X-pipe/Z-pipeに緩めクランプ2個(回転側) → 中心は静止、上部は中心軸周りに回転。馬ポールタイヤをφ100mm(他と統一)、L1井形を0.42m、L2デッキは180×90mm補強板4枚+ベニヤ円盤(6mm)に軽量化。波形レール下に紙束基台のための合板リングを追加。
     </div>
   </div>
 </div>
@@ -197,8 +197,8 @@ window.addEventListener('load', function() {
 
   // ===== Constants =====
   const WAVE_CENTER_Y     = 0.15;
-  const LAYER1_Y          = 0.53;   // V6: lowered to ~35 mm above horse-pole bracket peak (~0.495 m)
-  const LAYER2_Y          = 0.65;   // V6: lowered correspondingly (deck level)
+  const LAYER1_Y          = 0.42;   // V6.1: lowered further now horse pole tire φ100 (bracket peak ~0.365 m)
+  const LAYER2_Y          = 0.54;   // V6.1: lowered correspondingly (deck level)
   const LAYER3_Y          = 2.00;
   const ROOF_BRIM_Y       = 2.20;
   const AXIS_BOTTOM_Y     = 0.05;
@@ -907,17 +907,17 @@ window.addEventListener('load', function() {
     pole.position.y = POLE_LEN / 2; pole.castShadow = true;
     poleGroup.add(pole);
 
-    // Caster at bottom — V5 spec: horse pole tire diameter 0.20m
+    // Caster at bottom — V6.1: horse pole tire diameter 0.10m (same as other casters)
     // axle is radial (along pole-local Z, which the poleGroup rotation maps to the radial
     // world direction) so the wheel rolls tangentially as the carousel rotates
-    const caster = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.10, 0.06, 16), casterMat);
-    caster.position.y = 0.10;
+    const caster = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.04, 14), casterMat);
+    caster.position.y = 0.05;
     caster.rotation.x = Math.PI / 2;
     caster.castShadow = true;
     poleGroup.add(caster);
-    const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.07, 0.13), casterMat);
-    bracket.position.y = 0.235;
-    bracket.rotation.y = -Math.PI / 2;  // V5: depth (Z) along tangential direction
+    const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.05, 0.07), casterMat);
+    bracket.position.y = 0.115;
+    bracket.rotation.y = -Math.PI / 2;
     poleGroup.add(bracket);
 
     // Stop collar (シャフトカラー) — V4 addition

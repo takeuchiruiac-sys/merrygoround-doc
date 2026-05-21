@@ -325,7 +325,6 @@ window.addEventListener('load', function() {
   const roofRedMat     = new THREE.MeshStandardMaterial({ color: 0xc83838, roughness: 0.62, side: THREE.DoubleSide });
   const roofCreamMat   = new THREE.MeshStandardMaterial({ color: 0xf2efe6, roughness: 0.62, side: THREE.DoubleSide });
   const casterMat      = new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.65 });
-  const woodMat        = new THREE.MeshStandardMaterial({ color: 0x9a7548, roughness: 0.88 });
   const railWoodMat    = new THREE.MeshStandardMaterial({ color: 0x7a5a3a, roughness: 0.92 });
   const finialMat      = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.7, roughness: 0.28 });
   const clampMat       = new THREE.MeshStandardMaterial({ color: 0xc8a02e, metalness: 0.7, roughness: 0.32 });
@@ -629,13 +628,13 @@ window.addEventListener('load', function() {
 
   // Diamond veneer (lighter color than the plywood plates) filling the inner deck area
   // except for the central 400 × 400 mm hole. Vertices at cardinal direction r=1.80 m;
-  // 45° edge at r≈1.27 m reaches just past the new (inward) wooden support posts.
-  // Sits just below the plates. The plates extend past the diamond at cardinal directions.
+  // 45° edge at r≈1.27 m. Sits just below the plates. The plates extend past
+  // the diamond at cardinal directions.
   const veneerMat = new THREE.MeshStandardMaterial({
     color: 0xe6c890, roughness: 0.88, side: THREE.DoubleSide
   });
   const diamondShape = new THREE.Shape();
-  const D_VENEER = 1.80;  // V6.5: shrunk to match new wooden post position (r=1.25); 45° edge at r≈1.27
+  const D_VENEER = 1.80;  // half-diagonal of the diamond veneer; 45° edge at r≈1.27
   diamondShape.moveTo( D_VENEER, 0);
   diamondShape.lineTo(0,  D_VENEER);
   diamondShape.lineTo(-D_VENEER, 0);
@@ -727,31 +726,7 @@ window.addEventListener('load', function() {
   }
   rotatingGroup.add(makeCenterPostSleeve());
 
-  // ===== 4 wooden support posts under L2 (at diagonals) =====
-  const SUPPORT_R = 1.25;  // V6.5: moved inward; post-corner clears the wavy rail outer edge (r=1.16) by ~5cm
-  const SUPPORT_TOP = LAYER2_Y - 0.005;   // post top contacts the diamond veneer
-  const SUPPORT_BOTTOM = 0.085;
-  const SUPPORT_HEIGHT = SUPPORT_TOP - SUPPORT_BOTTOM;
-  for (let i = 0; i < 4; i++) {
-    const a = Math.PI / 4 + (i / 4) * Math.PI * 2;  // diagonals: 45°, 135°, 225°, 315°
-    const g = new THREE.Group();
-    const post = new THREE.Mesh(new THREE.BoxGeometry(0.055, SUPPORT_HEIGHT, 0.055), woodMat);
-    post.position.y = SUPPORT_BOTTOM + SUPPORT_HEIGHT / 2; post.castShadow = true;
-    g.add(post);
-    const bracket = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.05, 0.07), casterMat);
-    bracket.position.y = 0.115;
-    bracket.rotation.y = -a;  // V5: depth (Z) along tangential direction
-    g.add(bracket);
-    // Caster wheel — diameter 0.10m, axle along radial direction (rolls tangentially)
-    const caster = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.04, 14), casterMat);
-    caster.position.y = 0.05;
-    caster.rotation.y = -a;
-    caster.rotation.z = -Math.PI / 2;
-    caster.castShadow = true;
-    g.add(caster);
-    g.position.set(SUPPORT_R * Math.cos(a), 0, SUPPORT_R * Math.sin(a));
-    rotatingGroup.add(g);
-  }
+  // ===== V6.6: 4 wooden support posts under L2 (diagonal, caster-equipped) removed per request =====
 
   // ===== 4 NEW tall support pillars at EDGE (V5) — cardinal positions, just outside L2 disk =====
   const TALL_PILLAR_R = 2.05;       // at edge, just outside L2 disk (r=2.0)
@@ -799,9 +774,12 @@ window.addEventListener('load', function() {
   }
 
   // ===== Push handles =====
+  // V6.6: 4 push handles — one at each of the 4 tall edge pillars (cardinal positions)
   const handlePositions = [
-    { x: 2.0, z: 0,    baseY: LAYER1_Y },
-    { x: 0,   z: -2.0, baseY: LAYER1_Y + 0.07 },
+    { x:  2.0, z:  0,   baseY: LAYER1_Y },         // pillar 0°   (X+)
+    { x:  0,   z:  2.0, baseY: LAYER1_Y + 0.07 },  // pillar 90°  (Z+)
+    { x: -2.0, z:  0,   baseY: LAYER1_Y },         // pillar 180° (X-)
+    { x:  0,   z: -2.0, baseY: LAYER1_Y + 0.07 },  // pillar 270° (Z-)
   ];
   for (let i = 0; i < handlePositions.length; i++) {
     const h = handlePositions[i];
@@ -853,8 +831,11 @@ window.addEventListener('load', function() {
     const r = Math.sqrt(h.x*h.x + h.z*h.z);
     const tx = -h.z / r, tz = h.x / r;
     const person = createPerson();
-    person.position.set(h.x - tx * 0.48, 0, h.z - tz * 0.48);
-    person.rotation.y = Math.atan2(tx, tz);
+    // V6.6: stand on the trailing side of the handle and face the direction of
+    // travel. The carousel turns counterclockwise (decreasing angle), so the
+    // pusher pushes toward -tangent — i.e. faces opposite the +tangent grip.
+    person.position.set(h.x + tx * 0.48, 0, h.z + tz * 0.48);
+    person.rotation.y = Math.atan2(tx, tz) + Math.PI;
     rotatingGroup.add(person);
   }
 

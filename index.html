@@ -219,7 +219,7 @@ table.bom tbody tr:nth-child(even) { background: #fafaf7; }
     <h3>🟦 回転部</h3>
     <ul>
       <li>L1 井形 # フレーム(単管 × 4)</li>
-      <li>L2 デッキ(補強板 4 + ベニヤ円盤)</li>
+      <li>L2 デッキ(放射状合板 4 + 菱形ベニヤ)</li>
       <li>L3 十字 + フレーム(単管 × 2)</li>
       <li>馬ポール × 4 + 馬 + キャスター</li>
       <li>木の支柱 × 4(対角)+ キャスター</li>
@@ -419,7 +419,7 @@ table.bom tbody tr:nth-child(even) { background: #fafaf7; }
   <tr><td>馬ポールタイヤ上端 (山時)</td><td>+ 0.325 m</td><td>キャスターφ100mm</td></tr>
   <tr><td>馬ポールブラケット上端 (山時)</td><td>+ 0.365 m</td><td>クリアランス 35mm</td></tr>
   <tr><td><strong>L1 # フレーム</strong></td><td>+ 0.420 m / + 0.490 m</td><td>X-pipe / Z-pipe(段差 70 mm)</td></tr>
-  <tr><td><strong>L2 デッキ</strong></td><td>+ 0.540 m</td><td>補強板 + ベニヤ円盤</td></tr>
+  <tr><td><strong>L2 デッキ</strong></td><td>+ 0.540 m</td><td>放射状合板4枚 + 菱形ベニヤ(D=2.4m)</td></tr>
   <tr><td>馬の鞍位置 (中央時)</td><td>+ 1.10 m</td><td>HORSE_Y + WAVE_CENTER_Y</td></tr>
   <tr><td>馬ポール上止め輪</td><td>+ 1.925 m</td><td>L3 で抜け止め</td></tr>
   <tr><td><strong>L3 十字 X-pipe</strong></td><td>+ 2.000 m</td><td>LAYER3_Y</td></tr>
@@ -474,9 +474,11 @@ table.bom tbody tr:nth-child(even) { background: #fafaf7; }
 
   <text x="455" y="-3" class="svg-label-small">L1 # 単管 (φ48.6)</text>
 
-  <!-- L2 ベニヤ円盤 (半径2.0m → スケール500) — 透過表示 -->
-  <circle cx="0" cy="0" r="500" fill="rgba(227,199,143,0.18)" stroke="#a07c4a" stroke-width="0.8" stroke-dasharray="6,3"/>
-  <text x="354" y="-354" class="svg-label-small">L2 ベニヤ円盤 (φ4000)</text>
+  <!-- L2 菱形ベニヤ (D=2.4m → スケール600) — 透過表示 -->
+  <polygon points="600,0 0,600 -600,0 0,-600" fill="rgba(230,200,144,0.25)" stroke="#a07c4a" stroke-width="0.8" stroke-dasharray="6,3"/>
+  <text x="424" y="-424" class="svg-label-small">L2 菱形ベニヤ(対角線 4800)</text>
+  <!-- 中心穴 400×400 -->
+  <rect x="-50" y="-50" width="100" height="100" fill="#f5f3ee" stroke="#1f2733" stroke-width="0.6"/>
 
   <!-- 4 馬ポール (半径1.0m → スケール250) -->
   <g class="fill-horse">
@@ -495,12 +497,12 @@ table.bom tbody tr:nth-child(even) { background: #fafaf7; }
   <text x="-250" y="48" text-anchor="middle" class="svg-label-small">馬3</text>
   <text x="0" y="-265" text-anchor="middle" class="svg-label-small">馬4</text>
 
-  <!-- L2 補強板 (180×90 → スケール45×22.5) -->
+  <!-- L2 放射状合板プレート (1800×900 → スケール450×225) -->
   <g fill="#d2a06a" stroke="#1f2733" stroke-width="0.6">
-    <rect x="227.5" y="-11.25" width="45" height="22.5"/>
-    <rect x="-11.25" y="227.5" width="22.5" height="45"/>
-    <rect x="-272.5" y="-11.25" width="45" height="22.5"/>
-    <rect x="-11.25" y="-272.5" width="22.5" height="45"/>
+    <rect x="50" y="-112.5" width="450" height="225"/>
+    <rect x="-112.5" y="50" width="225" height="450"/>
+    <rect x="-500" y="-112.5" width="450" height="225"/>
+    <rect x="-112.5" y="-500" width="225" height="450"/>
   </g>
 
   <!-- 4 木の支柱(対角、半径1.65m → 412.5) -->
@@ -562,7 +564,8 @@ table.bom tbody tr:nth-child(even) { background: #fafaf7; }
   <tr><td>馬ポール</td><td>r = 1.00 m、θ = 0°, 90°, 180°, 270°</td><td>4</td></tr>
   <tr><td>木の支柱(対角)</td><td>r = 1.65 m、θ = 45°, 135°, 225°, 315°</td><td>4</td></tr>
   <tr><td>高支柱(端)</td><td>r = 2.05 m、θ = 0°, 90°, 180°, 270°</td><td>4</td></tr>
-  <tr><td>L2 補強板(180×90)</td><td>r = 1.00 m、馬ポール真下、180mm 長は半径方向</td><td>4</td></tr>
+  <tr><td>L2 放射状合板(1800×900)</td><td>カーディナル4方向、長辺1800mmを半径方向に、外端は高支柱付近 r≈2.0m、内端は中心穴 r=0.2m</td><td>4</td></tr>
+  <tr><td>L2 菱形ベニヤ</td><td>対角線 4800 mm、t6 mm、中心40×40cm 穴、4方向で木の支柱に届く</td><td>1</td></tr>
   <tr><td>L1 # フレーム 単管 4 本</td><td>X 方向 2 本(z=±51.6)、Z 方向 2 本(x=±51.6)、長さ 4.4 m</td><td>4</td></tr>
   <tr><td>L3 + 十字パイプ</td><td>X 方向 1 本(z=+51.6)、Z 方向 1 本(x=+51.6)、長さ 4.4 m</td><td>2</td></tr>
   <tr><td>波形レール</td><td>r = 0.84〜1.16 m、6 波 / 周</td><td>1</td></tr>
@@ -800,99 +803,136 @@ L1 # フレームに取り付けるクランプは <strong>意図的に締め込
 <!-- ページ 6: 詳細図 C — L2 デッキ -->
 <!-- ============================================================== -->
 <div class="page">
-<h2>8. 詳細図 C — L2 デッキ構造(V6 軽量化版)</h2>
+<h2>8. 詳細図 C — L2 デッキ構造(V6.4 改訂版)</h2>
 <p>
-従来の単一円盤(t22 合板、約 166 kg)を撤去し、馬ポール真下の高荷重部分に
-180×90×12 mm の補強合板 4 枚を配置、残りの広い面積を t6 mm の薄ベニヤで覆う。
-これにより L2 デッキ重量は約 50 kg に軽量化される。
+従来の単一円盤(t22 合板、約 166 kg)を撤去し、<strong>1800 × 900 × 12 mm の合板</strong> 4 枚を
+4 本の高支柱から中心に向けて放射状に配置(長辺 1800 mm が半径方向)。その下に
+<strong>色の異なる薄ベニヤ</strong>(明るいベージュ)を <strong>菱形(対角線 4.8 m)</strong> に
+カットして敷き、合板の隙間と外周を覆う。中心には 400 × 400 mm の正方形穴
+(中心支柱周り)。木の支柱の上端はベニヤ底面で接続する。
 </p>
 
 <div class="fig">
 <svg viewBox="0 0 800 460" xmlns="http://www.w3.org/2000/svg">
-  <!-- 上面図 (左半分) -->
-  <text x="100" y="36" class="svg-label" font-weight="bold">[上面図]</text>
+  <!-- 上面図 (左半分) — center at (200, 220), scale 75 px / m -->
+  <text x="200" y="20" text-anchor="middle" class="svg-label" font-weight="bold">[上面図]</text>
 
-  <!-- ベニヤ円盤 (φ4000) -->
-  <circle cx="200" cy="220" r="180" fill="rgba(227,199,143,0.4)" stroke="#a07c4a" stroke-width="0.8" stroke-dasharray="6,3"/>
-  <text x="200" y="36" text-anchor="middle" class="svg-label-small">ベニヤ円盤 φ4000 × t6</text>
+  <!-- 菱形ベニヤ D=2.4m → 180px from center -->
+  <polygon points="380,220 200,40 20,220 200,400"
+           fill="rgba(230,200,144,0.55)" stroke="#a07c4a" stroke-width="1"/>
 
-  <!-- 4 補強板 (馬ポール位置) — 半径方向に180mm長 -->
-  <!-- 馬ポール at (45,0) → rect 16×8 centered there -->
+  <!-- 4 plywood plates 1800×900 mm — long side radial -->
   <g fill="#d2a06a" stroke="#1f2733" stroke-width="0.7">
-    <rect x="91" y="216" width="18" height="8"/>  <!-- 馬1 (x方向) -->
-    <rect x="291" y="216" width="18" height="8"/>  <!-- 馬3 -->
-    <rect x="196" y="121" width="8" height="18"/>  <!-- 馬2 (z方向) -->
-    <rect x="196" y="301" width="8" height="18"/>  <!-- 馬4 -->
-  </g>
-  <text x="300" y="232" class="svg-label-small">180×90×12 mm</text>
-
-  <!-- 馬ポール位置 -->
-  <g class="fill-horse">
-    <circle cx="100" cy="220" r="3"/>
-    <circle cx="300" cy="220" r="3"/>
-    <circle cx="200" cy="130" r="3"/>
-    <circle cx="200" cy="310" r="3"/>
+    <!-- Plate +X: center at (200 + 0.75*75, 220) = (256.25), long axis 135px horiz, short axis 67.5px vert -->
+    <rect x="215" y="186.25" width="135" height="67.5"/>
+    <!-- Plate -X -->
+    <rect x="50"  y="186.25" width="135" height="67.5"/>
+    <!-- Plate +Z (down in screen) -->
+    <rect x="166.25" y="235" width="67.5" height="135"/>
+    <!-- Plate -Z (up) -->
+    <rect x="166.25" y="70"  width="67.5" height="135"/>
   </g>
 
-  <!-- L1 #フレーム (細い線で表示) -->
-  <line x1="20" y1="217" x2="380" y2="217" stroke="#c8ccd0" stroke-width="2"/>
-  <line x1="20" y1="223" x2="380" y2="223" stroke="#c8ccd0" stroke-width="2"/>
-  <line x1="197" y1="40" x2="197" y2="400" stroke="#c8ccd0" stroke-width="2"/>
-  <line x1="203" y1="40" x2="203" y2="400" stroke="#c8ccd0" stroke-width="2"/>
-  <text x="22" y="232" class="svg-label-small">L1 # 単管</text>
+  <!-- Center hole 40×40 cm = 30×30 px -->
+  <rect x="185" y="205" width="30" height="30" fill="#f5f3ee" stroke="#1f2733" stroke-width="0.8"/>
 
-  <!-- 中心 -->
-  <circle cx="200" cy="220" r="4" fill="#1f2733"/>
+  <!-- 馬ポール位置 (r=1.0m → 75px) -->
+  <g fill="#f2efe6" stroke="#1f2733" stroke-width="0.5">
+    <circle cx="275" cy="220" r="4"/>
+    <circle cx="125" cy="220" r="4"/>
+    <circle cx="200" cy="145" r="4"/>
+    <circle cx="200" cy="295" r="4"/>
+  </g>
 
-  <!-- 寸法線 -->
-  <line x1="100" y1="395" x2="100" y2="410" class="svg-dim"/>
-  <line x1="300" y1="395" x2="300" y2="410" class="svg-dim"/>
-  <line x1="100" y1="405" x2="300" y2="405" class="svg-dim"/>
-  <text x="200" y="420" text-anchor="middle" class="svg-dim-text">2000 (馬ポール間距離)</text>
+  <!-- 木の支柱 r=1.65m 対角 (1.17*75 = 87.75) -->
+  <g fill="#9a7548" stroke="#1f2733" stroke-width="0.6">
+    <rect x="283" y="304" width="10" height="10"/>
+    <rect x="107" y="304" width="10" height="10"/>
+    <rect x="283" y="128" width="10" height="10"/>
+    <rect x="107" y="128" width="10" height="10"/>
+  </g>
 
-  <!-- =====================================
-       断面図 (右半分)
-       ===================================== -->
-  <text x="600" y="36" class="svg-label" font-weight="bold">[A-A 断面]</text>
+  <!-- 高支柱 r=2.05m カーディナル (153.75) -->
+  <g fill="#c8ccd0" stroke="#1f2733" stroke-width="0.6">
+    <circle cx="353.75" cy="220" r="5"/>
+    <circle cx="46.25"  cy="220" r="5"/>
+    <circle cx="200" cy="66.25" r="5"/>
+    <circle cx="200" cy="373.75" r="5"/>
+  </g>
 
-  <!-- L1 X-pipe (低い方) -->
-  <ellipse cx="450" cy="280" rx="8" ry="4" class="fill-pipe"/>
-  <ellipse cx="750" cy="280" rx="8" ry="4" class="fill-pipe"/>
-  <line x1="450" y1="280" x2="750" y2="280" class="svg-line" stroke="#c8ccd0" stroke-width="3"/>
-  <line x1="450" y1="284" x2="750" y2="284" class="svg-line" stroke="#1f2733" stroke-width="0.5"/>
-  <line x1="450" y1="276" x2="750" y2="276" class="svg-line" stroke="#1f2733" stroke-width="0.5"/>
+  <!-- L1 # frame (very thin lines to show structure) -->
+  <line x1="40" y1="216" x2="360" y2="216" stroke="#aab0bd" stroke-width="0.6"/>
+  <line x1="40" y1="224" x2="360" y2="224" stroke="#aab0bd" stroke-width="0.6"/>
+  <line x1="196" y1="60" x2="196" y2="380" stroke="#aab0bd" stroke-width="0.6"/>
+  <line x1="204" y1="60" x2="204" y2="380" stroke="#aab0bd" stroke-width="0.6"/>
 
-  <!-- L1 Z-pipe (高い方) -->
-  <ellipse cx="600" cy="250" rx="4" ry="8" class="fill-pipe"/>
+  <!-- ラベル -->
+  <text x="288" y="190" class="svg-label-small">合板 1800×900</text>
+  <text x="200" y="100" text-anchor="middle" class="svg-label-small">菱形ベニヤ</text>
+  <text x="200" y="115" text-anchor="middle" class="svg-label-small">(対角線4800mm)</text>
+  <text x="200" y="222" text-anchor="middle" class="svg-label-small">穴</text>
+  <text x="295" y="328" class="svg-label-small">木支柱</text>
 
-  <!-- 補強板 (180×90×12) -->
-  <rect x="555" y="222" width="90" height="6" class="fill-wood" stroke="#1f2733"/>
-  <text x="660" y="225" class="svg-label-small">補強板 180mm</text>
-  <text x="660" y="240" class="svg-label-small">(12 mm 厚)</text>
+  <!-- 寸法線(プレート+ハイクライアンス -->
+  <line x1="215" y1="265" x2="215" y2="275" class="svg-dim"/>
+  <line x1="350" y1="265" x2="350" y2="275" class="svg-dim"/>
+  <line x1="215" y1="270" x2="350" y2="270" class="svg-dim"/>
+  <text x="282" y="282" text-anchor="middle" class="svg-dim-text">1800</text>
 
-  <!-- ベニヤ円盤 -->
-  <rect x="430" y="215" width="340" height="3" class="fill-veneer" stroke="#1f2733" stroke-width="0.4"/>
-  <text x="500" y="208" class="svg-label-small">ベニヤ t6 (連続)</text>
+  <line x1="365" y1="186.25" x2="375" y2="186.25" class="svg-dim"/>
+  <line x1="365" y1="253.75" x2="375" y2="253.75" class="svg-dim"/>
+  <line x1="370" y1="186.25" x2="370" y2="253.75" class="svg-dim"/>
+  <text x="378" y="222" class="svg-dim-text" font-size="9">900</text>
 
-  <!-- 馬ポール -->
-  <rect x="595" y="100" width="10" height="180" class="fill-pipe"/>
-  <text x="615" y="160" class="svg-label-small">馬ポール</text>
-  <text x="615" y="174" class="svg-label-small">(穴φ55mm)</text>
-
-  <!-- 寸法 -->
-  <line x1="550" y1="195" x2="550" y2="180" class="svg-dim"/>
-  <line x1="650" y1="195" x2="650" y2="180" class="svg-dim"/>
-  <line x1="550" y1="187" x2="650" y2="187" class="svg-dim"/>
-  <text x="600" y="182" text-anchor="middle" class="svg-dim-text">90 (90mm)</text>
-
-  <text x="430" y="60" class="svg-label-small">L2 (Y=650mm)</text>
-  <text x="430" y="74" class="svg-label-small">L1 X-pipe (Y=530mm)</text>
-  <text x="430" y="88" class="svg-label-small">L1 Z-pipe (Y=600mm)</text>
+  <!-- 中心穴の寸法 -->
+  <line x1="185" y1="240" x2="185" y2="250" class="svg-dim"/>
+  <line x1="215" y1="240" x2="215" y2="250" class="svg-dim"/>
+  <line x1="185" y1="246" x2="215" y2="246" class="svg-dim"/>
+  <text x="200" y="258" text-anchor="middle" class="svg-dim-text" font-size="9">400</text>
 
   <!-- A-A 線 -->
-  <line x1="100" y1="220" x2="300" y2="220" class="svg-dim" stroke-width="1.0" stroke-dasharray="6,3"/>
-  <text x="100" y="215" class="svg-dim-text">A</text>
-  <text x="300" y="215" class="svg-dim-text">A</text>
+  <line x1="40" y1="220" x2="360" y2="220" class="svg-dim" stroke-width="0.8" stroke-dasharray="5,3"/>
+  <text x="45" y="216" class="svg-dim-text">A</text>
+  <text x="358" y="216" class="svg-dim-text">A</text>
+
+  <!-- =====================================
+       A-A 断面図 (右半分)
+       ===================================== -->
+  <text x="600" y="20" text-anchor="middle" class="svg-label" font-weight="bold">[A-A 断面]</text>
+
+  <!-- L1 X-pipe (lower) at Y=420mm → screen y=300 (scale: 0.2px/mm vertically, base at y=420) -->
+  <ellipse cx="450" cy="320" rx="8" ry="4" class="fill-pipe"/>
+  <ellipse cx="750" cy="320" rx="8" ry="4" class="fill-pipe"/>
+  <line x1="450" y1="316" x2="750" y2="316" class="svg-line" stroke="#1f2733" stroke-width="0.5"/>
+  <line x1="450" y1="324" x2="750" y2="324" class="svg-line" stroke="#1f2733" stroke-width="0.5"/>
+  <line x1="450" y1="320" x2="750" y2="320" stroke="#c8ccd0" stroke-width="6"/>
+
+  <!-- L1 Z-pipe (upper, perpendicular, only visible at center) -->
+  <ellipse cx="600" cy="290" rx="4" ry="8" class="fill-pipe"/>
+
+  <!-- 菱形ベニヤ (水平、薄い) at Y=533mm → 中間レベル -->
+  <rect x="430" y="248" width="340" height="3" class="fill-veneer" stroke="#1f2733" stroke-width="0.4"/>
+  <text x="430" y="245" class="svg-label-small">菱形ベニヤ t6</text>
+
+  <!-- 合板プレート on top of veneer at Y=540 -->
+  <rect x="500" y="232" width="200" height="6" class="fill-wood" stroke="#1f2733"/>
+  <text x="510" y="226" class="svg-label-small">合板 1800×900×12</text>
+
+  <!-- 馬ポール (vertical, passes through plate area) -->
+  <rect x="595" y="120" width="10" height="125" class="fill-pipe"/>
+  <text x="610" y="160" class="svg-label-small">馬ポール</text>
+
+  <!-- 木の支柱 — 対角位置なので断面に直接は現れないが、参考表示 -->
+  <text x="430" y="260" class="svg-label-small">↓ 木の支柱(対角・参考)</text>
+  <rect x="440" y="252" width="6" height="100" fill="#9a7548" stroke="#1f2733" stroke-width="0.3" opacity="0.6"/>
+  <text x="450" y="362" class="svg-label-small" opacity="0.7">SUPPORT_TOP</text>
+  <text x="450" y="374" class="svg-label-small" opacity="0.7">= ベニヤ底</text>
+
+  <!-- 寸法 -->
+  <text x="430" y="80" class="svg-label-small">L2 (Y = 540 mm) ─ 合板上面</text>
+  <text x="430" y="95" class="svg-label-small">ベニヤ底 (Y = 533 mm)</text>
+  <text x="430" y="110" class="svg-label-small">L1 Z-pipe (Y = 490 mm)</text>
+  <text x="430" y="125" class="svg-label-small">L1 X-pipe (Y = 420 mm)</text>
 
 </svg>
 <div class="fig-caption">図 5: L2 デッキ — 上面図(左)と A-A 断面(右)</div>
@@ -900,8 +940,8 @@ L1 # フレームに取り付けるクランプは <strong>意図的に締め込
 
 <table class="spec">
   <tr><th>部材</th><th>仕様</th><th>個数</th><th>重量</th></tr>
-  <tr><td>補強板</td><td>構造用合板 180×90×12 mm</td><td>4</td><td>約 0.12 kg/枚 → 0.5 kg</td></tr>
-  <tr><td>ベニヤ円盤</td><td>3 mm + 3 mm 重ね合板 = t6 mm、外径 φ4000 mm、内側に馬ポール用 φ55 mm 穴 × 4</td><td>1</td><td>約 45 kg</td></tr>
+  <tr><td>放射状合板プレート</td><td>構造用合板 1800×900×12 mm(標準 3×6 板サイズ)</td><td>4</td><td>約 11 kg/枚 → 44 kg</td></tr>
+  <tr><td>菱形ベニヤ</td><td>ラワン合板 t6 mm、対角線 4800 mm 菱形、中心 400×400 mm 角穴、馬ポール用 φ55 mm 穴 × 4</td><td>1</td><td>約 22 kg</td></tr>
   <tr><td>固定金具</td><td>木ネジ φ4 × 30 mm</td><td>約 80 本</td><td>—</td></tr>
   <tr><td>L2 デッキ合計</td><td>—</td><td>—</td><td><strong>約 46 kg</strong>(従来比 −120 kg)</td></tr>
 </table>
@@ -1223,8 +1263,8 @@ L3 は 2 本の単管を「+」字に組んだ上部フレーム。X-pipe は LA
 <table class="bom">
   <tr><th>No.</th><th>部品</th><th>仕様</th><th class="num">寸法 (mm)</th><th class="qty">数量</th><th>備考</th></tr>
   <tr><td class="num">9</td><td>木の支柱(対角)</td><td>SPF 角材</td><td class="num">55 × 55 × 565</td><td class="qty">4</td><td>L2 高さ調整可</td></tr>
-  <tr><td class="num">10</td><td>L2 補強板</td><td>構造用合板</td><td class="num">180 × 90 × 12</td><td class="qty">4</td><td>馬ポール真下</td></tr>
-  <tr><td class="num">11</td><td>L2 ベニヤ円盤</td><td>ラワン合板 t6</td><td class="num">φ4000</td><td class="qty">1</td><td>馬ポール用 φ55 穴 × 4</td></tr>
+  <tr><td class="num">10</td><td>L2 放射状合板</td><td>構造用合板</td><td class="num">1800 × 900 × 12</td><td class="qty">4</td><td>カーディナル方向から中心へ、長辺半径方向</td></tr>
+  <tr><td class="num">11</td><td>L2 菱形ベニヤ</td><td>ラワン合板 t6</td><td class="num">対角線 4800 菱形</td><td class="qty">1</td><td>中心 400×400 角穴、馬ポール用 φ55 穴 × 4</td></tr>
   <tr><td class="num">12</td><td>中心アンカー床合板</td><td>構造用合板 t18</td><td class="num">φ1200</td><td class="qty">1</td><td>—</td></tr>
   <tr><td class="num">13</td><td>波形レール基台</td><td>構造用合板 t12</td><td class="num">φ800〜1200 環状</td><td class="qty">1</td><td>6 ピース円弧</td></tr>
   <tr><td class="num">14</td><td>波形レール仕上げ材</td><td>曲げ木 or 段ボール</td><td class="num">t3 × W320 × 全周</td><td class="qty">1</td><td>—</td></tr>
@@ -1319,8 +1359,8 @@ L3 は 2 本の単管を「+」字に組んだ上部フレーム。X-pipe は LA
   <li>木の支柱 4 本(部品 #9、SPF 55 × 55)に φ100 キャスター(部品 #18)を取付</li>
   <li>4 本を対角線方向(45°、135°、225°、315°)、半径 1.65 m に配置</li>
   <li>木の支柱の上端を L2 高さ(0.54 m)に揃える(必要なら木材をカット)</li>
-  <li>L2 補強板(部品 #10、180×90×12)4 枚を馬ポール真下(L1 # フレーム上)に配置、木ネジで L1 上に固定</li>
-  <li>L2 ベニヤ円盤(部品 #11、φ4000 × t6)を補強板と木の支柱上端の上に被せ、馬ポール用 φ55 穴に通す</li>
+  <li>L2 菱形ベニヤ(部品 #11、対角線 4800 × t6)を先に L1 # フレームの上に被せる。木の支柱 4 本の上端がベニヤ底面に当たる位置で配置、各支柱と木ネジで固定。中心 400×400 mm 穴と馬ポール用 φ55 穴に各ポールを通す</li>
+  <li>L2 放射状合板(部品 #10、1800×900×12)4 枚を菱形ベニヤの上にカーディナル4方向から中心に向けて配置。長辺(1800 mm)を半径方向に、短辺(900 mm)を接線方向に。内端は中心穴の縁、外端は高支柱に届く位置。木ネジで L1 # フレームおよびベニヤに固定</li>
   <li>ベニヤを各支持点に木ネジ(部品 #24)で固定</li>
 </ol>
 

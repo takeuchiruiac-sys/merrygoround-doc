@@ -164,7 +164,7 @@ button.active { background: rgba(107, 158, 255, 0.22); border-color: rgba(107, 1
 
     <div class="note">
       <span class="label">V6 変更点</span>
-      中心支柱を床合板+ソケット+重し(4個)で固定。上端はL3 X-pipe/Z-pipeに緩めクランプ2個(回転側) → 中心は静止、上部は中心軸周りに回転。馬ポールタイヤをφ100mm(他と統一)、L1井形を0.42m、L2デッキは180×90mm補強板4枚+ベニヤ円盤(6mm)に軽量化。波形レール下に紙束基台のための合板リングを追加。
+      中心支柱を床合板+ソケット+重し(4個)で固定。上端はL3 X-pipe/Z-pipeに緩めクランプ2個(回転側) → 中心は静止、上部は中心軸周りに回転。馬ポールタイヤをφ100mm統一、L1井形を0.42m、L2デッキは1800×900×12mm合板4枚を支柱から放射状に配置、その下に菱形ベニヤ(D=2.4m)を敷き、中心は40×40cm穴。木の支柱はベニヤの45°縁まで届く。波形レール下に紙束基台の合板リング。
     </div>
   </div>
 </div>
@@ -598,36 +598,64 @@ window.addEventListener('load', function() {
   }
   rotatingGroup.add(makeLowerCrossFrame());
 
-  // ----- L2 deck (V6 redesign): 4 reinforcement plates over the L1 frame + thin veneer disc -----
-  // 4 plates of 180 × 90 × 12 mm plywood sit above the L1 # frame at the horse-pole
-  // positions (where load is concentrated). A thin 6 mm veneer (ベニヤ) disc spans the
-  // remaining deck area — far lighter than the original 22 mm full disc (~166 kg → ~50 kg).
+  // ----- L2 deck (V6.3 redesign): 4 large plywood plates arranged radially -----
+  // 4 plates (1800 × 900 × 12 mm) extend from near each tall edge pillar (cardinal
+  // positions, r = 2.05) inward toward the center. The long 1800 mm side is radial
+  // (parallel to the corresponding L1 pipes); the 900 mm side is tangential. A
+  // 400 × 400 mm hole is left at the center (around the center post).
+  const plywoodDeckMat = plywoodMat.clone();
   const layer2Group = new THREE.Group();
-  // Thin veneer disc (deck surface)
-  const layer2Veneer = new THREE.Mesh(
-    new THREE.CylinderGeometry(2.0, 2.0, 0.006, 64),
-    plywoodMat
-  );
-  layer2Veneer.position.y = LAYER2_Y;
-  layer2Veneer.receiveShadow = true;
-  layer2Veneer.castShadow = true;
-  layer2Group.add(layer2Veneer);
-  // 4 reinforcement plates at horse-pole positions
+  const PLATE_LONG  = 1.80;        // 1800 mm along the radial (pipe-parallel) direction
+  const PLATE_SHORT = 0.90;        // 900 mm tangential
+  const PLATE_THICK = 0.012;
+  const HOLE_HALF   = 0.20;        // 400 × 400 mm square hole at center (±0.20 m from origin)
+  const plateRadialCenter = HOLE_HALF + PLATE_LONG / 2;   // = 1.10 m (radial center of each plate)
   for (let i = 0; i < 4; i++) {
-    const a = (i / 4) * Math.PI * 2;
+    const a = (i / 4) * Math.PI * 2;  // 0°, 90°, 180°, 270° (cardinal, matches tall-pillar positions)
     const plate = new THREE.Mesh(
-      new THREE.BoxGeometry(0.18, 0.012, 0.09),  // 180 mm radial × 12 mm thick × 90 mm tangential
-      plywoodMat
+      new THREE.BoxGeometry(PLATE_LONG, PLATE_THICK, PLATE_SHORT),
+      plywoodDeckMat
     );
-    plate.position.set(POLE_RADIUS * Math.cos(a), LAYER2_Y - 0.003, POLE_RADIUS * Math.sin(a));
-    plate.rotation.y = -a;  // align 180 mm length with the radial direction
+    plate.position.set(
+      plateRadialCenter * Math.cos(a),
+      LAYER2_Y,
+      plateRadialCenter * Math.sin(a)
+    );
+    plate.rotation.y = -a;            // long side (local X) → world radial direction
     plate.castShadow = true;
     plate.receiveShadow = true;
     layer2Group.add(plate);
   }
+
+  // Diamond veneer (lighter color than the plywood plates) filling the deck area
+  // except for the central 400 × 400 mm hole. Vertices at cardinal direction r=2.4 m
+  // (extends past the plate tips so 45° edge reaches the wooden support posts).
+  // Sits just below the plates.
+  const veneerMat = new THREE.MeshStandardMaterial({
+    color: 0xe6c890, roughness: 0.88, side: THREE.DoubleSide
+  });
+  const diamondShape = new THREE.Shape();
+  const D_VENEER = 2.4;  // V6.4: enlarged so 45° edge (r≈1.70) reaches past the wooden support posts (r=1.65)
+  diamondShape.moveTo( D_VENEER, 0);
+  diamondShape.lineTo(0,  D_VENEER);
+  diamondShape.lineTo(-D_VENEER, 0);
+  diamondShape.lineTo(0, -D_VENEER);
+  diamondShape.closePath();
+  const holePath = new THREE.Path();
+  const H = 0.20;
+  holePath.moveTo( H,  H);
+  holePath.lineTo( H, -H);
+  holePath.lineTo(-H, -H);
+  holePath.lineTo(-H,  H);
+  holePath.closePath();
+  diamondShape.holes.push(holePath);
+  const veneer = new THREE.Mesh(new THREE.ShapeGeometry(diamondShape), veneerMat);
+  veneer.rotation.x = -Math.PI / 2;       // lay flat in XZ plane
+  veneer.position.y = LAYER2_Y - 0.007;   // just below the plates
+  veneer.receiveShadow = true;
+  layer2Group.add(veneer);
+
   rotatingGroup.add(layer2Group);
-  // Keep `layer2` reference (for skeleton-view toggle) pointing at the veneer
-  const layer2 = layer2Veneer;
 
   // ----- L3 upper cross frame (V5) — 2-pipe + cross, offset to ONE SIDE of pillars -----
   // Mirrors the lower # frame style: each pipe sits beside its pillar (z=+halfGap
@@ -701,7 +729,7 @@ window.addEventListener('load', function() {
 
   // ===== 4 wooden support posts under L2 (at diagonals, between new tall pillars) =====
   const SUPPORT_R = 1.65;
-  const SUPPORT_TOP = LAYER2_Y - 0.011;
+  const SUPPORT_TOP = LAYER2_Y - 0.005;   // V6.4: extend post top up so it contacts the diamond veneer
   const SUPPORT_BOTTOM = 0.085;
   const SUPPORT_HEIGHT = SUPPORT_TOP - SUPPORT_BOTTOM;
   for (let i = 0; i < 4; i++) {
@@ -1002,8 +1030,10 @@ window.addEventListener('load', function() {
   let skeletonView = false;
   document.getElementById('btn-skeleton').onclick = function() {
     skeletonView = !skeletonView;
-    layer2.material.transparent = skeletonView;
-    layer2.material.opacity = skeletonView ? 0.22 : 1;
+    plywoodDeckMat.transparent = skeletonView;
+    plywoodDeckMat.opacity = skeletonView ? 0.22 : 1;
+    veneerMat.transparent = skeletonView;
+    veneerMat.opacity = skeletonView ? 0.22 : 1;
     roofGroup.visible = !skeletonView;
     this.classList.toggle('active', skeletonView);
   };

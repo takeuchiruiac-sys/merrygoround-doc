@@ -164,7 +164,7 @@ button.active { background: rgba(107, 158, 255, 0.22); border-color: rgba(107, 1
 
     <div class="note">
       <span class="label">V6 変更点</span>
-      中心支柱を床合板+ソケット+重し(4個)で固定。上端はL3 X-pipe/Z-pipeに緩めクランプ2個(回転側) → 中心は静止、上部は中心軸周りに回転。馬ポールタイヤをφ100mm統一、L1井形を0.42m、L2デッキは1800×900×12mm合板4枚を支柱から放射状に配置、その下に菱形ベニヤ(D=2.4m)を敷き、中心は40×40cm穴。木の支柱はベニヤの45°縁まで届く。波形レール下に紙束基台の合板リング。
+      中心支柱を床合板+ソケット+重し(4個)で固定。上端はL3 X-pipe/Z-pipeに緩めクランプ2個(回転側) → 中心は静止、上部は中心軸周りに回転。馬ポールタイヤをφ100mm統一、L1井形を0.42m、L2デッキは1800×900×12mm合板4枚を放射状配置、下に菱形ベニヤ(D=1.80m)を敷き中心40×40cm穴。木の支柱(対角)はレール外側ぎりぎりまで内側に寄せた(r=1.25)、ベニヤ45°縁(r≈1.27)で支持。波形レール下に紙束基台。
     </div>
   </div>
 </div>
@@ -627,15 +627,15 @@ window.addEventListener('load', function() {
     layer2Group.add(plate);
   }
 
-  // Diamond veneer (lighter color than the plywood plates) filling the deck area
-  // except for the central 400 × 400 mm hole. Vertices at cardinal direction r=2.4 m
-  // (extends past the plate tips so 45° edge reaches the wooden support posts).
-  // Sits just below the plates.
+  // Diamond veneer (lighter color than the plywood plates) filling the inner deck area
+  // except for the central 400 × 400 mm hole. Vertices at cardinal direction r=1.80 m;
+  // 45° edge at r≈1.27 m reaches just past the new (inward) wooden support posts.
+  // Sits just below the plates. The plates extend past the diamond at cardinal directions.
   const veneerMat = new THREE.MeshStandardMaterial({
     color: 0xe6c890, roughness: 0.88, side: THREE.DoubleSide
   });
   const diamondShape = new THREE.Shape();
-  const D_VENEER = 2.4;  // V6.4: enlarged so 45° edge (r≈1.70) reaches past the wooden support posts (r=1.65)
+  const D_VENEER = 1.80;  // V6.5: shrunk to match new wooden post position (r=1.25); 45° edge at r≈1.27
   diamondShape.moveTo( D_VENEER, 0);
   diamondShape.lineTo(0,  D_VENEER);
   diamondShape.lineTo(-D_VENEER, 0);
@@ -727,9 +727,9 @@ window.addEventListener('load', function() {
   }
   rotatingGroup.add(makeCenterPostSleeve());
 
-  // ===== 4 wooden support posts under L2 (at diagonals, between new tall pillars) =====
-  const SUPPORT_R = 1.65;
-  const SUPPORT_TOP = LAYER2_Y - 0.005;   // V6.4: extend post top up so it contacts the diamond veneer
+  // ===== 4 wooden support posts under L2 (at diagonals) =====
+  const SUPPORT_R = 1.25;  // V6.5: moved inward; post-corner clears the wavy rail outer edge (r=1.16) by ~5cm
+  const SUPPORT_TOP = LAYER2_Y - 0.005;   // post top contacts the diamond veneer
   const SUPPORT_BOTTOM = 0.085;
   const SUPPORT_HEIGHT = SUPPORT_TOP - SUPPORT_BOTTOM;
   for (let i = 0; i < 4; i++) {

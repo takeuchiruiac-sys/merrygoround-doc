@@ -419,7 +419,7 @@ table.bom tbody tr:nth-child(even) { background: #fafaf7; }
   <tr><td>馬ポールタイヤ上端 (山時)</td><td>+ 0.325 m</td><td>キャスターφ100mm</td></tr>
   <tr><td>馬ポールブラケット上端 (山時)</td><td>+ 0.365 m</td><td>クリアランス 35mm</td></tr>
   <tr><td><strong>L1 # フレーム</strong></td><td>+ 0.420 m / + 0.490 m</td><td>X-pipe / Z-pipe(段差 70 mm)</td></tr>
-  <tr><td><strong>L2 デッキ</strong></td><td>+ 0.540 m</td><td>放射状合板4枚 + 菱形ベニヤ(D=2.4m)</td></tr>
+  <tr><td><strong>L2 デッキ</strong></td><td>+ 0.540 m</td><td>放射状合板4枚 + 菱形ベニヤ(対角線3.6m)</td></tr>
   <tr><td>馬の鞍位置 (中央時)</td><td>+ 1.10 m</td><td>HORSE_Y + WAVE_CENTER_Y</td></tr>
   <tr><td>馬ポール上止め輪</td><td>+ 1.925 m</td><td>L3 で抜け止め</td></tr>
   <tr><td><strong>L3 十字 X-pipe</strong></td><td>+ 2.000 m</td><td>LAYER3_Y</td></tr>
@@ -474,9 +474,9 @@ table.bom tbody tr:nth-child(even) { background: #fafaf7; }
 
   <text x="455" y="-3" class="svg-label-small">L1 # 単管 (φ48.6)</text>
 
-  <!-- L2 菱形ベニヤ (D=2.4m → スケール600) — 透過表示 -->
-  <polygon points="600,0 0,600 -600,0 0,-600" fill="rgba(230,200,144,0.25)" stroke="#a07c4a" stroke-width="0.8" stroke-dasharray="6,3"/>
-  <text x="424" y="-424" class="svg-label-small">L2 菱形ベニヤ(対角線 4800)</text>
+  <!-- L2 菱形ベニヤ (D=1.80m → スケール450) — 透過表示 -->
+  <polygon points="450,0 0,450 -450,0 0,-450" fill="rgba(230,200,144,0.25)" stroke="#a07c4a" stroke-width="0.8" stroke-dasharray="6,3"/>
+  <text x="318" y="-318" class="svg-label-small">L2 菱形ベニヤ(対角線 3600)</text>
   <!-- 中心穴 400×400 -->
   <rect x="-50" y="-50" width="100" height="100" fill="#f5f3ee" stroke="#1f2733" stroke-width="0.6"/>
 
@@ -505,14 +505,14 @@ table.bom tbody tr:nth-child(even) { background: #fafaf7; }
     <rect x="-112.5" y="-500" width="225" height="450"/>
   </g>
 
-  <!-- 4 木の支柱(対角、半径1.65m → 412.5) -->
+  <!-- 4 木の支柱(対角、半径1.25m → 312.5) -->
   <g fill="#9a7548" stroke="#1f2733" stroke-width="0.6">
-    <rect x="278" y="278" width="14" height="14"/>
-    <rect x="-292" y="278" width="14" height="14"/>
-    <rect x="278" y="-292" width="14" height="14"/>
-    <rect x="-292" y="-292" width="14" height="14"/>
+    <rect x="214" y="214" width="14" height="14"/>
+    <rect x="-228" y="214" width="14" height="14"/>
+    <rect x="214" y="-228" width="14" height="14"/>
+    <rect x="-228" y="-228" width="14" height="14"/>
   </g>
-  <text x="285" y="270" class="svg-label-small">木支柱</text>
+  <text x="222" y="206" class="svg-label-small">木支柱(r=1.25)</text>
 
   <!-- 4 高支柱 (端、半径2.05m → 512.5) -->
   <g class="fill-pipe">
@@ -562,10 +562,10 @@ table.bom tbody tr:nth-child(even) { background: #fafaf7; }
 <table class="spec">
   <tr><th>部位</th><th>配置(半径 r、角度 θ)</th><th>個数</th></tr>
   <tr><td>馬ポール</td><td>r = 1.00 m、θ = 0°, 90°, 180°, 270°</td><td>4</td></tr>
-  <tr><td>木の支柱(対角)</td><td>r = 1.65 m、θ = 45°, 135°, 225°, 315°</td><td>4</td></tr>
+  <tr><td>木の支柱(対角)</td><td>r = 1.25 m、θ = 45°, 135°, 225°, 315°(レール外端 r=1.16 から 5cm マージン)</td><td>4</td></tr>
   <tr><td>高支柱(端)</td><td>r = 2.05 m、θ = 0°, 90°, 180°, 270°</td><td>4</td></tr>
   <tr><td>L2 放射状合板(1800×900)</td><td>カーディナル4方向、長辺1800mmを半径方向に、外端は高支柱付近 r≈2.0m、内端は中心穴 r=0.2m</td><td>4</td></tr>
-  <tr><td>L2 菱形ベニヤ</td><td>対角線 4800 mm、t6 mm、中心40×40cm 穴、4方向で木の支柱に届く</td><td>1</td></tr>
+  <tr><td>L2 菱形ベニヤ</td><td>対角線 3600 mm(D=1.80m)、t6 mm、中心40×40cm 穴、45°縁 r≈1.27 で木の支柱を支持</td><td>1</td></tr>
   <tr><td>L1 # フレーム 単管 4 本</td><td>X 方向 2 本(z=±51.6)、Z 方向 2 本(x=±51.6)、長さ 4.4 m</td><td>4</td></tr>
   <tr><td>L3 + 十字パイプ</td><td>X 方向 1 本(z=+51.6)、Z 方向 1 本(x=+51.6)、長さ 4.4 m</td><td>2</td></tr>
   <tr><td>波形レール</td><td>r = 0.84〜1.16 m、6 波 / 周</td><td>1</td></tr>
@@ -807,9 +807,10 @@ L1 # フレームに取り付けるクランプは <strong>意図的に締め込
 <p>
 従来の単一円盤(t22 合板、約 166 kg)を撤去し、<strong>1800 × 900 × 12 mm の合板</strong> 4 枚を
 4 本の高支柱から中心に向けて放射状に配置(長辺 1800 mm が半径方向)。その下に
-<strong>色の異なる薄ベニヤ</strong>(明るいベージュ)を <strong>菱形(対角線 4.8 m)</strong> に
-カットして敷き、合板の隙間と外周を覆う。中心には 400 × 400 mm の正方形穴
-(中心支柱周り)。木の支柱の上端はベニヤ底面で接続する。
+<strong>色の異なる薄ベニヤ</strong>(明るいベージュ)を <strong>菱形(対角線 3.6 m)</strong> に
+カットして敷き、合板の隙間を覆う。木の支柱(対角)は r = 1.25 m に内側に寄せ
+(波形レール外端 r = 1.16 m から 5 cm マージン)、その上端が菱形ベニヤの 45° 縁
+(r ≈ 1.27 m)を支える。中心には 400 × 400 mm の正方形穴(中心支柱周り)。
 </p>
 
 <div class="fig">
@@ -817,8 +818,8 @@ L1 # フレームに取り付けるクランプは <strong>意図的に締め込
   <!-- 上面図 (左半分) — center at (200, 220), scale 75 px / m -->
   <text x="200" y="20" text-anchor="middle" class="svg-label" font-weight="bold">[上面図]</text>
 
-  <!-- 菱形ベニヤ D=2.4m → 180px from center -->
-  <polygon points="380,220 200,40 20,220 200,400"
+  <!-- 菱形ベニヤ D=1.80m → 135px from center -->
+  <polygon points="335,220 200,85 65,220 200,355"
            fill="rgba(230,200,144,0.55)" stroke="#a07c4a" stroke-width="1"/>
 
   <!-- 4 plywood plates 1800×900 mm — long side radial -->
@@ -844,12 +845,12 @@ L1 # フレームに取り付けるクランプは <strong>意図的に締め込
     <circle cx="200" cy="295" r="4"/>
   </g>
 
-  <!-- 木の支柱 r=1.65m 対角 (1.17*75 = 87.75) -->
+  <!-- 木の支柱 r=1.25m 対角 (0.88*75 = 66.3) -->
   <g fill="#9a7548" stroke="#1f2733" stroke-width="0.6">
-    <rect x="283" y="304" width="10" height="10"/>
-    <rect x="107" y="304" width="10" height="10"/>
-    <rect x="283" y="128" width="10" height="10"/>
-    <rect x="107" y="128" width="10" height="10"/>
+    <rect x="261" y="281" width="10" height="10"/>
+    <rect x="129" y="281" width="10" height="10"/>
+    <rect x="261" y="149" width="10" height="10"/>
+    <rect x="129" y="149" width="10" height="10"/>
   </g>
 
   <!-- 高支柱 r=2.05m カーディナル (153.75) -->
@@ -869,7 +870,7 @@ L1 # フレームに取り付けるクランプは <strong>意図的に締め込
   <!-- ラベル -->
   <text x="288" y="190" class="svg-label-small">合板 1800×900</text>
   <text x="200" y="100" text-anchor="middle" class="svg-label-small">菱形ベニヤ</text>
-  <text x="200" y="115" text-anchor="middle" class="svg-label-small">(対角線4800mm)</text>
+  <text x="200" y="115" text-anchor="middle" class="svg-label-small">(対角線3600mm)</text>
   <text x="200" y="222" text-anchor="middle" class="svg-label-small">穴</text>
   <text x="295" y="328" class="svg-label-small">木支柱</text>
 
@@ -941,7 +942,7 @@ L1 # フレームに取り付けるクランプは <strong>意図的に締め込
 <table class="spec">
   <tr><th>部材</th><th>仕様</th><th>個数</th><th>重量</th></tr>
   <tr><td>放射状合板プレート</td><td>構造用合板 1800×900×12 mm(標準 3×6 板サイズ)</td><td>4</td><td>約 11 kg/枚 → 44 kg</td></tr>
-  <tr><td>菱形ベニヤ</td><td>ラワン合板 t6 mm、対角線 4800 mm 菱形、中心 400×400 mm 角穴、馬ポール用 φ55 mm 穴 × 4</td><td>1</td><td>約 22 kg</td></tr>
+  <tr><td>菱形ベニヤ</td><td>ラワン合板 t6 mm、対角線 3600 mm 菱形、中心 400×400 mm 角穴、馬ポール用 φ55 mm 穴 × 4</td><td>1</td><td>約 12 kg</td></tr>
   <tr><td>固定金具</td><td>木ネジ φ4 × 30 mm</td><td>約 80 本</td><td>—</td></tr>
   <tr><td>L2 デッキ合計</td><td>—</td><td>—</td><td><strong>約 46 kg</strong>(従来比 −120 kg)</td></tr>
 </table>
@@ -1264,7 +1265,7 @@ L3 は 2 本の単管を「+」字に組んだ上部フレーム。X-pipe は LA
   <tr><th>No.</th><th>部品</th><th>仕様</th><th class="num">寸法 (mm)</th><th class="qty">数量</th><th>備考</th></tr>
   <tr><td class="num">9</td><td>木の支柱(対角)</td><td>SPF 角材</td><td class="num">55 × 55 × 565</td><td class="qty">4</td><td>L2 高さ調整可</td></tr>
   <tr><td class="num">10</td><td>L2 放射状合板</td><td>構造用合板</td><td class="num">1800 × 900 × 12</td><td class="qty">4</td><td>カーディナル方向から中心へ、長辺半径方向</td></tr>
-  <tr><td class="num">11</td><td>L2 菱形ベニヤ</td><td>ラワン合板 t6</td><td class="num">対角線 4800 菱形</td><td class="qty">1</td><td>中心 400×400 角穴、馬ポール用 φ55 穴 × 4</td></tr>
+  <tr><td class="num">11</td><td>L2 菱形ベニヤ</td><td>ラワン合板 t6</td><td class="num">対角線 3600 菱形</td><td class="qty">1</td><td>中心 400×400 角穴、馬ポール用 φ55 穴 × 4</td></tr>
   <tr><td class="num">12</td><td>中心アンカー床合板</td><td>構造用合板 t18</td><td class="num">φ1200</td><td class="qty">1</td><td>—</td></tr>
   <tr><td class="num">13</td><td>波形レール基台</td><td>構造用合板 t12</td><td class="num">φ800〜1200 環状</td><td class="qty">1</td><td>6 ピース円弧</td></tr>
   <tr><td class="num">14</td><td>波形レール仕上げ材</td><td>曲げ木 or 段ボール</td><td class="num">t3 × W320 × 全周</td><td class="qty">1</td><td>—</td></tr>
@@ -1359,7 +1360,7 @@ L3 は 2 本の単管を「+」字に組んだ上部フレーム。X-pipe は LA
   <li>木の支柱 4 本(部品 #9、SPF 55 × 55)に φ100 キャスター(部品 #18)を取付</li>
   <li>4 本を対角線方向(45°、135°、225°、315°)、半径 1.65 m に配置</li>
   <li>木の支柱の上端を L2 高さ(0.54 m)に揃える(必要なら木材をカット)</li>
-  <li>L2 菱形ベニヤ(部品 #11、対角線 4800 × t6)を先に L1 # フレームの上に被せる。木の支柱 4 本の上端がベニヤ底面に当たる位置で配置、各支柱と木ネジで固定。中心 400×400 mm 穴と馬ポール用 φ55 穴に各ポールを通す</li>
+  <li>L2 菱形ベニヤ(部品 #11、対角線 3600 × t6)を先に L1 # フレームの上に被せる。木の支柱 4 本(r=1.25 対角)の上端がベニヤ底面に当たる位置で配置、各支柱と木ネジで固定。中心 400×400 mm 穴と馬ポール用 φ55 穴に各ポールを通す</li>
   <li>L2 放射状合板(部品 #10、1800×900×12)4 枚を菱形ベニヤの上にカーディナル4方向から中心に向けて配置。長辺(1800 mm)を半径方向に、短辺(900 mm)を接線方向に。内端は中心穴の縁、外端は高支柱に届く位置。木ネジで L1 # フレームおよびベニヤに固定</li>
   <li>ベニヤを各支持点に木ネジ(部品 #24)で固定</li>
 </ol>

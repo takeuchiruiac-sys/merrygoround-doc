@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>メリーゴーランド V4 — 組立工程設計書</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Noto+Sans+JP:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f4ed;
+    --bg-2: #efebe0;
+    --ink: #1a1a1a;
+    --ink-soft: #404040;
+    --muted: #767066;
+    --line: #d6d0c0;
+    --line-soft: #e6e0d0;
+    --accent: #b04a3a;
+    --accent-soft: #d8b4a8;
+    --ok: #4a7a4a;
+    --warn: #a67a2a;
+    --serif: 'Noto Serif JP', serif;
+    --sans: 'Noto Sans JP', sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+    --maxw: 1100px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-weight: 300;
+    line-height: 1.75;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    background-image: radial-gradient(rgba(0,0,0,0.025) 1px, transparent 1px);
+    background-size: 3px 3px;
+    opacity: 0.5;
+    z-index: 1;
+  }
+  .wrap {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 0 40px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ===== Header ===== */
+  header { padding: 72px 0 56px; border-bottom: 1px solid var(--line); }
+  .stamp {
+    display: inline-block;
+    border: 1.5px solid var(--accent);
+    color: var(--accent);
+    padding: 4px 12px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    margin-bottom: 24px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(30px, 4.5vw, 48px);
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    margin: 0 0 10px;
+  }
+  .subtitle {
+    font-family: var(--serif);
+    color: var(--muted);
+    font-size: 15px;
+    letter-spacing: 0.15em;
+    margin: 0;
+  }
+  .header-meta {
+    display: flex;
+    gap: 36px;
+    flex-wrap: wrap;
+    margin-top: 28px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+  .header-meta span strong { color: var(--ink); font-weight: 500; margin-left: 6px; }
+
+  /* ===== Timeline nav ===== */
+  .timeline-wrap {
+    padding: 36px 0 32px;
+    border-bottom: 1px solid var(--line);
+    overflow-x: auto;
+  }
+  .timeline {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    min-width: 700px;
+  }
+  .tl-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
+  }
+  .tl-item + .tl-item::before {
+    content: "";
+    position: absolute;
+    top: 10px;
+    left: -50%;
+    right: 50%;
+    height: 1px;
+    background: var(--line);
+  }
+  .tl-dot {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--line);
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    font-size: 8px;
+    color: var(--muted);
+    position: relative;
+    z-index: 1;
+    transition: all 0.15s;
+  }
+  .tl-item:hover .tl-dot { border-color: var(--accent); color: var(--accent); }
+  .tl-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-top: 8px;
+    text-align: center;
+    line-height: 1.4;
+  }
+  .tl-time {
+    font-size: 8px;
+    color: var(--accent-soft);
+  }
+
+  /* ===== Summary row ===== */
+  .summary-row {
+    display: flex;
+    gap: 0;
+    padding: 28px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .sum-cell {
+    flex: 1;
+    padding: 0 24px;
+    border-left: 1px solid var(--line-soft);
+  }
+  .sum-cell:first-child { border-left: 0; padding-left: 0; }
+  .sum-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .sum-value {
+    font-family: var(--serif);
+    font-size: 26px;
+    font-weight: 300;
+    line-height: 1;
+  }
+  .sum-unit {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: 4px;
+  }
+
+  /* ===== Step section ===== */
+  .step-section {
+    padding: 72px 0;
+    border-bottom: 1px solid var(--line);
+    scroll-margin-top: 24px;
+  }
+  .step-section:last-of-type { border-bottom: 0; }
+  .step-layout {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 64px;
+    align-items: start;
+  }
+  .step-diagram-wrap { position: relative; }
+  .step-diagram {
+    width: 100%;
+    aspect-ratio: 14/9;
+    background: #0d1117;
+    border: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .step-diagram svg {
+    width: 100%;
+    height: 100%;
+  }
+  .diagram-caption {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-top: 10px;
+    text-transform: uppercase;
+  }
+
+  .step-info { }
+  .step-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .step-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+  }
+  h2 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 26px;
+    letter-spacing: 0.03em;
+    margin: 0;
+    flex: 1;
+  }
+  .v4-mark {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    vertical-align: 2px;
+    font-weight: 500;
+  }
+  .time-chip {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    border: 1px solid var(--line);
+    padding: 3px 10px;
+    white-space: nowrap;
+  }
+  .cumulative {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    margin-top: 4px;
+  }
+
+  .step-body { font-size: 13.5px; line-height: 1.85; color: var(--ink-soft); }
+  .step-body p { margin: 0 0 1em; }
+
+  /* Parts list */
+  .parts { list-style: none; padding: 0; margin: 20px 0; }
+  .parts li {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 8px 0;
+    border-top: 1px solid var(--line-soft);
+    font-size: 12.5px;
+  }
+  .parts li:last-child { border-bottom: 1px solid var(--line-soft); }
+  .parts .pn {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    min-width: 42px;
+  }
+  .parts .pname { flex: 1; }
+  .parts .qty {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .borrowed-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    color: var(--ok);
+    background: rgba(74,122,74,0.08);
+    border: 1px solid rgba(74,122,74,0.3);
+    padding: 1px 5px;
+    margin-left: 4px;
+    vertical-align: 1px;
+  }
+  .new-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    color: #fff;
+    background: var(--accent);
+    padding: 1px 5px;
+    margin-left: 4px;
+    vertical-align: 1px;
+  }
+
+  /* Callout box */
+  .callout {
+    background: var(--bg-2);
+    border-left: 3px solid var(--warn);
+    padding: 14px 16px;
+    margin-top: 18px;
+    font-size: 12.5px;
+    line-height: 1.7;
+  }
+  .callout.v4 { border-left-color: var(--accent); }
+  .callout .label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--warn);
+    display: block;
+    margin-bottom: 6px;
+  }
+  .callout.v4 .label { color: var(--accent); }
+
+  /* SVG common */
+  .iso-prev { stroke: #556; fill: none; }
+  .iso-new  { stroke: #b04a3a; fill: none; }
+  .iso-borrow { stroke: #4a7a4a; fill: none; }
+  .iso-dim  { stroke: #b04a3a; fill: none; }
+  .label-prev { fill: #889; font-family: 'JetBrains Mono', monospace; }
+  .label-new  { fill: #e07060; font-family: 'JetBrains Mono', monospace; }
+  .label-dim  { fill: #b04a3a; font-family: 'JetBrains Mono', monospace; }
+
+  /* Legend */
+  .diagram-legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+  .leg-item { display: flex; align-items: center; gap: 6px; }
+  .leg-swatch {
+    width: 18px; height: 3px; border-radius: 1px;
+  }
+
+  /* ===== Footer ===== */
+  footer {
+    padding: 60px 0 80px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    border-top: 1px solid var(--line);
+  }
+  .sig {
+    display: inline-block;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 6px 14px;
+    margin-bottom: 16px;
+  }
+
+  /* ===== Print ===== */
+  @media print {
+    body { font-size: 11pt; background: #fff; }
+    body::before { display: none; }
+    .step-section { page-break-inside: avoid; padding: 36pt 0; }
+    .step-layout { grid-template-columns: 1.4fr 1fr; gap: 32pt; }
+    .timeline-wrap { display: none; }
+    header { padding: 36pt 0; }
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 760px) {
+    .wrap { padding: 0 20px; }
+    header { padding: 48px 0 36px; }
+    .step-layout { grid-template-columns: 1fr; gap: 32px; }
+    .step-section { padding: 48px 0; }
+    .summary-row { flex-wrap: wrap; gap: 20px; }
+    .sum-cell { border-left: 0; padding-left: 0; min-width: 40%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Header ===== -->
+<header class="wrap">
+  <div class="stamp">DOCUMENT — PROCESS PLAN <span style="margin-left:8px;background:var(--accent);color:#fff;padding:2px 8px;font-size:9px;letter-spacing:0.15em;">REV 4</span></div>
+  <h1>組立工程設計書</h1>
+  <p class="subtitle">メリーゴーランド V4 ／ 段階別ビジュアル手順書</p>
+  <div class="header-meta">
+    <span>STEPS<strong>11</strong></span>
+    <span>TOTAL TIME<strong>≈ 13.5 h</strong></span>
+    <span>CREW<strong>4 〜 6 人</strong></span>
+    <span>DATE<strong>2026.05</strong></span>
+  </div>
+</header>
+
+<!-- ===== Timeline nav ===== -->
+<div class="wrap">
+<div class="timeline-wrap">
+  <nav class="timeline" aria-label="工程ナビゲーション">
+    <a class="tl-item" href="#step-01"><div class="tl-dot">01</div><div class="tl-label">墨出し<br><span class="tl-time">30 min</span></div></a>
+    <a class="tl-item" href="#step-02"><div class="tl-dot">02</div><div class="tl-label">L1 下井桁<br><span class="tl-time">90 min</span></div></a>
+    <a class="tl-item" href="#step-03"><div class="tl-dot">03</div><div class="tl-label">中心軸<br><span class="tl-time">30 min</span></div></a>
+    <a class="tl-item" href="#step-04"><div class="tl-dot">04</div><div class="tl-label">波型レール<br><span class="tl-time">120 min</span></div></a>
+    <a class="tl-item" href="#step-05"><div class="tl-dot">05</div><div class="tl-label">L2 下板<br><span class="tl-time">150 min</span></div></a>
+    <a class="tl-item" href="#step-06"><div class="tl-dot">06</div><div class="tl-label">外周支柱<br><span class="tl-time">60 min</span></div></a>
+    <a class="tl-item" href="#step-07"><div class="tl-dot">07</div><div class="tl-label">馬ポール<br><span class="tl-time">60 min</span></div></a>
+    <a class="tl-item" href="#step-08"><div class="tl-dot">08</div><div class="tl-label">L3 車輪<br><span class="tl-time">120 min</span></div></a>
+    <a class="tl-item" href="#step-09"><div class="tl-dot">09</div><div class="tl-label">止め輪<br><span class="tl-time">120 min</span></div></a>
+    <a class="tl-item" href="#step-10"><div class="tl-dot">10</div><div class="tl-label">屋根<br><span class="tl-time">90 min</span></div></a>
+    <a class="tl-item" href="#step-11"><div class="tl-dot">11</div><div class="tl-label">馬・完成<br><span class="tl-time">90 min</span></div></a>
+  </nav>
+</div>
+</div>
+
+<!-- ===== Summary ===== -->
+<div class="wrap">
+  <div class="summary-row">
+    <div class="sum-cell">
+      <div class="sum-label">Total Steps</div>
+      <div class="sum-value">11<span class="sum-unit">工程</span></div>
+    </div>
+    <div class="sum-cell">
+      <div class="sum-label">Estimated Time</div>
+      <div class="sum-value">13.5<span class="sum-unit">時間</span></div>
+    </div>
+    <div class="sum-cell">
+      <div class="sum-label">V4 Modified Steps</div>
+      <div class="sum-value">4<span class="sum-unit">工程</span></div>
+    </div>
+    <div class="sum-cell">
+      <div class="sum-label">Crew Recommended</div>
+      <div class="sum-value">4〜6<span class="sum-unit">人</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================
+     STEP 01 — 設置場所の墨出し
+     ============================== -->
+<section class="step-section wrap" id="step-01">
+  <div class="step-layout">
+    <div class="step-diagram-wrap">
+      <div class="step-diagram">
+        <!-- Top-down (overhead plan) view -->
+        <svg viewBox="0 0 420 310" xmlns="http://www.w3.org/2000/svg">
+          <!-- Background grid hint -->
+          <rect width="420" height="310" fill="#0d1117"/>
+
+          <!-- Floor -->
+          <ellipse cx="210" cy="165" rx="170" ry="100" fill="none" stroke="#222" stroke-width="1"/>
+
+          <!-- Outer perimeter circle (r=2m) — the edge of L2 disk -->
+          <ellipse cx="210" cy="165" rx="140" ry="82" fill="none" stroke="#445" stroke-width="1.5" stroke-dasharray="6 4"/>
+
+          <!-- Wavy rail band: inner r=0.84m, outer r=1.16m -->
+          <ellipse cx="210" cy="165" rx="98" ry="57" fill="none" stroke="#b04a3a" stroke-width="1" stroke-dasharray="4 3" opacity="0.7"/>
+          <ellipse cx="210" cy="165" rx="68" ry="40" fill="none" stroke="#b04a3a" stroke-width="1" stroke-dasharray="4 3" opacity="0.7"/>
+          <!-- Rail fill hint -->
+          <ellipse cx="210" cy="165" rx="83" ry="48" fill="#b04a3a" fill-opacity="0.08" stroke="none"/>
+
+          <!-- Center -->
+          <circle cx="210" cy="165" r="4" fill="#b04a3a"/>
+          <line x1="200" y1="165" x2="220" y2="165" stroke="#b04a3a" stroke-width="1.5"/>
+          <line x1="210" y1="155" x2="210" y2="175" stroke="#b04a3a" stroke-width="1.5"/>
+
+          <!-- 4 pole positions at r=1m -->
+          <!-- r=1m overhead: rx*1/2=70, ry*1/2=41 -->
+          <!-- top: (210, 165-41=124), right: (210+70=280, 165), bottom: (210, 206), left: (140, 165) -->
+          <circle cx="210" cy="124" r="6" fill="none" stroke="#b04a3a" stroke-width="2"/>
+          <circle cx="280" cy="165" r="6" fill="none" stroke="#b04a3a" stroke-width="2"/>
+          <circle cx="210" cy="206" r="6" fill="none" stroke="#b04a3a" stroke-width="2"/>
+          <circle cx="140" cy="165" r="6" fill="none" stroke="#b04a3a" stroke-width="2"/>
+
+          <!-- Pole position guide lines from center -->
+          <line x1="210" y1="165" x2="210" y2="130" stroke="#b04a3a" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.6"/>
+          <line x1="210" y1="165" x2="274" y2="165" stroke="#b04a3a" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.6"/>
+          <line x1="210" y1="165" x2="210" y2="200" stroke="#b04a3a" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.6"/>
+          <line x1="210" y1="165" x2="146" y2="165" stroke="#b04a3a" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.6"/>
+
+          <!-- Dimension: diameter 4m -->
+          <line x1="70" y1="165" x2="350" y2="165" stroke="#b04a3a" stroke-width="0.6" opacity="0.5"/>
+          <line x1="70" y1="159" x2="70" y2="171" stroke="#b04a3a" stroke-width="0.6"/>
+          <line x1="350" y1="159" x2="350" y2="171" stroke="#b04a3a" stroke-width="0.6"/>
+          <text x="210" y="185" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#b04a3a" letter-spacing="1">φ 4.00 m</text>
+
+          <!-- Dimension: pole radius 1m -->
+          <text x="248" y="152" font-family="JetBrains Mono, monospace" font-size="8" fill="#e07060" opacity="0.9">r = 1.0 m</text>
+
+          <!-- Labels -->
+          <text x="210" y="108" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8" fill="#b04a3a" letter-spacing="1">POLE</text>
+          <text x="258" y="94" font-family="JetBrains Mono, monospace" font-size="8" fill="#e07060" opacity="0.8" letter-spacing="1">RAIL BAND</text>
+          <line x1="256" y1="96" x2="240" y2="112" stroke="#e07060" stroke-width="0.6" opacity="0.7"/>
+
+          <!-- Chalk line label -->
+          <text x="14" y="30" font-family="JetBrains Mono, monospace" font-size="9" fill="#556" letter-spacing="1">OVERHEAD PLAN VIEW</text>
+          <text x="14" y="44" font-family="JetBrains Mono, monospace" font-size="8" fill="#445" letter-spacing="0.5">— チョーク墨出し範囲 —</text>
+        </svg>
+      </div>
+      <div class="diagram-caption">
+        <span>FIG. 01 — FLOOR PLAN, CHALK LAYOUT</span>
+        <span>VIEW: TOP-DOWN</span>
+      </div>
+      <div class="diagram-legend">
+        <div class="leg-item"><div class="leg-swatch" style="background:#b04a3a;"></div><span>今回マーキング</span></div>
+        <div class="leg-item"><div class="leg-swatch" style="background:#b04a3a;opacity:0.3;height:8px;width:18px;"></div><span>波型レール帯</span></div>
+      </div>
+    </div>
+
+    <div class="step-info">
+      <div class="step-header">
+        <span class="step-num">STEP 01</span>
+        <h2>設置場所の墨出し</h2>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:20px;">
+        <span class="time-chip">⏱ 30 min</span>
+        <span class="cumulative">累計 0.5 h</span>
+      </div>
+      <div class="step-body">
+        <p>床面に組み立て基準となる同心円と基準点を正確にマーキングする。この工程でのズレは全体に影響するため、2人以上でチェックしながら実施。</p>
+      </div>
+      <ul class="parts">
+        <li><span class="pn">—</span><span class="pname">チョーク or マスキングテープ</span><span class="qty">適量</span></li>
+        <li><span class="pn">—</span><span class="pname">巻尺 2m 以上</span><span class="qty">1</span></li>
+        <li><span class="pn">—</span><span class="pname">水糸</span><span class="qty">適量</span></li>
+      </ul>
+      <div class="callout">
+        <span class="label">⚑ CHECK POINTS</span>
+        中心点から半径 2.00 m の円（外周）、半径 1.00 m の円（ポール4点位置）、半径 0.84 m と 1.16 m の円（波型レール内外周）を描く。4本のポール位置は中心から 90° 等分。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==============================
+     STEP 02 — 下井桁（L1）を組む
+     ============================== -->
+<section class="step-section wrap" id="step-02">
+  <div class="step-layout">
+    <div class="step-diagram-wrap">
+      <div class="step-diagram">
+        <!-- Isometric: ix=210+(x-z)*40, iy=260-(x+z)*20-y*50 -->
+        <svg viewBox="0 0 420 310" xmlns="http://www.w3.org/2000/svg">
+          <rect width="420" height="310" fill="#0d1117"/>
+          <!-- Ground reference ellipse -->
+          <ellipse cx="210" cy="260" rx="140" ry="56" fill="none" stroke="#223" stroke-width="0.8"/>
+
+          <!-- L1 X-pipe: (-2,0,0.22) to (2,0,0.22) -->
+          <!-- ix(-2,0)=130, iy(-2,0,0.22)=260+40-11=289 -->
+          <!-- ix(2,0)=290, iy(2,0,0.22)=260-40-11=209 -->
+          <line x1="130" y1="289" x2="290" y2="209" stroke="#b04a3a" stroke-width="5" stroke-linecap="round"/>
+
+          <!-- L1 Z-pipe: (0,-2,0.22) to (0,2,0.22) -->
+          <!-- ix(0,-2)=290, iy(0,-2,0.22)=260+40-11=289 -->
+          <!-- ix(0,2)=130, iy(0,2,0.22)=260-40-11=209 -->
+          <line x1="290" y1="289" x2="130" y2="209" stroke="#b04a3a" stroke-width="5" stroke-linecap="round"/>
+
+          <!-- 4 clamp blocks at pole positions (r=1m) -->
+          <!-- (1,0,0.22): ix=250, iy=240-11=229 -->
+          <rect x="244" y="223" width="12" height="8" rx="1" fill="#b04a3a"/>
+          <!-- (0,1,0.22): ix=170, iy=229 -->
+          <rect x="164" y="223" width="12" height="8" rx="1" fill="#b04a3a"/>
+          <!-- (-1,0,0.22): ix=170, iy=260+20-11=269 -->
+          <rect x="164" y="263" width="12" height="8" rx="1" fill="#b04a3a"/>
+          <!-- (0,-1,0.22): ix=250, iy=269 -->
+          <rect x="244" y="263" width="12" height="8" rx="1" fill="#b04a3a"/>
+
+          <!-- Center mark -->
+          <circle cx="210" cy="249" r="4" fill="#b04a3a"/>
+
+          <!-- Dimension: 4m span -->
+          <line x1="130" y1="302" x2="290" y2="302" stroke="#b04a3a" stroke-width="0.7"/>
+          <line x1="130" y1="297" x2="130" y2="307" stroke="#b04a3a" stroke-width="0.7"/>
+          <line x1="290" y1="297" x2="290" y2="307" stroke="#b04a3a" stroke-width="0.7"/>
+          <text x="210" y="310" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8" fill="#b04a3a" letter-spacing="1">4.00 m</text>
+
+          <!-- Labels -->
+          <text x="88" y="285" font-family="JetBrains Mono, monospace" font-size="8" fill="#e07060" letter-spacing="0.5">A-01</text>
+          <text x="310" y="258" font-family="JetBrains Mono, monospace" font-size="8" fill="#e07060" letter-spacing="0.5">D-01</text>
+
+          <!-- Height annotation -->
+          <line x1="60" y1="249" x2="60" y2="260" stroke="#556" stroke-width="0.6"/>
+          <line x1="55" y1="249" x2="65" y2="249" stroke="#556" stroke-width="0.6"/>
+          <line x1="55" y1="260" x2="65" y2="260" stroke="#556" stroke-width="0.6"/>
+          <text x="48" y="256" font-family="JetBrains Mono, monospace" font-size="7" fill="#556" text-anchor="middle">L1</text>
+
+          <text x="14" y="20" font-family="JetBrains Mono, monospace" font-size="9" fill="#556" letter-spacing="1">ISOMETRIC VIEW</text>
+        </svg>
+      </div>
+      <div class="diagram-caption">
+        <span>FIG. 02 — L1 LOWER CROSS FRAME</span>
+        <span>SCALE 1:25</span>
+      </div>
+      <div class="diagram-legend">
+        <div class="leg-item"><div class="leg-swatch" style="background:#b04a3a;"></div><span>今回設置</span></div>
+      </div>
+    </div>
+
+    <div class="step-info">
+      <div class="step-header">
+        <span class="step-num">STEP 02</span>
+        <h2>下井桁（L1）を組む</h2>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:20px;">
+        <span class="time-chip">⏱ 90 min</span>
+        <span class="cumulative">累計 2.0 h</span>
+      </div>
+      <div class="step-body">
+        <p>4 m 鉄パイプ 4 本を＋字に配置。X 方向 2 本と Z 方向 2 本がポール径だけ離れた「対パイプ」になるよう組み、直交クランプで本締め。</p>
+      </div>
+      <ul class="parts">
+        <li><span class="pn">A-01</span><span class="pname">鉄パイプ 4 m<span class="borrowed-tag">借用</span></span><span class="qty">×4</span></li>
+        <li><span class="pn">D-01</span><span class="pname">単管クランプ 直交</span><span class="qty">×8</span></li>
+        <li><span class="pn">D-02</span><span class="pname">単管クランプ 自在（筋交い）</span><span class="qty">×2</span></li>
+      </ul>
+      <div class="callout">
+        <span class="label">⚑ POINT</span>
+        全クランプをスパナで本締めする前に水準器で水平を確認。交差点の対角に筋交い 1 本を追加し揺れ止めとする。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==============================
+     STEP 03 — 中心軸を立てる [V4]
+     ============================== -->
+<section class="step-section wrap" id="step-03">
+  <div class="step-layout">
+    <div class="step-diagram-wrap">
+      <div class="step-diagram">
+        <svg viewBox="0 0 420 310" xmlns="http://www.w3.org/2000/svg">
+          <rect width="420" height="310" fill="#0d1117"/>
+          <!-- Ground ellipse -->
+          <ellipse cx="210" cy="260" rx="140" ry="56" fill="none" stroke="#223" stroke-width="0.8"/>
+
+          <!-- L1 cross (previous = gray) -->
+          <line x1="130" y1="289" x2="290" y2="209" stroke="#445" stroke-width="4" stroke-linecap="round" opacity="0.7"/>
+          <line x1="290" y1="289" x2="130" y2="209" stroke="#445" stroke-width="4" stroke-linecap="round" opacity="0.7"/>
+          <rect x="244" y="223" width="11" height="7" rx="1" fill="#445" opacity="0.7"/>
+          <rect x="164" y="223" width="11" height="7" rx="1" fill="#445" opacity="0.7"/>
+          <rect x="164" y="263" width="11" height="7" rx="1" fill="#445" opacity="0.7"/>
+          <rect x="244" y="263" width="11" height="7" rx="1" fill="#445" opacity="0.7"/>
+
+          <!-- Center axis (new = red): from y=0.05 to y=2.6 -->
+          <!-- iy(0,0,0.05)=257.5 iy(0,0,2.6)=130 -->
+          <line x1="210" y1="258" x2="210" y2="130" stroke="#b04a3a" stroke-width="5" stroke-linecap="round"/>
+
+          <!-- Flange at bottom (y=0.22) -->
+          <rect x="198" y="243" width="24" height="8" rx="1" fill="#b04a3a"/>
+
+          <!-- Free end mark (V4 — no top flange) -->
+          <circle cx="210" cy="130" r="4" fill="none" stroke="#b04a3a" stroke-width="1.5" stroke-dasharray="3 2"/>
+          <text x="222" y="128" font-family="JetBrains Mono, monospace" font-size="8" fill="#e07060" letter-spacing="0.5">FREE END (V4)</text>
+
+          <!-- Height dimension -->
+          <line x1="170" y1="130" x2="170" y2="258" stroke="#b04a3a" stroke-width="0.6"/>
+          <line x1="165" y1="130" x2="175" y2="130" stroke="#b04a3a" stroke-width="0.6"/>
+          <line x1="165" y1="258" x2="175" y2="258" stroke="#b04a3a" stroke-width="0.6"/>
+          <text x="158" y="197" font-family="JetBrains Mono, monospace" font-size="8" fill="#b04a3a" text-anchor="middle" transform="rotate(-90 158 197)">2.50 m</text>
+
+          <!-- D-03 flange label -->
+          <text x="228" y="252" font-family="JetBrains Mono, monospace" font-size="8" fill="#e07060" letter-spacing="0.5">D-03 フランジ</text>
+          <line x1="226" y1="250" x2="222" y2="247" stroke="#e07060" stroke-width="0.7"/>
+
+          <text x="14" y="20" font-family="JetBrains Mono, monospace" font-size="9" fill="#556" letter-spacing="1">ISOMETRIC VIEW</text>
+        </svg>
+      </div>
+      <div class="diagram-caption">
+        <span>FIG. 03 — CENTER AXIS, SINGLE FLANGE</span>
+        <span>V4: NO UPPER FLANGE</span>
+      </div>
+      <div class="diagram-legend">
+        <div class="leg-item"><div class="leg-swatch" style="background:#445;"></div><span>完成済</span></div>
+        <div class="leg-item"><div class="leg-swatch" style="background:#b04a3a;"></div><span>今回設置</span></div>
+      </div>
+    </div>
+
+    <div class="step-info">
+      <div class="step-header">
+        <span class="step-num">STEP 03</span>
+        <h2>中心軸を立てる<span class="v4-mark">V4</span></h2>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:20px;">
+        <span class="time-chip">⏱ 30 min</span>
+        <span class="cumulative">累計 2.5 h</span>
+      </div>
+      <div class="step-body">
+        <p>L1 中央にフランジ金具を取り付け、2.5 m 鉄パイプを直立させてボルト本締め。必ず垂直水準を確認する。</p>
+      </div>
+      <ul class="parts">
+        <li><span class="pn">A-03</span><span class="pname">鉄パイプ 2.5 m<span class="borrowed-tag">借用</span></span><span class="qty">×1</span></li>
+        <li><span class="pn">D-03</span><span class="pname">フランジ金具（下端のみ）</span><span class="qty">×1</span></li>
+      </ul>
+      <div class="callout v4">
+        <span class="label">⬤ V4 変更点</span>
+        V3 では上端にもフランジを設けていたが、L4 井桁を撤去したため上端フランジは不要。上端は自由端となり、後で屋根頂部から紐で位置を整える。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==============================
+     STEP 04 — 波型レールを設置
+     ============================== -->
+<section class="step-section wrap" id="step-04">
+  <div class="step-layout">
+    <div class="step-diagram-wrap">
+      <div class="step-diagram">
+        <svg viewBox="0 0 420 310" xmlns="http://www.w3.org/2000/svg">
+          <rect width="420" height="310" fill="#0d1117"/>
+          <ellipse cx="210" cy="260" rx="140" ry="56" fill="none" stroke="#223" stroke-width="0.8"/>
+
+          <!-- L1 (prev) -->
+          <line x1="130" y1="289" x2="290" y2="209" stroke="#445" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
+          <line x1="290" y1="289" x2="130" y2="209" stroke="#445" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
+          <!-- Center axis (prev) -->
+          <line x1="210" y1="258" x2="210" y2="130" stroke="#445" stroke-width="4" opacity="0.6"/>
+
+          <!-- Wavy rail (new): isometric ellipse ring at y≈0.15, r_avg=1.0 -->
+          <!-- center (210, 252.5), rx=57, ry=28 -->
+          <!-- Outer rail (r=1.16): rx=66, ry=33 -->
+          <!-- Inner rail (r=0.84): rx=47, ry=24 -->
+          <!-- Draw as filled band -->
+          <ellipse cx="210" cy="252" rx="66" ry="33" fill="#4a3010" stroke="none"/>
+          <ellipse cx="210" cy="252" rx="47" ry="24" fill="#0d1117" stroke="none"/>
+          <!-- Wavy surface lines -->
+          <ellipse cx="210" cy="252" rx="66" ry="33" fill="none" stroke="#b04a3a" stroke-width="1.5"/>
+          <ellipse cx="210" cy="252" rx="47" ry="24" fill="none" stroke="#b04a3a" stroke-width="1.5"/>
+          <!-- Wave indication: sinusoidal marks on top rail -->
+          <path d="M163 252 Q172 245 181 252 Q190 259 199 252 Q208 245 217 252 Q226 259 235 252 Q244 245 253 252 Q262 259 271 252" fill="none" stroke="#e07060" stroke-width="1.2" opacity="0.8"/>
+
+          <!-- Cross section callout -->
+          <rect x="300" y="200" width="90" height="60" rx="2" fill="#1a1f2e" stroke="#334" stroke-width="0.8"/>
+          <text x="345" y="215" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="7" fill="#667" letter-spacing="0.5">CROSS SECTION</text>
+          <!-- Wave profile -->
+          <path d="M310 245 Q318 235 326 245 Q334 255 342 245 Q350 235 358 245 Q366 255 374 245 Q382 235 390 245" fill="none" stroke="#b04a3a" stroke-width="1.5"/>
+          <line x1="310" y1="255" x2="390" y2="255" stroke="#334" stroke-width="0.7"/>
+          <text x="310" y="267" font-family="JetBrains Mono, monospace" font-size="7" fill="#e07060" letter-spacing="0.3">±5 cm</text>
+
+          <!-- Dimensions -->
+          <text x="88" y="248" font-family="JetBrains Mono, monospace" font-size="8" fill="#e07060" letter-spacing="0.3">r=0.84–1.16m</text>
+
+          <text x="14" y="20" font-family="JetBrains Mono, monospace" font-size="9" fill="#556" letter-spacing="1">ISOMETRIC VIEW</text>
+        </svg>
+      </div>
+      <div class="diagram-caption">
+        <span>FIG. 04 — WAVY RAIL RING</span>
+        <span>6 WAVES / REV, ±5 cm AMP</span>
+      </div>
+      <div class="diagram-legend">
+        <div class="leg-item"><div class="leg-swatch" style="background:#445;"></div><span>完成済</span></div>
+        <div class="leg-item"><div class="leg-swatch" style="background:#b04a3a;"></div><span>今回設置</span></div>
+      </div>
+    </div>
+
+    <div class="step-info">
+      <div class="step-header">
+        <span class="step-num">STEP 04</span>
+        <h2>波型レールを設置</h2>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:20px;">
+        <span class="time-chip">⏱ 120 min</span>
+        <span class="cumulative">累計 4.5 h</span>
+      </div>
+      <div class="step-body">
+        <p>B-02 合板から幅 320 mm の円弧 6 片を切り出し、各片を波形に成形して床に固定。波の山と谷の差は ±5 cm。内外半径 0.84 m と 1.16 m の間に収める。</p>
+      </div>
+      <ul class="parts">
+        <li><span class="pn">B-02</span><span class="pname">合板 15 mm（波型レール用）</span><span class="qty">×3</span></li>
+      </ul>
+      <div class="callout">
+        <span class="label">⚑ POINT</span>
+        レール端部同士の継ぎ目を滑らかにテーパー処理。キャスター（C-01）がスムーズに乗り越えられることをドライランで確認する。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==============================
+     STEP 05 — 下板（L2）を載せる＋ブッシュ取付 [V4]
+     ============================== -->
+<section class="step-section wrap" id="step-05">
+  <div class="step-layout">
+    <div class="step-diagram-wrap">
+      <div class="step-diagram">
+        <svg viewBox="0 0 420 310" xmlns="http://www.w3.org/2000/svg">
+          <rect width="420" height="310" fill="#0d1117"/>
+          <ellipse cx="210" cy="260" rx="140" ry="56" fill="none" stroke="#223" stroke-width="0.8"/>
+
+          <!-- Wavy rail (prev) -->
+          <ellipse cx="210" cy="252" rx="66" ry="33" fill="none" stroke="#445" stroke-width="1" opacity="0.6"/>
+          <ellipse cx="210" cy="252" rx="47" ry="24" fill="none" stroke="#445" stroke-width="1" opacity="0.6"/>
+          <!-- L1 (prev) -->
+          <line x1="130" y1="289" x2="290" y2="209" stroke="#445" stroke-width="3" opacity="0.5"/>
+          <line x1="290" y1="289" x2="130" y2="209" stroke="#445" stroke-width="3" opacity="0.5"/>
+          <!-- Center axis stub (prev, below L2) -->
+          <line x1="210" y1="243" x2="210" y2="258" stroke="#445" stroke-width="4" opacity="0.5"/>
+
+          <!-- L2 disk (new): y=0.34, r=2, cx=210, cy=243, rx=113, ry=57 -->
+          <!-- Bottom ellipse (underside) -->
+          <ellipse cx="210" cy="246" rx="113" ry="57" fill="#5a3a10" stroke="none" opacity="0.5"/>
+          <!-- Top surface -->
+          <ellipse cx="210" cy="243" rx="113" ry="57" fill="#7a5020" fill-opacity="0.6" stroke="#b04a3a" stroke-width="2"/>
+          <!-- Wood grain lines -->
+          <line x1="110" y1="243" x2="310" y2="243" stroke="#9a6830" stroke-width="0.6" opacity="0.5"/>
+          <line x1="130" y1="235" x2="290" y2="235" stroke="#9a6830" stroke-width="0.4" opacity="0.3"/>
+          <line x1="130" y1="251" x2="290" y2="251" stroke="#9a6830" stroke-width="0.4" opacity="0.3"/>
+
+          <!-- Center axis (above L2) -->
+          <line x1="210" y1="130" x2="210" y2="240" stroke="#445" stroke-width="4" opacity="0.7"/>
+
+          <!-- 4 bushing holes + highlight -->
+          <!-- Bushings at pole positions: (250,229), (170,229), (170,269), (250,269) -->
+          <circle cx="250" cy="229" r="5" fill="#b04a3a" stroke="#e07060" stroke-width="1"/>
+          <circle cx="170" cy="229" r="5" fill="#b04a3a" stroke="#e07060" stroke-width="1"/>
+          <circle cx="170" cy="261" r="5" fill="#b04a3a" stroke="#e07060" stroke-width="1"/>
+          <circle cx="250" cy="261" r="5" fill="#b04a3a" stroke="#e07060" stroke-width="1"/>
+          <!-- Center hole -->
+          <circle cx="210" cy="240" r="4" fill="#0d1117" stroke="#445" stroke-width="1"/>
+
+          <!-- Bushing callout -->
+          <line x1="256" y1="224" x2="285" y2="210" stroke="#e07060" stroke-width="0.8"/>
+          <text x="287" y="208" font-family="JetBrains Mono, monospace" font-size="8" fill="#e07060" letter-spacing="0.3">D-08 ブッシュ</text>
+          <text x="287" y="218" font-family="JetBrains Mono, monospace" font-size="7" fill="#e07060" opacity="0.8" letter-spacing="0.3">(V4 NEW)</text>
+
+          <!-- Diameter dimension -->
+          <line x1="97" y1="243" x2="323" y2="243" stroke="#b04a3a" stroke-width="0.6" opacity="0.6"/>
+          <text x="210" y="192" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#b04a3a" letter-spacing="1">φ 4.00 m</text>
+
+          <text x="14" y="20" font-family="JetBrains Mono, monospace" font-size="9" fill="#556" letter-spacing="1">ISOMETRIC VIEW</text>
+        </svg>
+      </div>
+      <div class="diagram-caption">
+        <span>FIG. 05 — L2 LOWER PLYWOOD + PVC BUSHINGS</span>
+        <span>V4: D-08 BUSHINGS ADDED</span>
+      </div>
+      <div class="diagram-legend">
+        <div class="leg-item"><div class="leg-swatch" style="background:#445;"></div><span>完成済</span></div>
+        <div class="leg-item"><div class="leg-swatch" style="background:#b04a3a;"></div><span>今回設置</span></div>
+      </div>
+    </div>
+
+    <div class="step-info">
+      <div class="step-header">
+        <span class="step-num">STEP 05</span>
+        <h2>下板（L2）を載せる＋ブッシュ取付<span class="v4-mark">V4</span></h2>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:20px;">
+        <span class="time-chip">⏱ 150 min</span>
+        <span class="cumulative">累計 7.0 h</span>
+      </div>
+      <div class="step-body">
+        <p>径 4 m に加工した円形合板を中心軸に通して L1 の上に乗せ、U ボルト＋ L 字金具で締結。<strong>各ポール穴に塩ビ短管ブッシュ（D-08）を打ち込み</strong>、鉄パイプとの摩擦を低減する。</p>
+      </div>
+      <ul class="parts">
+        <li><span class="pn">B-01</span><span class="pname">構造用合板 12 mm</span><span class="qty">×8</span></li>
+        <li><span class="pn">D-04</span><span class="pname">U ボルト＋ナット</span><span class="qty">×8</span></li>
+        <li><span class="pn">D-05</span><span class="pname">L 字金具</span><span class="qty">×8</span></li>
+        <li><span class="pn">D-06</span><span class="pname">金属ハトメ／補強プレート</span><span class="qty">×4</span></li>
+        <li><span class="pn">D-08</span><span class="pname">塩ビ短管ブッシュ<span class="new-tag">V4 NEW</span></span><span class="qty">×8</span></li>
+      </ul>
+      <div class="callout v4">
+        <span class="label">⬤ V4 変更点</span>
+        ポール穴に塩ビブッシュを打ち込むことで、鉄パイプの上下スライド摩擦を大幅に低減。木材に直接パイプが触れる旧構造より動作が滑らかになる。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==============================
+     STEP 06 — 外周支柱（8本）を取り付け
+     ============================== -->
+<section class="step-section wrap" id="step-06">
+  <div class="step-layout">
+    <div class="step-diagram-wrap">
+      <div class="step-diagram">
+        <svg viewBox="0 0 420 310" xmlns="http://www.w3.org/2000/svg">
+          <rect width="420" height="310" fill="#0d1117"/>
+          <ellipse cx="210" cy="260" rx="140" ry="56" fill="none" stroke="#223" stroke-width="0.8"/>
+
+          <!-- L2 (prev) -->
+          <ellipse cx="210" cy="243" rx="113" ry="57" fill="#4a3010" fill-opacity="0.4" stroke="#556" stroke-width="1.5" opacity="0.7"/>
+          <!-- Center axis stub above L2 -->
+          <line x1="210" y1="130" x2="210" y2="240" stroke="#445" stroke-width="4" opacity="0.6"/>
+          <!-- L1 pipes (prev) -->
+          <line x1="130" y1="289" x2="290" y2="209" stroke="#334" stroke-width="3" opacity="0.4"/>
+          <line x1="290" y1="289" x2="130" y2="209" stroke="#334" stroke-width="3" opacity="0.4"/>
+
+          <!-- 8 support posts (new): below L2 perimeter, r=1.65m -->
+          <!-- Compute 8 positions: angles 0°,45°,...315° at r=1.65m in 3D -->
+          <!-- For front-visible posts: 0°,45°,315° (x>0 or z<0 half) -->
+          <!-- Post at α=0° (x=1.65,z=0): ix=276, top iy=243-1.65*20=210, bot iy=260-33=227 -->
+          <!-- Post at α=315° (x=1.167,z=-1.167): ix=210+(1.167+1.167)*40=303, iy=260-(1.167-1.167)*20=260, top=260-17=243 -->
+          <!-- Post at α=45° (x=1.167,z=1.167): ix=210+0=210, iy=260-46.7=213.3, top=213-17=196 -->
+          <!-- Post at α=270° (x=0,z=-1.65): ix=210+66=276, iy=260+33=293, top=293-17=276 -->
+          <!-- Post at α=90° (x=0,z=1.65): ix=210-66=144, iy=227, top=210 -->
+          <!-- Post at α=135° (x=-1.167,z=1.167): ix=210-93.4=117, iy=260-0=260, top=243 -->
+          <!-- Post at α=180°: ix=210-66=144, iy=293, top=276 -->
+          <!-- Post at α=225°: ix=210, iy=260+46.7=307, top=290 -->
+
+          <!-- Draw visible front posts (new = green for borrowed) -->
+          <!-- α=0°: (276, 227) to (276, 210) → below L2 bottom = 246? -->
+          <!-- Actually bottom of post is at y=0 floor, top touches L2 underside y=0.32 -->
+          <!-- Post at α=0° from y=0 to y=0.32: bottom ix=276, iy_bot=227, iy_top=276-0.32*50... -->
+          <!-- Let me simplify: just draw the post lines 15px long below the L2 edge -->
+          <line x1="276" y1="246" x2="276" y2="260" stroke="#4a7a4a" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="276" cy="262" r="4" fill="#4a7a4a" opacity="0.8"/>
+
+          <line x1="303" y1="243" x2="303" y2="257" stroke="#4a7a4a" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="303" cy="259" r="4" fill="#4a7a4a" opacity="0.8"/>
+
+          <line x1="210" y1="243" x2="210" y2="262" stroke="#4a7a4a" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="210" cy="264" r="4" fill="#4a7a4a" opacity="0.8"/>
+
+          <line x1="144" y1="246" x2="144" y2="260" stroke="#4a7a4a" stroke-width="4" stroke-linecap="round" opacity="0.7"/>
+          <circle cx="144" cy="262" r="4" fill="#4a7a4a" opacity="0.6"/>
+
+          <line x1="117" y1="243" x2="117" y2="257" stroke="#4a7a4a" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
+
+          <!-- Callout for caster -->
+          <line x1="303" y1="260" x2="320" y2="276" stroke="#4a7a4a" stroke-width="0.8"/>
+          <text x="322" y="279" font-family="JetBrains Mono, monospace" font-size="8" fill="#6aaa6a" letter-spacing="0.3">C-02 キャスター</text>
+          <text x="322" y="289" font-family="JetBrains Mono, monospace" font-size="7" fill="#6aaa6a" opacity="0.8" letter-spacing="0.3">φ65 (借用)</text>
+
+          <text x="14" y="20" font-family="JetBrains Mono, monospace" font-size="9" fill="#556" letter-spacing="1">ISOMETRIC VIEW</text>
+          <text x="14" y="32" font-family="JetBrains Mono, monospace" font-size="8" fill="#556" letter-spacing="0.5">8本中前方 5本を表示</text>
+        </svg>
+      </div>
+      <div class="diagram-caption">
+        <span>FIG. 06 — 8 PERIMETER SUPPORT POSTS</span>
+        <span>C-02 CASTERS (BORROWED)</span>
+      </div>
+      <div class="diagram-legend">
+        <div class="leg-item"><div class="leg-swatch" style="background:#445;"></div><span>完成済</span></div>
+        <div class="leg-item"><div class="leg-swatch" style="background:#4a7a4a;"></div><span>今回設置（借用含む）</span></div>
+      </div>
+    </div>
+
+    <div class="step-info">
+      <div class="step-header">
+        <span class="step-num">STEP 06</span>
+        <h2>外周支柱（8本）を取り付け</h2>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:20px;">
+        <span class="time-chip">⏱ 60 min</span>
+        <span class="cumulative">累計 8.0 h</span>
+      </div>
+      <div class="step-body">
+        <p>角材を 250 mm に切断して 8 本作り、下端にキャスター（C-02）をビス止め。L2 底面の外周、半径 1.65 m の 8 等分位置にビスで固定する。</p>
+      </div>
+      <ul class="parts">
+        <li><span class="pn">B-03</span><span class="pname">角材 55×55 mm（250 mm に切断）</span><span class="qty">×8本分</span></li>
+        <li><span class="pn">C-02</span><span class="pname">キャスター φ65<span class="borrowed-tag">借用</span></span><span class="qty">×8</span></li>
+      </ul>
+      <div class="callout">
+        <span class="label">⚑ POINT</span>
+        キャスターの向きを L2 の回転方向（接線方向）に揃える。8 本が均等に L2 の荷重を支えるよう、長さを揃えてビス止め。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==============================
+     STEP 07 — 馬吊りポール（4本）を立てる
+     ============================== -->
+<section class="step-section wrap" id="step-07">
+  <div class="step-layout">
+    <div class="step-diagram-wrap">
+      <div class="step-diagram">
+        <svg viewBox="0 0 420 310" xmlns="http://www.w3.org/2000/svg">
+          <rect width="420" height="310" fill="#0d1117"/>
+          <ellipse cx="210" cy="260" rx="140" ry="56" fill="none" stroke="#223" stroke-width="0.8"/>
+
+          <!-- Previous structure -->
+          <ellipse cx="210" cy="243" rx="113" ry="57" fill="#4a3010" fill-opacity="0.35" stroke="#445" stroke-width="1.5" opacity="0.7"/>
+          <line x1="210" y1="130" x2="210" y2="240" stroke="#445" stroke-width="4" opacity="0.6"/>
+          <!-- Wavy rail -->
+          <ellipse cx="210" cy="252" rx="66" ry="33" fill="none" stroke="#334" stroke-width="1" opacity="0.5"/>
+          <ellipse cx="210" cy="252" rx="47" ry="24" fill="none" stroke="#334" stroke-width="1" opacity="0.5"/>
+
+          <!-- 4 poles (new): from ground level up through L2 -->
+          <!-- Back poles drawn first (lower z-order) -->
+          <!-- Back-left (x=-1,z=0): x=170, from iy=280 to iy=180 -->
+          <line x1="170" y1="281" x2="170" y2="181" stroke="#b04a3a" stroke-width="4" stroke-linecap="round" opacity="0.7"/>
+          <!-- Back-right (x=0,z=-1): x=250, from iy=280 to iy=180 -->
+          <line x1="250" y1="281" x2="250" y2="181" stroke="#b04a3a" stroke-width="4" stroke-linecap="round" opacity="0.7"/>
+
+          <!-- Front poles drawn on top -->
+          <!-- Front-left (x=0,z=1): x=170, from iy=240 to iy=140 -->
+          <line x1="170" y1="241" x2="170" y2="141" stroke="#b04a3a" stroke-width="4" stroke-linecap="round"/>
+          <!-- Front-right (x=1,z=0): x=250, from iy=240 to iy=140 -->
+          <line x1="250" y1="241" x2="250" y2="141" stroke="#b04a3a" stroke-width="4" stroke-linecap="round"/>
+
+          <!-- Casters at bottom of front poles -->
+          <ellipse cx="170" cy="243" rx="8" ry="5" fill="none" stroke="#4a7a4a" stroke-width="1.5"/>
+          <ellipse cx="250" cy="243" rx="8" ry="5" fill="none" stroke="#4a7a4a" stroke-width="1.5"/>
+          <!-- Casters at bottom of back poles -->
+          <ellipse cx="170" cy="283" rx="8" ry="5" fill="none" stroke="#4a7a4a" stroke-width="1.5" opacity="0.6"/>
+          <ellipse cx="250" cy="283" rx="8" ry="5" fill="none" stroke="#4a7a4a" stroke-width="1.5" opacity="0.6"/>
+
+          <!-- Caster on rail annotation -->
+          <line x1="258" y1="244" x2="290" y2="232" stroke="#4a7a4a" stroke-width="0.8"/>
+          <text x="292" y="230" font-family="JetBrains Mono, monospace" font-size="8" fill="#6aaa6a" letter-spacing="0.3">C-01 波型レール上</text>
+
+          <!-- Slide arrow on front-right pole -->
+          <line x1="258" y1="200" x2="258" y2="175" stroke="#e07060" stroke-width="1" marker-end="url(#arrowU)"/>
+          <line x1="258" y1="200" x2="258" y2="225" stroke="#e07060" stroke-width="1" marker-end="url(#arrowD)"/>
+          <text x="264" y="202" font-family="JetBrains Mono, monospace" font-size="8" fill="#e07060" letter-spacing="0.3">上下スライド</text>
+
+          <defs>
+            <marker id="arrowU" markerWidth="6" markerHeight="6" refX="3" refY="6" orient="auto">
+              <path d="M0,6 L3,0 L6,6" fill="none" stroke="#e07060" stroke-width="1"/>
+            </marker>
+            <marker id="arrowD" markerWidth="6" markerHeight="6" refX="3" refY="0" orient="auto">
+              <path d="M0,0 L3,6 L6,0" fill="none" stroke="#e07060" stroke-width="1"/>
+            </marker>
+          </defs>
+
+          <text x="14" y="20" font-family="JetBrains Mono, monospace" font-size="9" fill="#556" letter-spacing="1">ISOMETRIC VIEW</text>
+        </svg>
+      </div>
+      <div class="diagram-caption">
+        <span>FIG. 07 — 4 HORSE POLES, SLIDING FREE</span>
+        <span>NO STOP COLLARS YET</span>
+      </div>
+      <div class="diagram-legend">
+        <div class="leg-item"><div class="leg-swatch" style="background:#445;"></div><span>完成済</span></div>
+        <div class="leg-item"><div class="leg-swatch" style="background:#b04a3a;"></div><span>今回設置</span></div>
+        <div class="leg-item"><div class="leg-swatch" style="background:#4a7a4a;"></div><span>借用</span></div>
+      </div>
+    </div>
+
+    <div class="step-info">
+      <div class="step-header">
+        <span class="step-num">STEP 07</span>
+        <h2>馬吊りポール（4本）を立てる</h2>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:20px;">
+        <span class="time-chip">⏱ 60 min</span>
+        <span class="cumulative">累計 9.0 h</span>
+      </div>
+      <div class="step-body">
+        <p>2 m 鉄パイプの下端にキャスター（C-01）をボルト止め。キャスターを波型レールの上に乗せ、ポールを L2 の塩ビブッシュ穴に通す。ポールは穴に対して上下にスライド可能な状態にする。</p>
+        <p>⚠ <strong>この時点では止め輪はまだ付けない。</strong></p>
+      </div>
+      <ul class="parts">
+        <li><span class="pn">A-02</span><span class="pname">鉄パイプ 2 m<span class="borrowed-tag">借用</span></span><span class="qty">×4</span></li>
+        <li><span class="pn">C-01</span><span class="pname">キャスター φ100<span class="borrowed-tag">借用</span></span><span class="qty">×4</span></li>
+      </ul>
+      <div class="callout">
+        <span class="label">⚑ POINT</span>
+        4 本すべてのポールが L2 の穴からスムーズに上下できることを確認。引っかかりがある場合はブッシュを再調整する。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==============================
+     STEP 08 — L3 ワゴンホイールを組み立てて被せる [V4]
+     ============================== -->
+<section class="step-section wrap" id="step-08">
+  <div class="step-layout">
+    <div class="step-diagram-wrap">
+      <div class="step-diagram">
+        <svg viewBox="0 0 420 310" xmlns="http://www.w3.org/2000/svg">
+          <rect width="420" height="310" fill="#0d1117"/>
+          <ellipse cx="210" cy="260" rx="140" ry="56" fill="none" stroke="#223" stroke-width="0.8"/>
+
+          <!-- Previous: L2, poles -->
+          <ellipse cx="210" cy="243" rx="113" ry="57" fill="#4a3010" fill-opacity="0.3" stroke="#445" stroke-width="1" opacity="0.6"/>
+          <!-- Back poles -->
+          <line x1="170" y1="281" x2="170" y2="181" stroke="#445" stroke-width="3" opacity="0.5"/>
+          <line x1="250" y1="281" x2="250" y2="181" stroke="#445" stroke-width="3" opacity="0.5"/>
+          <!-- Front poles -->
+          <line x1="170" y1="241" x2="170" y2="141" stroke="#556" stroke-width="3"/>
+          <line x1="250" y1="241" x2="250" y2="141" stroke="#556" stroke-width="3"/>
+          <!-- Center axis -->
+          <line x1="210" y1="130" x2="210" y2="240" stroke="#445" stroke-width="3" opacity="0.6"/>
+
+          <!-- L3 wagon wheel (new): y=2.0, cx=210, cy=160 -->
+          <!-- Outer ring: rx=113, ry=57 -->
+          <ellipse cx="210" cy="160" rx="113" ry="57" fill="none" stroke="#b04a3a" stroke-width="2.5"/>
+
+          <!-- 8 spokes from center (210,160) -->
+          <!-- Endpoints precomputed: -->
+          <!-- α=0° (x=2,z=0): ix=290, iy(2,0,2)=260-40-100=120 → (290,120) -->
+          <line x1="210" y1="160" x2="290" y2="120" stroke="#b04a3a" stroke-width="1.5"/>
+          <!-- α=45° (x=1.414,z=1.414): (210,103) -->
+          <line x1="210" y1="160" x2="210" y2="103" stroke="#b04a3a" stroke-width="1.5"/>
+          <!-- α=90° (x=0,z=2): ix=130, iy(0,2,2)=260-40-100=120 → (130,120) -->
+          <line x1="210" y1="160" x2="130" y2="120" stroke="#b04a3a" stroke-width="1.5"/>
+          <!-- α=135° (x=-1.414,z=1.414): ix=97, iy=260-0-100=160 → (97,160) -->
+          <line x1="210" y1="160" x2="97" y2="160" stroke="#b04a3a" stroke-width="1.5"/>
+          <!-- α=180° (x=-2,z=0): ix=130, iy=260+40-100=200 → (130,200) -->
+          <line x1="210" y1="160" x2="130" y2="200" stroke="#b04a3a" stroke-width="1.5"/>
+          <!-- α=225° (x=-1.414,z=-1.414): (210,217) -->
+          <line x1="210" y1="160" x2="210" y2="217" stroke="#b04a3a" stroke-width="1.5"/>
+          <!-- α=270° (x=0,z=-2): ix=290, iy=260+40-100=200 → (290,200) -->
+          <line x1="210" y1="160" x2="290" y2="200" stroke="#b04a3a" stroke-width="1.5"/>
+          <!-- α=315° (x=1.414,z=-1.414): ix=323, iy=260-0-100=160 → (323,160) -->
+          <line x1="210" y1="160" x2="323" y2="160" stroke="#b04a3a" stroke-width="1.5"/>
+
+          <!-- Hub circle -->
+          <circle cx="210" cy="160" r="8" fill="#3a2010" stroke="#b04a3a" stroke-width="1.5"/>
+
+          <!-- Arrow: "降ろす方向" -->
+          <line x1="350" y1="100" x2="350" y2="145" stroke="#e07060" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <polygon points="344,140 356,140 350,152" fill="#e07060"/>
+          <text x="326" y="90" font-family="JetBrains Mono, monospace" font-size="8" fill="#e07060" letter-spacing="0.3">降ろす</text>
+          <text x="326" y="100" font-family="JetBrains Mono, monospace" font-size="8" fill="#e07060" opacity="0.8" letter-spacing="0.3">H=2.00m</text>
+
+          <!-- V4 badge -->
+          <rect x="14" y="140" width="28" height="14" rx="1" fill="#b04a3a"/>
+          <text x="28" y="151" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8" fill="#fff" letter-spacing="0.5">V4</text>
+
+          <text x="14" y="20" font-family="JetBrains Mono, monospace" font-size="9" fill="#556" letter-spacing="1">ISOMETRIC VIEW</text>
+          <text x="50" y="149" font-family="JetBrains Mono, monospace" font-size="8" fill="#e07060" letter-spacing="0.3">L3 ワゴンホイール</text>
+        </svg>
+      </div>
+      <div class="diagram-caption">
+        <span>FIG. 08 — L3 WAGON WHEEL SKELETON</span>
+        <span>V4: REPLACES SOLID PLYWOOD (−90 KG)</span>
+      </div>
+      <div class="diagram-legend">
+        <div class="leg-item"><div class="leg-swatch" style="background:#445;"></div><span>完成済</span></div>
+        <div class="leg-item"><div class="leg-swatch" style="background:#b04a3a;"></div><span>今回設置（V4）</span></div>
+      </div>
+    </div>
+
+    <div class="step-info">
+      <div class="step-header">
+        <span class="step-num">STEP 08</span>
+        <h2>L3 ワゴンホイールを組み立てて被せる<span class="v4-mark">V4</span></h2>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:20px;">
+        <span class="time-chip">⏱ 120 min</span>
+        <span class="cumulative">累計 11.0 h</span>
+      </div>
+      <div class="step-body">
+        <p>地面で L3 を先に組み立てる：中央ハブ＋ 8 本スポーク（22.5° 間隔）＋外輪リング。ポール位置に補強プレート 4 枚。完成後、4 本のポール上端から差し込みながら H=2.00 m まで降ろす。</p>
+      </div>
+      <ul class="parts">
+        <li><span class="pn">B-04</span><span class="pname">角材 30×30 mm（スポーク材）<span class="new-tag">V4 NEW</span></span><span class="qty">×2</span></li>
+        <li><span class="pn">D-05</span><span class="pname">L 字金具（ホイール組立）</span><span class="qty">×8</span></li>
+      </ul>
+      <div class="callout v4">
+        <span class="label">⬤ V4 変更点</span>
+        V3 の合板（約 90 kg）を撤去し、骨組みのみに置換。ポール上端の横方向拘束機能は維持しつつ、大幅に軽量化。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==============================
+     STEP 09 — 屋根支柱・止め輪・L3 固定 [V4]
+     ============================== -->
+<section class="step-section wrap" id="step-09">
+  <div class="step-layout">
+    <div class="step-diagram-wrap">
+      <div class="step-diagram">
+        <svg viewBox="0 0 420 310" xmlns="http://www.w3.org/2000/svg">
+          <rect width="420" height="310" fill="#0d1117"/>
+          <ellipse cx="210" cy="260" rx="140" ry="56" fill="none" stroke="#223" stroke-width="0.8"/>
+
+          <!-- L2 (prev) -->
+          <ellipse cx="210" cy="243" rx="113" ry="57" fill="#4a3010" fill-opacity="0.25" stroke="#334" stroke-width="1" opacity="0.5"/>
+          <!-- Back poles -->
+          <line x1="170" y1="281" x2="170" y2="181" stroke="#334" stroke-width="3" opacity="0.4"/>
+          <line x1="250" y1="281" x2="250" y2="181" stroke="#334" stroke-width="3" opacity="0.4"/>
+          <!-- Front poles -->
+          <line x1="170" y1="241" x2="170" y2="141" stroke="#445" stroke-width="3"/>
+          <line x1="250" y1="241" x2="250" y2="141" stroke="#445" stroke-width="3"/>
+          <!-- L3 wheel (prev) -->
+          <ellipse cx="210" cy="160" rx="113" ry="57" fill="none" stroke="#556" stroke-width="1.5" opacity="0.7"/>
+          <line x1="210" y1="160" x2="290" y2="120" stroke="#445" stroke-width="1" opacity="0.6"/>
+          <line x1="210" y1="160" x2="130" y2="120" stroke="#445" stroke-width="1" opacity="0.6"/>
+          <line x1="210" y1="160" x2="97" y2="160" stroke="#445" stroke-width="1" opacity="0.6"/>
+          <line x1="210" y1="160" x2="323" y2="160" stroke="#445" stroke-width="1" opacity="0.6"/>
+          <circle cx="210" cy="160" r="7" fill="#2a1808" stroke="#445" stroke-width="1" opacity="0.7"/>
+          <!-- Center axis -->
+          <line x1="210" y1="130" x2="210" y2="240" stroke="#334" stroke-width="3" opacity="0.5"/>
+
+          <!-- 4 Roof pillars (new): at 45°,135°,225°,315° from r=1.55m -->
+          <!-- α=45°: ix=210, from (210,199) to (210,106) -->
+          <line x1="210" y1="199" x2="210" y2="106" stroke="#b04a3a" stroke-width="3" stroke-linecap="round"/>
+          <!-- α=135°: ix=117, from (117,243) to (117,123) — iy(r=1.55,α=135,y)=260-0*20-y*50 -->
+          <!-- x=-1.096, z=1.096: ix=210+(-1.096-1.096)*40=122, iy=260-0=260 at y=0, at y=0.34: 243, at y=2.2: 150 -->
+          <line x1="122" y1="243" x2="122" y2="150" stroke="#b04a3a" stroke-width="3" stroke-linecap="round"/>
+          <!-- α=315°: ix=298, iy=260-y*50, from y=0.34:243 to y=2.2:150 -->
+          <line x1="298" y1="243" x2="298" y2="150" stroke="#b04a3a" stroke-width="3" stroke-linecap="round"/>
+          <!-- α=225°: ix=210, from (210,286) to (210,194) -->
+          <line x1="210" y1="287" x2="210" y2="194" stroke="#b04a3a" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+
+          <!-- Horizontal brackets connecting pillars to L3 ring (at y=2.0, screen y=160) -->
+          <line x1="210" y1="160" x2="210" y2="160" stroke="#b04a3a" stroke-width="1"/>
+          <!-- bracket from pillar@45°=(210,160) toward ring -->
+          <!-- The bracket goes from pillar to L3 outer ring; simplified as short lines -->
+          <line x1="210" y1="160" x2="256" y2="150" stroke="#b04a3a" stroke-width="1.5" stroke-dasharray="3 2" opacity="0.8"/>
+          <line x1="122" y1="160" x2="165" y2="160" stroke="#b04a3a" stroke-width="1.5" stroke-dasharray="3 2" opacity="0.8"/>
+          <line x1="298" y1="160" x2="256" y2="160" stroke="#b04a3a" stroke-width="1.5" stroke-dasharray="3 2" opacity="0.8"/>
+
+          <!-- Stop collars (new V4): rings on front poles at y≈1.90 on pole -->
+          <!-- Front-right pole at x=250: collar at screen y = 240-1.90*50 = 240-95=145... -->
+          <!-- Actually pole position: iy(1,0,y)=240-y*50. Collar at y≈1.90: iy=240-95=145 -->
+          <!-- But pole top (L3) is at y=140. Collar just above L3. Let me place at iy=147 -->
+          <rect x="244" y="147" width="12" height="6" rx="2" fill="#aaa" stroke="#ccc" stroke-width="0.8"/>
+          <rect x="164" y="147" width="12" height="6" rx="2" fill="#aaa" stroke="#ccc" stroke-width="0.8"/>
+          <rect x="244" y="187" width="12" height="6" rx="2" fill="#aaa" stroke="#ccc" stroke-width="0.8" opacity="0.7"/>
+          <rect x="164" y="187" width="12" height="6" rx="2" fill="#aaa" stroke="#ccc" stroke-width="0.8" opacity="0.7"/>
+
+          <!-- Collar callout with inset detail -->
+          <line x1="256" y1="148" x2="285" y2="135" stroke="#ccc" stroke-width="0.8"/>
+          <text x="286" y="133" font-family="JetBrains Mono, monospace" font-size="8" fill="#ccc" letter-spacing="0.3">D-07 止め輪</text>
+          <text x="286" y="143" font-family="JetBrains Mono, monospace" font-size="7" fill="#ccc" opacity="0.8" letter-spacing="0.3">(V4 NEW)</text>
+
+          <!-- V4 badge -->
+          <rect x="14" y="140" width="28" height="14" rx="1" fill="#b04a3a"/>
+          <text x="28" y="151" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8" fill="#fff" letter-spacing="0.5">V4</text>
+
+          <text x="14" y="20" font-family="JetBrains Mono, monospace" font-size="9" fill="#556" letter-spacing="1">ISOMETRIC VIEW</text>
+        </svg>
+      </div>
+      <div class="diagram-caption">
+        <span>FIG. 09 — ROOF PILLARS + STOP COLLARS</span>
+        <span>V4: D-07 SHAFT COLLARS CRITICAL</span>
+      </div>
+      <div class="diagram-legend">
+        <div class="leg-item"><div class="leg-swatch" style="background:#445;"></div><span>完成済</span></div>
+        <div class="leg-item"><div class="leg-swatch" style="background:#b04a3a;"></div><span>今回設置</span></div>
+        <div class="leg-item"><div class="leg-swatch" style="background:#999;"></div><span>止め輪 D-07</span></div>
+      </div>
+    </div>
+
+    <div class="step-info">
+      <div class="step-header">
+        <span class="step-num">STEP 09</span>
+        <h2>屋根支柱・止め輪・L3 固定<span class="v4-mark">V4</span></h2>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:20px;">
+        <span class="time-chip">⏱ 120 min</span>
+        <span class="cumulative">累計 13.0 h</span>
+      </div>
+      <div class="step-body">
+        <p>細パイプ 4 本を L2 から立てて屋根支柱とし、L3 外輪リングとブラケットで連結。続けて<strong>各ポールに止め輪（D-07）を装着</strong>：波の谷（最下）位置でポールを押し下げた状態で L3 上面に着座するよう位置決めし、止めネジを本締め。</p>
+      </div>
+      <ul class="parts">
+        <li><span class="pn">A-04</span><span class="pname">鉄パイプ 2 m 細（屋根支柱分）<span class="borrowed-tag">借用</span></span><span class="qty">×4</span></li>
+        <li><span class="pn">D-07</span><span class="pname">止め輪（シャフトカラー）<span class="new-tag">V4 NEW</span></span><span class="qty">×4</span></li>
+        <li><span class="pn">D-02</span><span class="pname">単管クランプ 自在</span><span class="qty">×4</span></li>
+        <li><span class="pn">D-05</span><span class="pname">L 字金具（ブラケット）</span><span class="qty">×4</span></li>
+      </ul>
+      <div class="callout v4">
+        <span class="label">⬤ V4 最重要工程</span>
+        止め輪の止めネジを本締め後、レンチで必ず増し締め。緩むとポールが上方向に外れる危険がある。4 本すべて実施後、手動で各ポールを上下させて「谷で着座・山で 10 cm 浮上」することを確認。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==============================
+     STEP 10 — 屋根を取り付け
+     ============================== -->
+<section class="step-section wrap" id="step-10">
+  <div class="step-layout">
+    <div class="step-diagram-wrap">
+      <div class="step-diagram">
+        <svg viewBox="0 0 420 310" xmlns="http://www.w3.org/2000/svg">
+          <rect width="420" height="310" fill="#0d1117"/>
+          <ellipse cx="210" cy="260" rx="140" ry="56" fill="none" stroke="#223" stroke-width="0.8"/>
+
+          <!-- Previous (gray): L2, poles, pillars, L3 -->
+          <ellipse cx="210" cy="243" rx="113" ry="57" fill="#4a3010" fill-opacity="0.2" stroke="#334" stroke-width="1" opacity="0.5"/>
+          <line x1="170" y1="241" x2="170" y2="141" stroke="#334" stroke-width="2.5" opacity="0.5"/>
+          <line x1="250" y1="241" x2="250" y2="141" stroke="#334" stroke-width="2.5" opacity="0.5"/>
+          <line x1="210" y1="199" x2="210" y2="106" stroke="#334" stroke-width="2.5" opacity="0.5"/>
+          <line x1="122" y1="243" x2="122" y2="150" stroke="#334" stroke-width="2.5" opacity="0.5"/>
+          <line x1="298" y1="243" x2="298" y2="150" stroke="#334" stroke-width="2.5" opacity="0.5"/>
+          <ellipse cx="210" cy="160" rx="113" ry="57" fill="none" stroke="#334" stroke-width="1" opacity="0.5"/>
+          <line x1="210" y1="130" x2="210" y2="240" stroke="#334" stroke-width="3" opacity="0.4"/>
+
+          <!-- Roof (new): cone with 8 stripes -->
+          <!-- Base ellipse (brim) at y=2.2: cx=210, cy=150, rx=125, ry=62 -->
+          <!-- Apex at y=2.75: (210, 122.5) -->
+
+          <!-- Back cone surface (lighter) -->
+          <!-- Visible "back" portion of cone (from apex down to back of brim) -->
+          <path d="M210,123 L85,150 A125,62 0 0,0 335,150 Z" fill="#3a1818" fill-opacity="0.4" stroke="none"/>
+
+          <!-- Striped cone segments: alternate red and cream -->
+          <!-- Front half stripes (8 total, 4 visible from front) -->
+          <!-- Stripe 1 (red): apex to right edge -->
+          <path d="M210,123 L335,150" stroke="#c04040" stroke-width="2"/>
+          <!-- Stripe 2: apex to top -->
+          <path d="M210,123 L210,88" stroke="#f0ede4" stroke-width="1.5"/>
+          <!-- Stripe 3: apex to left -->
+          <path d="M210,123 L85,150" stroke="#c04040" stroke-width="2"/>
+
+          <!-- Front brim arc (partial ellipse front half) -->
+          <path d="M335,150 A125,62 0 0,1 85,150" fill="none" stroke="#c04040" stroke-width="2.5"/>
+
+          <!-- Cone surface fill (front-facing) -->
+          <!-- Alternating red/cream triangles approximated -->
+          <path d="M210,123 L335,150 A125,62 0 0,1 298,88 Z" fill="#c04040" fill-opacity="0.7"/>
+          <path d="M210,123 L298,88 A125,62 0 0,1 210,88 Z" fill="#f0ede4" fill-opacity="0.8"/>
+          <path d="M210,123 L210,88 A125,62 0 0,1 122,88 Z" fill="#c04040" fill-opacity="0.7"/>
+          <path d="M210,123 L122,88 A125,62 0 0,1 85,150 Z" fill="#f0ede4" fill-opacity="0.8"/>
+
+          <!-- Brim ring -->
+          <ellipse cx="210" cy="150" rx="125" ry="62" fill="none" stroke="#c04040" stroke-width="2"/>
+
+          <!-- Finial gold ball -->
+          <circle cx="210" cy="118" r="7" fill="#d4af37" stroke="#f0c040" stroke-width="1"/>
+
+          <!-- Callout -->
+          <text x="345" y="120" font-family="JetBrains Mono, monospace" font-size="8" fill="#e07060" letter-spacing="0.3">E-02 頂飾</text>
+          <text x="345" y="158" font-family="JetBrains Mono, monospace" font-size="8" fill="#e07060" letter-spacing="0.3">E-01 テント生地</text>
+
+          <text x="14" y="20" font-family="JetBrains Mono, monospace" font-size="9" fill="#556" letter-spacing="1">ISOMETRIC VIEW</text>
+        </svg>
+      </div>
+      <div class="diagram-caption">
+        <span>FIG. 10 — ROOF CONE, RED/WHITE STRIPES</span>
+        <span>FINIAL BALL AT APEX</span>
+      </div>
+      <div class="diagram-legend">
+        <div class="leg-item"><div class="leg-swatch" style="background:#445;"></div><span>完成済</span></div>
+        <div class="leg-item"><div class="leg-swatch" style="background:#c04040;"></div><span>今回設置（赤）</span></div>
+        <div class="leg-item"><div class="leg-swatch" style="background:#d4af37;"></div><span>頂飾ボール</span></div>
+      </div>
+    </div>
+
+    <div class="step-info">
+      <div class="step-header">
+        <span class="step-num">STEP 10</span>
+        <h2>屋根を取り付け</h2>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:20px;">
+        <span class="time-chip">⏱ 90 min</span>
+        <span class="cumulative">累計 14.5 h ※目安</span>
+      </div>
+      <div class="step-body">
+        <p>テント生地を 8 分割の赤白ストライプに縫合またはガムテで貼り合わせ、屋根支柱の上端 4 点に被せる。頂部に頂飾ボール（E-02）を取り付け、中心軸の上端から紐で吊って円錐形を整える。</p>
+      </div>
+      <ul class="parts">
+        <li><span class="pn">E-01</span><span class="pname">屋根布（赤・白 各 1）</span><span class="qty">×2</span></li>
+        <li><span class="pn">E-02</span><span class="pname">頂飾ボール（金）φ150</span><span class="qty">×1</span></li>
+      </ul>
+      <div class="callout">
+        <span class="label">⚑ POINT</span>
+        生地を張る前に支柱 4 本の高さが揃っていることを確認。円錐が傾くと見栄えに影響する。頂飾は軽量素材（発泡スチロール＋金スプレー）でも可。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==============================
+     STEP 11 — 馬と押し棒の取付・最終確認
+     ============================== -->
+<section class="step-section wrap" id="step-11">
+  <div class="step-layout">
+    <div class="step-diagram-wrap">
+      <div class="step-diagram">
+        <svg viewBox="0 0 420 310" xmlns="http://www.w3.org/2000/svg">
+          <rect width="420" height="310" fill="#0d1117"/>
+          <ellipse cx="210" cy="260" rx="140" ry="56" fill="#151a0a" fill-opacity="0.5" stroke="#223" stroke-width="0.8"/>
+
+          <!-- Full structure (prev, muted) -->
+          <ellipse cx="210" cy="243" rx="113" ry="57" fill="#4a3010" fill-opacity="0.25" stroke="#334" stroke-width="1" opacity="0.5"/>
+          <line x1="170" y1="281" x2="170" y2="181" stroke="#334" stroke-width="2.5" opacity="0.4"/>
+          <line x1="250" y1="281" x2="250" y2="181" stroke="#334" stroke-width="2.5" opacity="0.4"/>
+          <line x1="170" y1="241" x2="170" y2="141" stroke="#445" stroke-width="2.5" opacity="0.7"/>
+          <line x1="250" y1="241" x2="250" y2="141" stroke="#445" stroke-width="2.5" opacity="0.7"/>
+          <line x1="210" y1="199" x2="210" y2="106" stroke="#334" stroke-width="2.5" opacity="0.5"/>
+          <line x1="122" y1="243" x2="122" y2="150" stroke="#334" stroke-width="2.5" opacity="0.5"/>
+          <line x1="298" y1="243" x2="298" y2="150" stroke="#334" stroke-width="2.5" opacity="0.5"/>
+          <ellipse cx="210" cy="160" rx="113" ry="57" fill="none" stroke="#334" stroke-width="1" opacity="0.4"/>
+          <line x1="210" y1="130" x2="210" y2="240" stroke="#334" stroke-width="3" opacity="0.4"/>
+          <!-- Roof (prev) -->
+          <path d="M210,123 L335,150 A125,62 0 0,1 85,150 Z" fill="#3a1020" fill-opacity="0.5" stroke="#445" stroke-width="1"/>
+          <circle cx="210" cy="118" r="6" fill="#6a5020" stroke="#887020" stroke-width="1"/>
+          <!-- Stop collars (prev) -->
+          <rect x="244" y="147" width="11" height="5" rx="1" fill="#667" opacity="0.7"/>
+          <rect x="164" y="147" width="11" height="5" rx="1" fill="#667" opacity="0.7"/>
+
+          <!-- Horses (new): at r=1m, h=0.95 on pole -->
+          <!-- iy(1,0,0.95) = 240-47.5=192.5 -->
+          <!-- Front-right horse (x=250, y≈193): simple horse silhouette -->
+          <g transform="translate(250,193)">
+            <ellipse cx="0" cy="0" rx="16" ry="8" fill="#f0ede4" stroke="#b04a3a" stroke-width="1.2"/>
+            <ellipse cx="12" cy="-4" rx="7" ry="5" fill="#f0ede4" stroke="#b04a3a" stroke-width="1"/>
+            <line x1="12" y1="-7" x2="18" y2="-14" stroke="#f0ede4" stroke-width="2"/>
+            <ellipse cx="20" cy="-16" rx="4" ry="3" fill="#f0ede4" stroke="#b04a3a" stroke-width="1"/>
+          </g>
+          <!-- Front-left horse (x=170, y≈193) -->
+          <g transform="translate(170,193)">
+            <ellipse cx="0" cy="0" rx="16" ry="8" fill="#f0ede4" stroke="#b04a3a" stroke-width="1.2"/>
+            <ellipse cx="12" cy="-4" rx="7" ry="5" fill="#f0ede4" stroke="#b04a3a" stroke-width="1"/>
+            <line x1="12" y1="-7" x2="18" y2="-14" stroke="#f0ede4" stroke-width="2"/>
+            <ellipse cx="20" cy="-16" rx="4" ry="3" fill="#f0ede4" stroke="#b04a3a" stroke-width="1"/>
+          </g>
+          <!-- Back horses (muted) -->
+          <g transform="translate(170,235)" opacity="0.5">
+            <ellipse cx="0" cy="0" rx="14" ry="7" fill="#a0a090" stroke="#667" stroke-width="1"/>
+          </g>
+          <g transform="translate(250,235)" opacity="0.5">
+            <ellipse cx="0" cy="0" rx="14" ry="7" fill="#a0a090" stroke="#667" stroke-width="1"/>
+          </g>
+
+          <!-- Push handles (new): at x=2.0 and z=-2.0 -->
+          <!-- Handle at (x=2,z=0): ix=290, iy from L1 height to L1+0.95=1.17: iy(2,0,1.17)=260-40-58.5=161.5 -->
+          <line x1="290" y1="209" x2="290" y2="162" stroke="#b04a3a" stroke-width="3" stroke-linecap="round"/>
+          <!-- T grip (tangential) -->
+          <line x1="283" y1="162" x2="297" y2="162" stroke="#b04a3a" stroke-width="3" stroke-linecap="round"/>
+
+          <!-- Staff figure (simplified, pushing) -->
+          <!-- Person at x=2.0+tangent offset: (310, 209 up to 145 for head) -->
+          <circle cx="310" cy="155" r="8" fill="#f4c8a8" stroke="#556" stroke-width="0.8"/>
+          <rect x="303" y="163" width="14" height="22" rx="3" fill="#3a6db5" stroke="#556" stroke-width="0.8"/>
+          <line x1="303" y1="168" x2="294" y2="162" stroke="#f4c8a8" stroke-width="3"/>
+          <line x1="317" y1="168" x2="294" y2="162" stroke="#f4c8a8" stroke-width="3"/>
+          <rect x="305" y="185" width="5" height="16" rx="2" fill="#2a2a3a"/>
+          <rect x="312" y="185" width="5" height="16" rx="2" fill="#2a2a3a"/>
+
+          <!-- Rotation arrows -->
+          <path d="M 155 243 A 58 29 0 0 0 268 243" fill="none" stroke="#b04a3a" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arrowR)"/>
+          <defs>
+            <marker id="arrowR" markerWidth="6" markerHeight="6" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6" fill="none" stroke="#b04a3a" stroke-width="1.2"/>
+            </marker>
+          </defs>
+          <text x="210" y="278" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8" fill="#b04a3a" letter-spacing="1">1 rpm</text>
+
+          <!-- Callouts -->
+          <text x="14" y="20" font-family="JetBrains Mono, monospace" font-size="9" fill="#556" letter-spacing="1">COMPLETE — ISOMETRIC VIEW</text>
+          <text x="14" y="32" font-family="JetBrains Mono, monospace" font-size="7" fill="#4a7a4a" letter-spacing="0.3">▶ 試運転チェック実施</text>
+        </svg>
+      </div>
+      <div class="diagram-caption">
+        <span>FIG. 11 — COMPLETE ASSEMBLY</span>
+        <span>COMMISSIONING CHECK REQUIRED</span>
+      </div>
+      <div class="diagram-legend">
+        <div class="leg-item"><div class="leg-swatch" style="background:#445;"></div><span>完成済</span></div>
+        <div class="leg-item"><div class="leg-swatch" style="background:#b04a3a;"></div><span>今回設置</span></div>
+        <div class="leg-item"><div class="leg-swatch" style="background:#4a7a4a;"></div><span>試運転確認</span></div>
+      </div>
+    </div>
+
+    <div class="step-info">
+      <div class="step-header">
+        <span class="step-num">STEP 11</span>
+        <h2>馬と押し棒の取付・最終確認</h2>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:20px;">
+        <span class="time-chip">⏱ 90 min</span>
+        <span class="cumulative">累計 ≈ 13.5 h</span>
+      </div>
+      <div class="step-body">
+        <p>各ポール H=0.95 m の位置に馬を結束バンド＋針金二重固定。L2 外周の対角 2 箇所に T 字グリップ付き押し棒を取り付け。</p>
+      </div>
+      <ul class="parts">
+        <li><span class="pn">E-03</span><span class="pname">馬（装飾・自作）</span><span class="qty">×4</span></li>
+        <li><span class="pn">A-04</span><span class="pname">押し棒 T 字（切り出し）<span class="borrowed-tag">借用</span></span><span class="qty">×2</span></li>
+        <li><span class="pn">D-02</span><span class="pname">単管クランプ 自在</span><span class="qty">×4</span></li>
+        <li><span class="pn">F-01</span><span class="pname">消耗品一式（結束バンド・塗料など）</span><span class="qty">1式</span></li>
+      </ul>
+      <div class="callout">
+        <span class="label">⚑ 試運転チェック</span>
+        (a) スタッフが押して全層一体回転 (b) 馬が波で上下に揺れる（止め輪が L3 から離れて再着座） (c) ポール抜けなし (d) 全クランプ・ボルト再増し締め — の 4 項目すべてを確認してから開場。
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="wrap">
+  <div class="sig">DRAWN BY · 文化祭設計班</div>
+  <div>MERRY-GO-ROUND V4 · PROCESS PLAN · END OF DOCUMENT</div>
+</footer>
+
+<script>
+  // Smooth scroll for timeline nav
+  document.querySelectorAll('.tl-item').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+
+</body>
+</html>

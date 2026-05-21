@@ -797,6 +797,169 @@ L1 # フレームに取り付けるクランプは <strong>意図的に締め込
 馬ポール(φ48.6)はクランプの内径(φ50 程度)を緩く貫通し、波形レールに従って
 最大 ±75 mm の上下動を行う。これにより複雑な機構なしに馬の上下動が実現される。
 </div>
+
+<h3>7.2 馬本体の構造(V6.5 自作版 — 木箱 + 段ボール装飾)</h3>
+<p>
+従来の「外注 FRP 馬」を撤去し、合板の小箱を馬ポールに上下のクランプで剛結して
+本体構造とする。外装には段ボールで馬の頭・首・たてがみ・尻尾を造形して取り付ける。
+これにより馬 1 体あたりの実費を <strong>¥80,000 → ¥500</strong>(本体)+ <strong>¥0〜1,000</strong>(装飾)に圧縮できる。
+</p>
+
+<div class="fig">
+<svg viewBox="0 0 800 460" xmlns="http://www.w3.org/2000/svg">
+  <!-- 中心線 -->
+  <line x1="400" y1="20" x2="400" y2="440" class="svg-center"/>
+
+  <!-- 馬ポール(単管) -->
+  <rect x="395" y="40" width="10" height="380" class="fill-pipe"/>
+  <text x="430" y="380" class="svg-label-small">馬ポール</text>
+  <text x="430" y="394" class="svg-label-small">(単管 φ48.6)</text>
+
+  <!-- 木箱(座面となる小箱) — 350W × 400H -->
+  <!-- 縮尺: 400 mm = 130 px、x方向: 350 mm = 113 px -->
+  <rect x="343" y="180" width="113" height="130" fill="#d2a06a" stroke="#1f2733" stroke-width="1.5"/>
+  <text x="200" y="200" class="svg-label">[馬本体・断面図]</text>
+
+  <!-- 木箱の天面・底面の穴(パイプが通る) -->
+  <ellipse cx="400" cy="180" rx="6" ry="3" fill="#1f2733"/>
+  <ellipse cx="400" cy="310" rx="6" ry="3" fill="#1f2733"/>
+
+  <!-- 上クランプ(箱の天面内側) -->
+  <g class="fill-clamp" stroke="#1f2733" stroke-width="0.8">
+    <ellipse cx="400" cy="190" rx="18" ry="7"/>
+    <line x1="418" y1="190" x2="425" y2="190" stroke="#1f2733" stroke-width="2"/>
+  </g>
+  <text x="465" y="190" class="svg-label-small">上クランプ</text>
+  <text x="465" y="202" class="svg-label-small">(本締・剛結)</text>
+
+  <!-- 下クランプ(箱の底面内側) -->
+  <g class="fill-clamp" stroke="#1f2733" stroke-width="0.8">
+    <ellipse cx="400" cy="300" rx="18" ry="7"/>
+    <line x1="418" y1="300" x2="425" y2="300" stroke="#1f2733" stroke-width="2"/>
+  </g>
+  <text x="465" y="300" class="svg-label-small">下クランプ</text>
+  <text x="465" y="312" class="svg-label-small">(本締・剛結)</text>
+
+  <!-- クッション -->
+  <rect x="345" y="265" width="109" height="15" fill="#b04a3a" opacity="0.7"/>
+  <text x="400" y="278" class="svg-dim-text" text-anchor="middle" font-size="9">クッション</text>
+
+  <!-- 子供のシルエット(背面) -->
+  <g fill="#e6c890" opacity="0.6" stroke="#1f2733" stroke-width="0.6">
+    <ellipse cx="380" cy="160" rx="14" ry="18"/>  <!-- 頭 -->
+    <rect x="370" y="178" width="20" height="60" rx="3"/>  <!-- 胴 -->
+  </g>
+  <text x="350" y="155" class="svg-label-small" text-anchor="end">子供</text>
+
+  <!-- 段ボール造形 (馬の頭) -->
+  <g fill="#c8a87e" stroke="#1f2733" stroke-width="0.8">
+    <ellipse cx="320" cy="200" rx="40" ry="25"/>
+    <rect x="280" y="210" width="50" height="20"/>
+  </g>
+  <line x1="290" y1="195" x2="285" y2="180" class="svg-line"/>
+  <line x1="295" y1="195" x2="300" y2="180" class="svg-line"/>
+  <text x="280" y="170" class="svg-label-small">段ボール馬頭</text>
+
+  <!-- たてがみ -->
+  <g fill="#b74040" stroke="#1f2733" stroke-width="0.5">
+    <path d="M340 175 Q345 165 350 180 Q355 167 360 178 Q365 168 372 180" fill="#b74040"/>
+  </g>
+  <text x="330" y="158" class="svg-label-small">たてがみ</text>
+
+  <!-- 尻尾 -->
+  <path d="M456 270 Q480 280 475 320 Q470 335 460 320 Q455 305 456 290" fill="#b74040" stroke="#1f2733" stroke-width="0.5"/>
+  <text x="490" y="300" class="svg-label-small">尻尾</text>
+
+  <!-- 寸法線 -->
+  <line x1="343" y1="335" x2="343" y2="350" class="svg-dim"/>
+  <line x1="456" y1="335" x2="456" y2="350" class="svg-dim"/>
+  <line x1="343" y1="345" x2="456" y2="345" class="svg-dim"/>
+  <text x="400" y="360" text-anchor="middle" class="svg-dim-text">350 (箱W)</text>
+
+  <line x1="320" y1="180" x2="305" y2="180" class="svg-dim"/>
+  <line x1="320" y1="310" x2="305" y2="310" class="svg-dim"/>
+  <line x1="315" y1="180" x2="315" y2="310" class="svg-dim"/>
+  <text x="305" y="248" text-anchor="end" class="svg-dim-text">400 (箱H)</text>
+
+  <!-- 床/レール位置 (参考) -->
+  <line x1="40" y1="420" x2="760" y2="420" class="svg-line-thick"/>
+  <text x="60" y="440" class="svg-label-small">床(波形レール側)</text>
+
+  <!-- 上下動の説明 -->
+  <text x="200" y="50" class="svg-label" font-weight="bold">[馬本体 構造詳細]</text>
+  <text x="200" y="68" class="svg-label-small">木箱が馬ポール(単管)に2クランプで剛結。</text>
+  <text x="200" y="80" class="svg-label-small">波形レールに従って馬ポール+木箱が一体で上下動。</text>
+
+  <!-- 矢印(上下動を示す) -->
+  <line x1="460" y1="100" x2="460" y2="130" class="svg-dim" stroke-width="1.5"/>
+  <line x1="460" y1="100" x2="455" y2="108" class="svg-dim" stroke-width="1.5"/>
+  <line x1="460" y1="100" x2="465" y2="108" class="svg-dim" stroke-width="1.5"/>
+  <line x1="460" y1="130" x2="455" y2="122" class="svg-dim" stroke-width="1.5"/>
+  <line x1="460" y1="130" x2="465" y2="122" class="svg-dim" stroke-width="1.5"/>
+  <text x="475" y="120" class="svg-dim-text">±75mm</text>
+</svg>
+<div class="fig-caption">図 4-B: 馬本体の構造(断面) — 木箱が馬ポールに上下2クランプで剛結、外側に段ボール造形を取付</div>
+</div>
+
+<h4>主要寸法・部品</h4>
+<table class="spec">
+  <tr><th>部位</th><th>仕様</th><th>備考</th></tr>
+  <tr><td>木箱</td><td>合板 t12 mm、外寸 W350 × D350 × H400 mm、4 面 + 底 + 天</td><td>子供 1 人が中に座る</td></tr>
+  <tr><td>天面・底面の穴</td><td>φ60 mm 貫通穴 × 2(中央)</td><td>馬ポール(φ48.6)が通り、6 mm 隙間で動きを許容</td></tr>
+  <tr><td>上クランプ</td><td>足場用直交クランプ(または鋼バンド φ50 用)</td><td>箱の天面内側でポールに本締め固定</td></tr>
+  <tr><td>下クランプ</td><td>同上</td><td>箱の底面内側で本締め固定</td></tr>
+  <tr><td>クッション</td><td>厚さ 15 mm 程度のウレタンマット</td><td>子供の座面快適性</td></tr>
+  <tr><td>馬の頭(段ボール)</td><td>箱の前面に貼付、長さ 約 250 mm、口先までの長さ</td><td>顔を描く・目を貼る</td></tr>
+  <tr><td>たてがみ(段ボール / フェルト)</td><td>箱前面〜頭にかけて、赤色推奨</td><td>—</td></tr>
+  <tr><td>尻尾(段ボール / 布)</td><td>箱背面、長さ 200 mm 程度</td><td>—</td></tr>
+  <tr><td>手すり</td><td>木棒 φ20 × 200 mm、頭部根元に水平に取付</td><td>子供が握って体を支える(安全性向上)</td></tr>
+</table>
+
+<h4>物理的検討</h4>
+<div class="two-col">
+<div>
+<h4 style="font-size:14px; margin-top:0;">✓ 利点</h4>
+<ul style="font-size:13px;">
+  <li><strong>コストが大幅減</strong>: ¥80,000 → ¥500/体</li>
+  <li><strong>加工容易</strong>: 合板カット + ネジ留めで誰でも作れる</li>
+  <li><strong>軽量</strong>: 1 体 約 10 kg(FRP 馬の半分)</li>
+  <li><strong>剛結ゆえ揺れに強い</strong>: 子供が握っても箱はポール上で振れない</li>
+  <li><strong>装飾の自由度</strong>: クラスごとに色・キャラ替え可能、再装飾も容易</li>
+  <li><strong>製作プロセス自体が文化祭の出し物</strong>になる</li>
+</ul>
+</div>
+<div>
+<h4 style="font-size:14px; margin-top:0;">⚠ 注意点</h4>
+<ul style="font-size:13px;">
+  <li><strong>段ボールの耐水性</strong>: 雨に弱い。屋内専用 or 透明ニス塗り推奨</li>
+  <li><strong>段ボールの強度</strong>: 子供が頭に体重をかけると壊れる可能性 → 手すりは <strong>木棒</strong> で別途用意</li>
+  <li><strong>箱内のクッション</strong>: 木製箱は座面が硬い、必須レベル</li>
+  <li><strong>頭部の重量</strong>: 段ボール装飾は前方に重心が偏ると不安定。装飾は対称配置を意識</li>
+  <li><strong>箱の重量配分</strong>: クランプ位置が箱の中心からズレると傾きやすい → 上下クランプ間隔を箱高の 60% 程度に</li>
+</ul>
+</div>
+</div>
+
+<h4>強度試算(子供 1 人乗車時)</h4>
+<table class="spec">
+  <tr><th>荷重</th><th>計算</th><th>結果</th></tr>
+  <tr><td>子供体重(30 kg)+ 装飾(4 kg)</td><td>F = (30 + 4) × 9.8 = 333 N(下向き)</td><td>OK</td></tr>
+  <tr><td>クランプの引き剥がし力</td><td>子供が前方に身を乗り出しても、剛結 2 クランプ合計の保持力 ≥ 10 kN >> 333 N</td><td>安全率 30 以上</td></tr>
+  <tr><td>合板天面の曲げ</td><td>天面 350×350×12 mm、クランプ点で支持される。子供は座面(底面)に乗るので天面荷重は装飾(4 kg)のみ</td><td>余裕</td></tr>
+  <tr><td>箱底面の曲げ</td><td>子供 30 kg、底面 350×350×12 mm 中央集中荷重。中央たわみ ≈ 1 mm</td><td>許容範囲(座り心地に支障なし)</td></tr>
+  <tr><td>馬ポールの曲げ</td><td>子供が横方向に 50 N で押したとき、ポール根元の曲げモーメント ≈ 50 × 1.05 = 53 N·m。単管 STK500 の許容曲げモーメント ≈ 280 N·m</td><td>安全率 5</td></tr>
+</table>
+
+<div class="callout">
+<span class="label">製作のコツ</span>
+<ol style="margin:8px 0; padding-left:20px;">
+  <li><strong>木箱を先に作る</strong>: 合板 6 面を木ネジで組み立て。天面・底面の中央に φ60 mm の穴をホールソーで開ける</li>
+  <li><strong>馬ポールに通す</strong>: 完成した木箱をポールに上から通す。クランプは事前に箱の内側天面・底面に金具で取付</li>
+  <li><strong>位置決め</strong>: 箱の底面が「波形レール頂点時の床+0.85 m」になるようクランプ位置を調整(座面高が概ね 1.05 m になる)</li>
+  <li><strong>段ボール装飾</strong>: 馬の頭・首・たてがみ・尻尾を別途段ボールで造形、テンプレートを作るとクラスで複数体作りやすい</li>
+  <li><strong>絵付け</strong>: 段ボールに直接アクリル絵の具で塗装。目はクラフト紙シールが手軽</li>
+</ol>
+</div>
 </div>
 
 <!-- ============================================================== -->
@@ -1289,16 +1452,45 @@ L3 は 2 本の単管を「+」字に組んだ上部フレーム。X-pipe は LA
 <h3>12.4 装飾類</h3>
 <table class="bom">
   <tr><th>No.</th><th>部品</th><th>仕様</th><th class="qty">数量</th><th>備考</th></tr>
-  <tr><td class="num">25</td><td>馬本体</td><td>FRP または木製</td><td class="qty">4</td><td>外注 or 自作</td></tr>
+  <tr><td class="num">25</td><td>馬本体(木箱+段ボール装飾)</td><td>合板 t12 mm の小箱 + 上下のパイプ固定金具 + 段ボール造形(頭・首・尻尾・たてがみ・装飾)</td><td class="qty">4</td><td>自作。子供の座面となる木箱を馬ポールにクランプで上下から固定。段ボールで馬の顔・たてがみ・装飾を作って外側に貼り付ける</td></tr>
   <tr><td class="num">26</td><td>屋根布</td><td>テント布、赤・白ストライプ 8 分割</td><td class="qty">1 セット</td><td>φ4400 円錐</td></tr>
   <tr><td class="num">27</td><td>玉飾り(フィニアル)</td><td>木製 φ140、金色塗装</td><td class="qty">1</td><td>—</td></tr>
 </table>
 
 <div class="callout">
-<span class="label">概算費用(2026 年時点目安)</span>
+<span class="label">概算費用(2026 年時点・新規購入の場合)</span>
 単管 17 本 ≈ ¥35,000 / クランプ 15 個 ≈ ¥6,000 / キャスター類 ≈ ¥15,000 / 木材合板 ≈ ¥20,000 /
 鋳鉄重し ≈ ¥8,000 / 馬本体(外注) ≈ ¥80,000〜200,000 / 屋根布 ≈ ¥15,000 / 装飾 ≈ ¥10,000
 <br>→ 概算合計 <strong>¥190,000〜310,000</strong>(馬の調達方法で大きく変動)
+</div>
+
+<h3>12.5 実際の費用(本プロジェクトでの調達ケース)</h3>
+<p>
+本プロジェクトでは、主要構造材を借用 / 在庫流用で賄うため、新規購入は限定的。
+</p>
+<table class="bom">
+  <tr><th>項目</th><th>調達方法</th><th>実費</th><th>備考</th></tr>
+  <tr><td>単管 φ48.6(17 本)</td><td><strong>借り物</strong></td><td class="num">¥0</td><td>建築足場のレンタル屋・知人から借用。返却時に汚れ・歪みなく</td></tr>
+  <tr><td>キャスター(全 12 個)</td><td><strong>借り物</strong></td><td class="num">¥0</td><td>同上、または倉庫の在庫流用</td></tr>
+  <tr><td>木材・合板(L1 / L2 補強板・支柱・床合板など)</td><td><strong>在庫</strong></td><td class="num">¥0</td><td>学校 / 工房の在庫から流用</td></tr>
+  <tr><td>足場直交クランプ(15 個)</td><td>新規 or 借用</td><td class="num">¥0〜¥6,000</td><td>借用可なら ¥0、新品なら ¥400/個</td></tr>
+  <tr><td>鋳鉄重し(4 個)</td><td>在庫 / 代用品</td><td class="num">¥0〜¥3,000</td><td>砂袋(土嚢)で代用可。20 kg 分</td></tr>
+  <tr><td>馬本体の木箱(合板 t12 + ネジ・金具)</td><td>新規 + 在庫</td><td class="num">¥2,000〜¥4,000</td><td>合板は在庫流用可。金具・ネジは購入</td></tr>
+  <tr><td>馬の装飾用 段ボール</td><td>無料調達</td><td class="num">¥0</td><td>商店・スーパーで貰える大型段ボール</td></tr>
+  <tr><td>段ボール造形材料(ガムテープ・ボンド・絵の具)</td><td>新規</td><td class="num">¥3,000〜¥5,000</td><td>4 体分の馬の装飾</td></tr>
+  <tr><td>屋根布(代用品でも可)</td><td>新規 or 代用</td><td class="num">¥3,000〜¥15,000</td><td>テント布以外にビニールシート可</td></tr>
+  <tr><td>玉飾り・装飾類</td><td>新規 + 在庫</td><td class="num">¥1,000〜¥3,000</td><td>—</td></tr>
+  <tr><td>消耗品(ボルト・木ネジ・接着剤)</td><td>新規</td><td class="num">¥2,000〜¥4,000</td><td>—</td></tr>
+  <tr><th>合計</th><th>—</th><th class="num"><strong>¥11,000〜¥40,000</strong></th><th>条件次第で大きく変動</th></tr>
+</table>
+
+<div class="callout">
+<span class="label">コストの最大ポイント</span>
+本プロジェクトの最大の節約は <strong>馬本体を木箱+段ボール装飾で自作</strong> する点。
+新規購入の概算で ¥80,000〜200,000 だった馬本体を、合板小箱(¥500/個)と段ボール(無料)で
+代替することで、4 体分でも ¥2,000〜4,000 に圧縮できる。
+段ボール造形はクラスや有志でワークショップ的に作れば、製作プロセス自体が
+文化祭企画の見せ場にもなる。
 </div>
 </div>
 
@@ -1349,7 +1541,8 @@ L3 は 2 本の単管を「+」字に組んだ上部フレーム。X-pipe は LA
 <ol class="assembly">
   <li>馬ポール 4 本(部品 #6)の下端に φ100 キャスター(部品 #17)とブラケットを取付。<strong>車軸は半径方向</strong>に向ける</li>
   <li>馬ポールの 1.925 m 位置に上止め輪(部品 #21、シャフトカラー)を装着しイモネジで仮固定</li>
-  <li>馬本体(部品 #25)をポールの 0.95 m 位置に固定</li>
+  <li>馬本体(部品 #25)を組立: 合板 t12 で 4 面の小箱(内寸 約 350W × 350D × 400H mm)を作成、底面と天面の中央にφ60 mm の貫通穴を開け、馬ポールに通す。箱の内側に上下 2 個のクランプ(または鋼バンド)を取付けてポールに本締め固定 → 箱と馬ポールが一体になる。座面用クッションを箱内底に敷く。箱の高さは中心が地面から約 0.95 m(座面高 0.95 + 床面 0.54 = 1.05 m)になるよう調整</li>
+  <li>段ボールで馬の頭・首・たてがみ・尻尾・装飾を造形し、ガムテープと木工用ボンドで箱の外周に貼り付ける。子供が握れるよう、頭部の根元に手すり(φ20 mm 木棒)を取り付け</li>
   <li>馬ポール 4 本を波形レールの上に配置、中心から半径 1.00 m、90° 等間隔</li>
   <li>各馬ポールを L1 # フレームに <strong>緩めクランプ</strong>(部品 #16、計 4 個)で取付。クランプは「ポールが上下にスライドできるが横ぶれしない」程度の締め込みに調整</li>
   <li>上止め輪が L3 X-pipe(または Z-pipe)上に乗っているか確認、抜け止め効果を確認</li>
@@ -1405,7 +1598,7 @@ L3 は 2 本の単管を「+」字に組んだ上部フレーム。X-pipe は LA
   <tr><th>区分</th><th>重量</th></tr>
   <tr><td>単管 17 本</td><td>211 kg</td></tr>
   <tr><td>L2 デッキ(V6 軽量化)</td><td>46 kg</td></tr>
-  <tr><td>馬本体 4 体</td><td>80 kg(20 kg/体目安)</td></tr>
+  <tr><td>馬本体 4 体(木箱+段ボール)</td><td>40 kg(10 kg/体: 合板木箱 ≈ 6 kg + 段ボール装飾 ≈ 4 kg)</td></tr>
   <tr><td>木の支柱 4 本</td><td>12 kg</td></tr>
   <tr><td>キャスター・ブラケット 12 個</td><td>15 kg</td></tr>
   <tr><td>クランプ 15 個</td><td>10 kg</td></tr>
@@ -1451,7 +1644,7 @@ STK500 の許容曲げ応力 250 MPa に対し安全率 15 → 余裕大。
 <h3>14.5 残課題と V7 提案</h3>
 <ul>
   <li>波形レールの紙束疲労 → 半年以内に劣化する可能性、定期交換手順を確立</li>
-  <li>馬本体の調達コスト → FRP 成形型を学校で共有、コスト分担可能</li>
+  <li>馬本体の段ボール装飾の耐久性 → 期間限定(文化祭1〜2日)で十分、長期使用なら防水コーティング</li>
   <li>子供の挟み込み防止 → 高支柱と床合板の間にスカート設置(布製、安全カバー)</li>
   <li>急停止機構 → 中心支柱に摩擦ブレーキ(レバー付きパッド)を後付け可能</li>
 </ul>

@@ -773,27 +773,15 @@ window.addEventListener('load', function() {
     rotatingGroup.add(g);
   }
 
-  // ===== Push handles =====
-  // V6.6: 4 push handles — one at each of the 4 tall edge pillars (cardinal positions)
-  const handlePositions = [
-    { x:  2.0, z:  0,   baseY: LAYER1_Y },         // pillar 0°   (X+)
-    { x:  0,   z:  2.0, baseY: LAYER1_Y + 0.07 },  // pillar 90°  (Z+)
-    { x: -2.0, z:  0,   baseY: LAYER1_Y },         // pillar 180° (X-)
-    { x:  0,   z: -2.0, baseY: LAYER1_Y + 0.07 },  // pillar 270° (Z-)
+  // ===== Pusher positions =====
+  // V6.8: push handles removed — the 4 pushers push the tall edge pillars
+  // directly. Positions match the 4 tall edge pillars (cardinal, r = 2.05).
+  const pusherPositions = [
+    { x:  2.05, z:  0    },  // pillar 0°   (X+)
+    { x:  0,    z:  2.05 },  // pillar 90°  (Z+)
+    { x: -2.05, z:  0    },  // pillar 180° (X-)
+    { x:  0,    z: -2.05 },  // pillar 270° (Z-)
   ];
-  for (let i = 0; i < handlePositions.length; i++) {
-    const h = handlePositions[i];
-    const handleHeight = 0.95;
-    const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, handleHeight, 12), pipeMat);
-    handle.position.set(h.x, h.baseY + handleHeight / 2, h.z); handle.castShadow = true;
-    rotatingGroup.add(handle);
-    const r = Math.sqrt(h.x*h.x + h.z*h.z);
-    const tx = -h.z / r, tz = h.x / r;
-    const grip = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.30, 12), pipeMat);
-    grip.position.set(h.x, h.baseY + handleHeight, h.z);
-    grip.rotation.y = Math.atan2(tx, tz); grip.rotation.z = Math.PI / 2; grip.castShadow = true;
-    rotatingGroup.add(grip);
-  }
 
   // ===== Staff =====
   function createPerson() {
@@ -806,16 +794,32 @@ window.addEventListener('load', function() {
     neck.position.y = 1.43; person.add(neck);
     const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.13, 0.58, 14), shirtMat);
     torso.position.y = 1.10; torso.castShadow = true; person.add(torso);
+    // V6.8: arm built as a connected joint chain (shoulder → elbow → wrist) so
+    // segments and hand no longer float apart. The arm lies in the YZ plane
+    // (constant x) reaching forward to push, so only rotation.x is needed. Each
+    // segment is over-length by 0.04 m so it overlaps its joint spheres.
+    function armSegment(armX, a, b, rTop, rBot, mat) {
+      const dy = b[0] - a[0], dz = b[1] - a[1];
+      const len = Math.sqrt(dy*dy + dz*dz);
+      const seg = new THREE.Mesh(new THREE.CylinderGeometry(rTop, rBot, len + 0.04, 10), mat);
+      seg.position.set(armX, (a[0]+b[0])/2, (a[1]+b[1])/2);
+      seg.rotation.x = Math.atan2(dz, dy);
+      seg.castShadow = true;
+      person.add(seg);
+    }
     for (let i = 0; i < 2; i++) {
       const s = i === 0 ? -1 : 1;
-      const shoulder = new THREE.Mesh(new THREE.SphereGeometry(0.06, 10, 8), shirtMat);
-      shoulder.position.set(s * 0.17, 1.35, 0); person.add(shoulder);
-      const upperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.045, 0.28, 10), shirtMat);
-      upperArm.position.set(s * 0.18, 1.22, 0.13); upperArm.rotation.x = Math.PI / 4; upperArm.castShadow = true; person.add(upperArm);
-      const forearm = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.035, 0.26, 10), skinMat);
-      forearm.position.set(s * 0.18, 1.09, 0.32); forearm.rotation.x = Math.PI / 2.3; forearm.castShadow = true; person.add(forearm);
-      const hand = new THREE.Mesh(new THREE.SphereGeometry(0.045, 10, 8), skinMat);
-      hand.position.set(s * 0.18, 1.02, 0.44); hand.scale.set(1, 0.7, 1.2); person.add(hand);
+      const armX = s * 0.17;
+      const shoulderJ = [1.35, 0.0], elbowJ = [1.18, 0.24], wristJ = [1.06, 0.46];
+      const shoulder = new THREE.Mesh(new THREE.SphereGeometry(0.062, 10, 8), shirtMat);
+      shoulder.position.set(armX, shoulderJ[0], shoulderJ[1]); shoulder.castShadow = true; person.add(shoulder);
+      armSegment(armX, shoulderJ, elbowJ, 0.042, 0.05, shirtMat);   // upper arm (sleeve): thinner at elbow
+      const elbow = new THREE.Mesh(new THREE.SphereGeometry(0.044, 10, 8), skinMat);
+      elbow.position.set(armX, elbowJ[0], elbowJ[1]); person.add(elbow);
+      armSegment(armX, elbowJ, wristJ, 0.034, 0.04, skinMat);       // forearm (skin): thinner at wrist
+      const hand = new THREE.Mesh(new THREE.SphereGeometry(0.052, 10, 8), skinMat);
+      hand.position.set(armX, wristJ[0], wristJ[1]);
+      hand.scale.set(1, 0.8, 1.15); hand.castShadow = true; person.add(hand);
     }
     for (let i = 0; i < 2; i++) {
       const s = i === 0 ? -1 : 1;
@@ -826,16 +830,18 @@ window.addEventListener('load', function() {
     }
     return person;
   }
-  for (let i = 0; i < handlePositions.length; i++) {
-    const h = handlePositions[i];
+  const people = [];  // V6.7: pushers (hidden in skeleton view)
+  for (let i = 0; i < pusherPositions.length; i++) {
+    const h = pusherPositions[i];
     const r = Math.sqrt(h.x*h.x + h.z*h.z);
     const tx = -h.z / r, tz = h.x / r;
     const person = createPerson();
-    // V6.6: stand on the trailing side of the handle and face the direction of
-    // travel. The carousel turns counterclockwise (decreasing angle), so the
-    // pusher pushes toward -tangent — i.e. faces opposite the +tangent grip.
+    // V6.6/V6.8: stand on the trailing side of the pillar and face the direction
+    // of travel. The carousel turns counterclockwise (decreasing angle), so the
+    // pusher pushes toward -tangent — i.e. faces opposite the +tangent side.
     person.position.set(h.x + tx * 0.48, 0, h.z + tz * 0.48);
     person.rotation.y = Math.atan2(tx, tz) + Math.PI;
+    people.push(person);
     rotatingGroup.add(person);
   }
 
@@ -899,15 +905,19 @@ window.addEventListener('load', function() {
       const hoof = new THREE.Mesh(new THREE.CylinderGeometry(0.033, 0.033, 0.04, 8), hoofMat);
       hoof.position.set(legPs[i][0], -0.52, legPs[i][2]); horse.add(hoof);
     }
+    // V6.7: saddle + horn = the wooden seat plank. Kept in a separate group so it
+    // stays visible in skeleton view while the decorative horse body is hidden.
+    const seat = new THREE.Group();
     const saddle = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.05, 0.26), horseSaddleMat);
-    saddle.position.set(0, 0.19, 0); saddle.castShadow = true; horse.add(saddle);
+    saddle.position.set(0, 0.19, 0); saddle.castShadow = true; seat.add(saddle);
     const horn = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.025, 0.06, 8), horseSaddleMat);
-    horn.position.set(0.1, 0.24, 0); horse.add(horn);
-    return horse;
+    horn.position.set(0.1, 0.24, 0); seat.add(horn);
+    return { horse: horse, seat: seat };
   }
 
   // ===== Poles + horses + stop collars (V4) =====
   const poles = [];
+  const horseBodies = [];  // V6.7: decorative horse bodies (hidden in skeleton view)
   for (let i = 0; i < 4; i++) {
     const baseAngle = (i / 4) * Math.PI * 2;
     const poleGroup = new THREE.Group();
@@ -951,10 +961,21 @@ window.addEventListener('load', function() {
     setScrew.position.set(0.044, COLLAR_Y_ON_POLE, 0);
     poleGroup.add(setScrew);
 
-    // Horse
-    const horse = createHorse();
-    horse.position.y = HORSE_Y;
-    poleGroup.add(horse);
+    // Horse: decorative body + wooden seat plank, kept as separate groups so
+    // skeleton view can hide the body while keeping the seat.
+    const horseParts = createHorse();
+    horseParts.horse.position.y = HORSE_Y;
+    horseParts.seat.position.y = HORSE_Y;
+    poleGroup.add(horseParts.horse);
+    poleGroup.add(horseParts.seat);
+    horseBodies.push(horseParts.horse);
+
+    // V6.9: scaffold clamp on the pole, directly under the saddle plank —
+    // supports the wooden seat from below. Structural, so it stays opaque
+    // (and visible) in skeleton view.
+    const saddleClamp = makeScaffoldClamp('y', 'x', 0);
+    saddleClamp.position.y = (HORSE_Y + 0.19 - 0.025) - 0.05;  // clamp top meets the plank underside
+    poleGroup.add(saddleClamp);
 
     poleGroup.position.set(POLE_RADIUS * Math.cos(baseAngle), 0, POLE_RADIUS * Math.sin(baseAngle));
     poleGroup.rotation.y = Math.PI / 2 - baseAngle;
@@ -1015,7 +1036,13 @@ window.addEventListener('load', function() {
     plywoodDeckMat.opacity = skeletonView ? 0.22 : 1;
     veneerMat.transparent = skeletonView;
     veneerMat.opacity = skeletonView ? 0.22 : 1;
+    // V6.9: the wooden saddle plank goes semi-transparent in skeleton view.
+    horseSaddleMat.transparent = skeletonView;
+    horseSaddleMat.opacity = skeletonView ? 0.22 : 1;
     roofGroup.visible = !skeletonView;
+    // V6.7: hide people and decorative horse bodies; the wooden seat plank stays.
+    horseBodies.forEach(function(h) { h.visible = !skeletonView; });
+    people.forEach(function(p) { p.visible = !skeletonView; });
     this.classList.toggle('active', skeletonView);
   };
 
